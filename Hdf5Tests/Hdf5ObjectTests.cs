@@ -47,6 +47,14 @@ namespace Hdf5UnitTests
         {
             try
             {
+                var testClass = new TestClassWithArray() {
+                    TestInteger = 2,
+                    TestDouble = 1.1,
+                    TestBoolean = true,
+                    TestString = "test string",
+                    TestDoubles = new double[] { 1.1, 1.2, -1.1, -1.2 },
+                    TestStrings = new string[] { "one", "two", "three", "four" }
+            };
                 testClassWithArrays.TestInteger = 2;
                 testClassWithArrays.TestDouble = 1.1;
                 testClassWithArrays.TestBoolean = true;
