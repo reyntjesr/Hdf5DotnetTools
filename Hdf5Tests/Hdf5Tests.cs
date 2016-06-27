@@ -133,6 +133,11 @@ namespace Hdf5UnitTests
             }
         }
 
+        /// <summary>
+        /// create a matrix and fill it with numbers
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns>the matrix </returns>
         private static double[,] createDataset(int offset = 0)
         {
             var dset = new double[10, 5];

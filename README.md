@@ -2,7 +2,7 @@
 Set of tools that help in reading and writing hdf5 files for .net environments
 
 ## Introduction
-At the neurology department of the Leiden University Medical Centre in the Netherlands we needed to convert large medical data files to a format that could easily be used in programs like Matlab, R and Python.
+At the neurology department of the Leiden University Medical Centre in the Netherlands we need to convert large medical data files to a format that could easily be used in programs like Matlab, R and Python.
 
 ## Usage
 
@@ -37,6 +37,50 @@ The object is written to a file and than read back in a new object.
 
 	Hdf5.CloseFile(fileId);
 
+## Write a dataset and append new data to it
+
+	/// <summary>
+	/// create a matrix and fill it with numbers
+	/// </summary>
+	/// <param name="offset"></param>
+	/// <returns>the matrix </returns>
+	private static double[,]createDataset(int offset = 0)
+	{
+	  var dset = new double[10, 5];
+	  for (var i = 0; i < 10; i++)
+		for (var j = 0; j < 5; j++)
+		{
+		  double x = i + j * 5 + offset;
+		  dset[i, j] = (j == 0) ? x : x / 10;
+		}
+	  return dset;
+	}
+	
+	// create a list of matrices
+	dsets = new List<double[,]> {
+				createDataset(),
+				createDataset(10),
+				createDataset(20) };
+	
+	string filename = Path.Combine(folder, "testChunks.H5");
+	int fileId = Hdf5.CreateFile(filename);    
+	var chunkSize = new ulong[] { 5, 5 };
+	
+	// create a dataset and append two more datasets to it
+	using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First(), chunkSize))
+	{
+      foreach (var ds in dsets.Skip(1))
+	    chunkedDset.AppendDataset(ds);
+	}
+	
+	// read rows 9 to 22 of the dataset
+	ulong begIndex = 8;
+	ulong endIndex = 21;
+	var dset = Hdf5.ReadDataset<double>(fileId, "/test", begIndex, endIndex);
+	Hdf5.CloseFile(fileId);
+	
+## ToDo
+This is a very early version of the library. Reading and writing attributes is still missing. I tried writing a generic method that could write compound arrays but that still doesn't work.
 
 ## Other projects that use the HDF.Pinvoke library
 Another project on github that uses the [HDF.Pinvoke](https://github.com/HDFGroup/HDF.PInvoke) library to read and write HDF5 files is the [sharpHDF](https://github.com/sharpHDF/sharpHDF) project. I discovered it while I was working on my own library. It has a different approah to writing and reading hdf5 files. You have to create a Hdf5File object and fill it with groups, attributes and datasets. When you close the Hdf5File object it writes the file.
