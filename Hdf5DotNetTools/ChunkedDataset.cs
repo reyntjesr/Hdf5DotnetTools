@@ -16,6 +16,12 @@ namespace Hdf5DotNetTools
         ulong[] chunkDims;
         int status, spaceId, datasetId, typeId, datatype, propId;
 
+        /// <summary>
+        /// Constructor to create a chuncked dataset object
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="groupId"></param>
+        /// <param name="chunckSize"></param>
         public ChunkedDataset(string name, int groupId, ulong[] chunckSize)
         {
             //Datasetname = Hdf5.ToHdf5Name(name);
@@ -26,7 +32,13 @@ namespace Hdf5DotNetTools
             chunkDims = chunckSize;
         }
 
-        public ChunkedDataset(string name, int groupId, T[,] dataset, ulong[] chunckSize) : this(name, groupId, chunckSize)
+        /// <summary>
+        /// Constructor to create a chuncked dataset object with an initial dataset. 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="groupId"></param>
+        /// <param name="dataset"></param>
+        public ChunkedDataset(string name, int groupId, T[,] dataset) : this(name, groupId, new ulong[] { Convert.ToUInt64(dataset.GetLongLength(0)), Convert.ToUInt64(dataset.GetLongLength(1)) })
         {
             FirstDataset(dataset);
         }

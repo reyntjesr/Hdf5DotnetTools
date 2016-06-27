@@ -128,7 +128,7 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var chunkSize = new ulong[] { 5, 5 };
-                using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First(), chunkSize))
+                using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
                 {
                     foreach (var ds in dsets.Skip(1))
                     {
@@ -175,7 +175,7 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var chunkSize = new ulong[] { 5, 5 };
-                using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First(), chunkSize))
+                using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
                 {
                     foreach (var ds in dsets.Skip(1))
                     {
