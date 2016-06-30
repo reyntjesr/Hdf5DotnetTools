@@ -45,6 +45,7 @@ namespace Hdf5DotNetTools
 
         public void FirstDataset(T[,] dataset)
         {
+            if (FalseGroupId) throw new Exception("cannot call FirstDataset because group or file couldn't be created");
             if (DatasetExists) throw new Exception("cannot call FirstDataset because dataset already exists");
 
             Rank = dataset.Rank;
@@ -56,7 +57,7 @@ namespace Hdf5DotNetTools
             /* Modify dataset creation properties, i.e. enable chunking  */
             propId = H5P.create(H5P.DATASET_CREATE);
             status = H5P.set_chunk(propId, Rank, chunkDims);
-            
+
             /* Create a new dataset within the file using chunk creation properties.  */
             datasetId = H5D.create(GroupId, Datasetname, datatype, spaceId,
                                  H5P.DEFAULT, propId, H5P.DEFAULT);
@@ -142,5 +143,6 @@ namespace Hdf5DotNetTools
         public int Rank { get; private set; }
         public int GroupId { get; private set; }
         protected bool DatasetExists => H5L.exists(GroupId, Datasetname) > 0;
+        protected bool FalseGroupId => GroupId <= 0;
     }
 }
