@@ -134,6 +134,9 @@ namespace Hdf5DotNetTools
                 case TypeCode.UInt64:
                     dataType = H5T.NATIVE_UINT64;
                     break;
+                case TypeCode.Single:
+                    dataType = H5T.NATIVE_FLOAT;
+                    break;
                 case TypeCode.Double:
                     dataType = H5T.NATIVE_DOUBLE;
                     break;
@@ -164,7 +167,7 @@ namespace Hdf5DotNetTools
                     dataType = H5T.STD_I32BE;
                     break;
                 case TypeCode.Int32:
-                    dataType = H5T.STD_I64BE;
+                    dataType = H5T.STD_I32BE;
                     break;
                 case TypeCode.Int64:
                     dataType = H5T.STD_I64BE;
@@ -173,10 +176,13 @@ namespace Hdf5DotNetTools
                     dataType = H5T.STD_U16BE;
                     break;
                 case TypeCode.UInt32:
-                    dataType = H5T.STD_U64BE;
+                    dataType = H5T.STD_U32BE;
                     break;
                 case TypeCode.UInt64:
                     dataType = H5T.STD_U64BE;
+                    break;
+                case TypeCode.Single:
+                    dataType = H5T.IEEE_F32BE;
                     break;
                 case TypeCode.Double:
                     dataType = H5T.IEEE_F64BE;
@@ -186,7 +192,7 @@ namespace Hdf5DotNetTools
                     break;
                 case TypeCode.Char:
                     //dataType = H5T.NATIVE_UCHAR;
-                    dataType = H5T.C_S1;
+                    dataType = H5T.STD_I8BE;
                     break;
                 case TypeCode.String:
                     //dataType = H5T.NATIVE_UCHAR;
