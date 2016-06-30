@@ -13,6 +13,7 @@ namespace Hdf5DotNetTools
     public static partial class Hdf5
     {
         // information: https://www.hdfgroup.org/ftp/HDF5/examples/examples-by-api/hdf5-examples/1_8/C/H5T/h5ex_t_cmpd.c
+        //or: https://www.hdfgroup.org/HDF5/doc/UG/HDF5_Users_Guide-Responsive%20HTML5/index.html#t=HDF5_Users_Guide%2FDatatypes%2FHDF5_Datatypes.htm%3Frhtocid%3Dtoc6.5%23TOC_6_8_Complex_Combinationsbc-22
 
         public static int WriteCompounds<T>(int groupId, string name, IEnumerable<T> array) where T : struct
         {
@@ -65,17 +66,9 @@ namespace Hdf5DotNetTools
                 }
             return array;
         }
-        //private static int createFiletype(Type type)
-        //{
-        //    var compoundInfo = Hdf5.GetCompoundInfo(type, true).ToArray();
-        //    var curCompound = compoundInfo.Last();
-        //    var compoundSize = curCompound.offset + curCompound.size;
-        //    var filetype = H5T.create(H5T.class_t.COMPOUND, new IntPtr(compoundSize));
-        //    foreach (var cmp in compoundInfo)
-        //        H5T.insert(filetype, cmp.name, new IntPtr(cmp.offset), cmp.datatype);
-        //    return filetype;
-        //}
 
+
+        ///
         private static int calcCompoundSize(Type type,bool useIEEE, ref int id)
         {
             // Create the compound datatype for the file.  Because the standard

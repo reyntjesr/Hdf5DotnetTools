@@ -210,11 +210,11 @@ namespace Hdf5DotNetTools
             Type elementType = collection.GetType().GetElementType();
             TypeCode type = Type.GetTypeCode(elementType);
 
-            if (!(elementType.IsPrimitive || elementType.Name == "String"))
-                throw new NotSupportedException("type is not supported: " + elementType.FullName);
+            //if (!(elementType.IsPrimitive || elementType.Name == "String"))
+            //    throw new NotSupportedException("type is not supported: " + elementType.FullName);
             //if (!(elementType.IsPrimitive && elementType.IsClass))
             //    Hdf5.WriteCompounds(groupId, name, collection.OfType<object>());
-            else
+           // else
                 switch (type)
                 {
                     case TypeCode.Boolean:
@@ -283,11 +283,10 @@ namespace Hdf5DotNetTools
                         if (elementType == typeof(TimeSpan))
                         {
                             var ticks = collection.Cast<TimeSpan>().Select(t => t.Ticks).ToArray();
-                            Hdf5.WritePrimitive(groupId, name, convertArrayToType<UInt64>(ticks));
+                            Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(ticks));
                         }
                         else
                         {
-                            //string str = SingletonConfiguration.Instance.RsrcMgr.GetString("notSuppExceptStr");
                             string str = "type is not supported: ";
                             throw new NotSupportedException(str + elementType.FullName);
                         }
