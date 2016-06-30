@@ -51,14 +51,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Knf.Utils.Hdf5.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Hdf5DotNetTools.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HDF.PInvoke, Version=1.8.17.22037, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\HDF.PInvoke.1.8.17.1\lib\Net45\HDF.PInvoke.dll</HintPath>
+      <HintPath>..\packages\HDF.PInvoke.1.8.17.1\lib\Net45\HDF.PInvoke.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -82,24 +82,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Hdf5DotNetTools.snk" />
     <None Include="Knf.Utils.Hdf5.snk" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin32\*.*" "$(TargetDir)bin32"
+    <PostBuildEvent>if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.8.17.1\lib\native\bin32\*.*" "$(TargetDir)bin32"
 if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin64\*.*" "$(TargetDir)bin64"
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin64\*.*" "$(TargetDir)bin64"
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "$(SolutionDir)Hdf5DotNetTools\packages\HDF.PInvoke.1.8.17.1\lib\native\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "$(SolutionDir)Hdf5DotNetTools\packages\HDF.PInvoke.1.8.17.1\lib\native\bin64\*.*" "$(TargetDir)bin64"</PostBuildEvent>
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.8.17.1\lib\native\bin64\*.*" "$(TargetDir)bin64"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>$(SolutionDir)packages\Brutal.Dev.StrongNameSigner.1.8.0\tools\StrongNameSigner.Console.exe -in $(SolutionDir)packages\HDF.PInvoke.1.8.17.1</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

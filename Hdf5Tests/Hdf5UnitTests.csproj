@@ -59,7 +59,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>HDF.Pinvoke.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HDF.PInvoke, Version=1.8.17.22037, Culture=neutral, processorArchitecture=MSIL">
@@ -90,14 +91,13 @@
     <Compile Include="TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HDF.Pinvoke.snk" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Hdf5DotNetTools\Hdf5DotNetTools.csproj">
       <Project>{adcc9ad9-ee46-4237-9220-95eaea143d17}</Project>
       <Name>Hdf5DotNetTools</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
@@ -121,18 +121,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin64\*.*" "$(TargetDir)bin64"
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "D:\DotNet2015\Lib\Tools\HDF.PInvoke\packages\HDF.PInvoke.1.8.17.1\bin64\*.*" "$(TargetDir)bin64"
-if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.8.17.1\lib\native\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.8.17.1\lib\native\bin64\*.*" "$(TargetDir)bin64"</PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>$(SolutionDir)packages\Brutal.Dev.StrongNameSigner.1.8.0\tools\StrongNameSigner.Console.exe -in $(SolutionDir)packages\HDF.PInvoke.1.8.17.1</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
