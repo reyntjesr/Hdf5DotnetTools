@@ -77,12 +77,15 @@ namespace Hdf5UnitTests
             public bool TestBoolean { get; set; }
             public string TestString { get; set; }
 
+            public DateTime TestTime { get; set; }
+
             public bool Equals(TestClass other)
             {
                 return other.TestInteger == TestInteger &&
             other.TestDouble == TestDouble &&
             other.TestBoolean == TestBoolean &&
-            other.TestString == TestString;
+                        other.TestString == TestString &&
+                other.TestTime == TestTime;
             }
         }
         private class TestClassWithArray : TestClass

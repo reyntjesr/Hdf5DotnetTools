@@ -117,6 +117,9 @@ namespace Hdf5DotNetTools
             var typeCode = Type.GetTypeCode(type);
             switch (typeCode)
             {
+                case TypeCode.DateTime:
+                    dataType = H5T.NATIVE_INT64;
+                    break;
                 case TypeCode.Byte:
                     dataType = H5T.NATIVE_INT8;
                     break;

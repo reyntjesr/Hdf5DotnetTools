@@ -150,8 +150,8 @@ namespace Hdf5DotNetTools
                     return Convert.ToChar(Hdf5.ReadOneValue<string>(groupId, name));
 
                 case TypeCode.DateTime:
-                    double time = Hdf5.ReadOneValue<double>(groupId, name);
-                    return DateTime.FromOADate(time);
+                    var ticks = Hdf5.ReadOneValue<long>(groupId, name);
+                    return new DateTime(ticks);
 
                 case TypeCode.Decimal:
                     string number = Hdf5.ReadOneValue<string>(groupId, name);
@@ -190,8 +190,8 @@ namespace Hdf5DotNetTools
                 default:
                     if (type == typeof(TimeSpan))
                     {
-                        long ticks = Hdf5.ReadOneValue<long>(groupId, name);
-                        return new TimeSpan(ticks);
+                        var tsTicks = Hdf5.ReadOneValue<long>(groupId, name);
+                        return new TimeSpan(tsTicks);
                     }
                     string str = "type is not supported: ";
                     throw new NotSupportedException(str + type.FullName);
@@ -252,8 +252,8 @@ namespace Hdf5DotNetTools
                         return Hdf5.ReadStrings(groupId, name).Cast<char>().ToArray();
 
                     case TypeCode.DateTime:
-                        var dts = convert2DtoArray(Hdf5.ReadDataset<double>(groupId, name));
-                        return dts.Select(dt=> DateTime.FromOADate(dt)).ToArray();
+                        var ticks = convert2DtoArray(Hdf5.ReadDataset<long>(groupId, name));
+                        return ticks.Select(tc=> new DateTime(tc)).ToArray();
 
                     case TypeCode.Decimal:
                         return Hdf5.ReadStrings(groupId, name).Cast<decimal>().ToArray();
