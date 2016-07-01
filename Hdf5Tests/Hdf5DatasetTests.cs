@@ -61,10 +61,10 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 int groupId = Hdf5.CreateGroup(fileId, groupStr);
-                Hdf5.WritePrimitive(groupId, concatFunc(nameof(intValue)), intValue);
-                Hdf5.WritePrimitive(groupId, concatFunc(nameof(dblValue)), dblValue);
-                Hdf5.WritePrimitive(groupId, concatFunc(nameof(strValue)), strValue);
-                Hdf5.WritePrimitive(groupId, concatFunc(nameof(boolValue)), boolValue);
+                Hdf5.WriteOneValue(groupId, concatFunc(nameof(intValue)), intValue);
+                Hdf5.WriteOneValue(groupId, concatFunc(nameof(dblValue)), dblValue);
+                Hdf5.WriteOneValue(groupId, concatFunc(nameof(strValue)), strValue);
+                Hdf5.WriteOneValue(groupId, concatFunc(nameof(boolValue)), boolValue);
                 H5G.close(groupId);
                 Hdf5.CloseFile(fileId);
             }
@@ -78,13 +78,13 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 int groupId = H5G.open(fileId, groupStr);
-                int readInt = Hdf5.ReadPrimitive<int>(groupId, concatFunc(nameof(intValue)));
+                int readInt = Hdf5.ReadOneValue<int>(groupId, concatFunc(nameof(intValue)));
                 Assert.IsTrue(intValue == readInt);
-                double readDbl = Hdf5.ReadPrimitive<double>(groupId, concatFunc(nameof(dblValue)));
+                double readDbl = Hdf5.ReadOneValue<double>(groupId, concatFunc(nameof(dblValue)));
                 Assert.IsTrue(dblValue == readDbl);
-                string readStr = Hdf5.ReadPrimitive<string>(groupId, concatFunc(nameof(strValue)));
+                string readStr = Hdf5.ReadOneValue<string>(groupId, concatFunc(nameof(strValue)));
                 Assert.IsTrue(strValue == readStr);
-                bool readBool = Hdf5.ReadPrimitive<bool>(groupId, concatFunc(nameof(boolValue)));
+                bool readBool = Hdf5.ReadOneValue<bool>(groupId, concatFunc(nameof(boolValue)));
                 Assert.IsTrue(boolValue == readBool);
                 H5G.close(groupId);
                 Hdf5.CloseFile(fileId);

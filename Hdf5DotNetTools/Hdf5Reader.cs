@@ -141,56 +141,56 @@ namespace Hdf5DotNetTools
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Boolean:
-                    return Hdf5.ReadPrimitive<bool>(groupId, name);
+                    return Hdf5.ReadOneValue<bool>(groupId, name);
 
                 case TypeCode.Byte:
-                    return Convert.ToByte(Hdf5.ReadPrimitive<UInt16>(groupId, name));
+                    return Convert.ToByte(Hdf5.ReadOneValue<UInt16>(groupId, name));
 
                 case TypeCode.Char:
-                    return Convert.ToChar(Hdf5.ReadPrimitive<string>(groupId, name));
+                    return Convert.ToChar(Hdf5.ReadOneValue<string>(groupId, name));
 
                 case TypeCode.DateTime:
-                    double time = Hdf5.ReadPrimitive<double>(groupId, name);
+                    double time = Hdf5.ReadOneValue<double>(groupId, name);
                     return DateTime.FromOADate(time);
 
                 case TypeCode.Decimal:
-                    string number = Hdf5.ReadPrimitive<string>(groupId, name);
+                    string number = Hdf5.ReadOneValue<string>(groupId, name);
                     return Convert.ToDecimal(number);
 
                 case TypeCode.Double:
-                    return Hdf5.ReadPrimitive<double>(groupId, name);
+                    return Hdf5.ReadOneValue<double>(groupId, name);
 
                 case TypeCode.Int16:
-                    return Hdf5.ReadPrimitive<Int16>(groupId, name);
+                    return Hdf5.ReadOneValue<Int16>(groupId, name);
 
                 case TypeCode.Int32:
-                    return Hdf5.ReadPrimitive<Int32>(groupId, name);
+                    return Hdf5.ReadOneValue<Int32>(groupId, name);
 
                 case TypeCode.Int64:
-                    return Hdf5.ReadPrimitive<Int64>(groupId, name);
+                    return Hdf5.ReadOneValue<Int64>(groupId, name);
 
                 case TypeCode.SByte:
-                    return Convert.ToSByte(Hdf5.ReadPrimitive<Int16>(groupId, name));
+                    return Convert.ToSByte(Hdf5.ReadOneValue<Int16>(groupId, name));
 
                 case TypeCode.Single:
-                    return Convert.ToSingle(Hdf5.ReadPrimitive<double>(groupId, name));
+                    return Convert.ToSingle(Hdf5.ReadOneValue<double>(groupId, name));
 
                 case TypeCode.UInt16:
-                    return Hdf5.ReadPrimitive<UInt16>(groupId, name);
+                    return Hdf5.ReadOneValue<UInt16>(groupId, name);
 
                 case TypeCode.UInt32:
-                    return Hdf5.ReadPrimitive<UInt32>(groupId, name);
+                    return Hdf5.ReadOneValue<UInt32>(groupId, name);
 
                 case TypeCode.UInt64:
-                    return Hdf5.ReadPrimitive<UInt64>(groupId, name);
+                    return Hdf5.ReadOneValue<UInt64>(groupId, name);
 
                 case TypeCode.String:
-                    return Hdf5.ReadPrimitive<string>(groupId, name);
+                    return Hdf5.ReadOneValue<string>(groupId, name);
 
                 default:
                     if (type == typeof(TimeSpan))
                     {
-                        long ticks = Hdf5.ReadPrimitive<long>(groupId, name);
+                        long ticks = Hdf5.ReadOneValue<long>(groupId, name);
                         return new TimeSpan(ticks);
                     }
                     string str = "type is not supported: ";

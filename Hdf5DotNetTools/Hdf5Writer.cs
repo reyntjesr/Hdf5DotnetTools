@@ -115,68 +115,68 @@ namespace Hdf5DotNetTools
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Boolean:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToBoolean(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToBoolean(prim));
                     break;
 
                 case TypeCode.Byte:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToUInt16(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToUInt16(prim));
                     break;
 
                 case TypeCode.Char:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToString(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToString(prim));
                     break;
 
                 case TypeCode.DateTime:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToDateTime(prim).ToOADate());
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToDateTime(prim).ToOADate());
                     break;
 
                 case TypeCode.Decimal:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToDecimal(prim).ToString(CultureInfo.InvariantCulture));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToDecimal(prim).ToString(CultureInfo.InvariantCulture));
                     break;
 
                 case TypeCode.Double:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToDouble(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToDouble(prim));
                     break;
 
                 case TypeCode.Int16:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToInt16(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToInt16(prim));
                     break;
 
                 case TypeCode.Int32:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToInt32(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToInt32(prim));
                     break;
 
                 case TypeCode.Int64:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToInt64(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToInt64(prim));
                     break;
 
                 case TypeCode.SByte:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToInt16(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToInt16(prim));
                     break;
 
                 case TypeCode.Single:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToDouble(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToDouble(prim));
                     break;
 
                 case TypeCode.UInt16:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToUInt16(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToUInt16(prim));
                     break;
 
                 case TypeCode.UInt32:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToUInt32(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToUInt32(prim));
                     break;
 
                 case TypeCode.UInt64:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToUInt64(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToUInt64(prim));
                     break;
 
                 case TypeCode.String:
-                    Hdf5.WritePrimitive(groupId, name, Convert.ToString(prim));
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToString(prim));
                     break;
 
                 default:
                     if (type == typeof(TimeSpan))
-                        Hdf5.WritePrimitive(groupId, name, ((TimeSpan)prim).Ticks);
+                        Hdf5.WriteOneValue(groupId, name, ((TimeSpan)prim).Ticks);
                     else
                     {
                         //string str = SingletonConfiguration.Instance.RsrcMgr.GetString("notSuppExceptStr");

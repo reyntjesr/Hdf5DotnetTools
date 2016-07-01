@@ -12,6 +12,13 @@ namespace Hdf5DotNetTools
     public static partial class Hdf5
     {
 
+        /// <summary>
+        /// Reads a two dimensional dataset.
+        /// </summary>
+        /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <returns>The two dimensional dataset</returns>
         public static T[,] ReadDataset<T>(int groupId, string name) //where T : struct
         {
             var datatype = GetDatatype(typeof(T));
@@ -50,13 +57,20 @@ namespace Hdf5DotNetTools
 
         }
 
+        /// <summary>
+        /// Reads part of a two dimensional dataset.
+        /// </summary>
+        /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <param name="beginIndex">The index of the first row to be read</param>
+        /// <param name="endIndex">The index of the last row to be read</param>
+        /// <returns>The two dimensional dataset</returns>
         public static T[,] ReadDataset<T>(int groupId, string name, ulong beginIndex, ulong endIndex) //where T : struct
         {
             ulong[] start = { 0, 0 }, stride = null, count = { 0, 0 },
                 block = null, offsetOut = new ulong[] { 0, 0 };
             var datatype = GetDatatype(typeof(T));
-
-            //name = ToHdf5Name(name);
 
             var datasetId = H5D.open(groupId, name);
             var spaceId = H5D.get_space(datasetId);
@@ -75,7 +89,6 @@ namespace Hdf5DotNetTools
 
 
             // Define the memory dataspace.
-
             T[,] dset = new T[count[0], count[1]];
             var memId = H5S.create_simple(rank, count, null);
 
@@ -83,10 +96,8 @@ namespace Hdf5DotNetTools
             status = H5S.select_hyperslab(memId, H5S.seloper_t.SET, offsetOut, null,
                          count, null);
 
-            /*
-             * Read data from hyperslab in the file into the hyperslab in 
-             * memory and display.
-             */
+            // Read data from hyperslab in the file into the hyperslab in 
+            // memory and display.             
             GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
             H5D.read(datasetId, datatype, memId, spaceId,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
@@ -95,16 +106,23 @@ namespace Hdf5DotNetTools
             H5S.close(spaceId);
             H5S.close(memId);
             return dset;
-
         }
 
-        public static T ReadPrimitive<T>(int groupId, string name) //where T : struct
+        /// <summary>
+        /// Reads a dataset or string array with one value in it
+        /// </summary>
+        /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <returns>One value or string</returns>
+        public static T ReadOneValue<T>(int groupId, string name) //where T : struct
         {
             T result;
             if (typeof(T) == typeof(string))
             {
                 var strs = ReadStrings(groupId, name);
-                result = (T)Convert.ChangeType(strs.First(), typeof(T));
+                result = strs.Cast<T>().First();
+                //result = (T)Convert.ChangeType(strs.First(), typeof(T));
             }
             else
             {
@@ -114,7 +132,15 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static int WritePrimitive<T>(int groupId, string name, T dset)
+        /// <summary>
+        /// Writes one value to a hdf5 file
+        /// </summary>
+        /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <param name="dset">The dataset</param>
+        /// <returns>status of the write method</returns>
+        public static int WriteOneValue<T>(int groupId, string name, T dset)
         {
             int result;
             if (typeof(T) == typeof(string))
@@ -124,6 +150,14 @@ namespace Hdf5DotNetTools
             return result;
         }
 
+        /// <summary>
+        /// Write a two dimensional dataset to a hdf5 file
+        /// </summary>
+        /// <typeparam name="T">Generic parameter only primitive types are allowed</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <param name="dset">The dataset</param>
+        /// <returns>status of the write method</returns>
         public static int WriteDataset<T>(int groupId, string name, T[,] dset) //where T : struct
         {
 
@@ -135,9 +169,7 @@ namespace Hdf5DotNetTools
             if (datatype == H5T.C_S1)
             {
                 H5T.set_size(datatype, new IntPtr(2));
-                //var wdata = Encoding.ASCII.GetBytes((char[,]) dset);
             }
-            //name = ToHdf5Name(name);
             var datasetId = H5D.create(groupId, name, datatype, spaceId);
             GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
             var result = H5D.write(datasetId, datatype, H5S.ALL, H5S.ALL, H5P.DEFAULT,
@@ -149,6 +181,14 @@ namespace Hdf5DotNetTools
             return result;
         }
 
+        /// <summary>
+        /// Appends a dataset to a hdf5 file. If called the first time a dataset is created
+        /// </summary>
+        /// <typeparam name="T">Generic parameter only primitive types are allowed</typeparam>
+        /// <param name="groupId">id of the group. Can also be a file Id</param>
+        /// <param name="name">name of the dataset</param>
+        /// <param name="dset">The dataset</param>
+        /// <returns>status of the write method</returns>
         public static int AppendDataset<T>(int groupId, string name, T[,] dset, ulong chunkX = 200) where T : struct
         {
             var rank = dset.Rank;
@@ -195,7 +235,7 @@ namespace Hdf5DotNetTools
                 var propId = H5P.create(H5P.DATASET_ACCESS);
                 status = H5P.get_chunk(propId, chunkDims, oldChunk);
 
-                /* Extend the dataset. Dataset becomes 10 x 3  */
+                /* Extend the dataset. */
                 var size = new ulong[] { dims[0] + dimsExtend[0], dims[1] };
                 status = H5D.set_extent(datasetId, size);
 
