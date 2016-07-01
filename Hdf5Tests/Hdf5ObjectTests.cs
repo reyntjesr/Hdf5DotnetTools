@@ -20,6 +20,8 @@ namespace Hdf5UnitTests
                 testClass.TestDouble = 1.1;
                 testClass.TestBoolean = true;
                 testClass.TestString = "test string";
+                // 31-Oct-2003, 18:00 is  731885.75 in matlab
+                testClass.TestTime = DateTime.From(731885.75); 
                 string filename = Path.Combine(folder, "testObjects.H5");
 
                 int fileId = Hdf5.CreateFile(filename);

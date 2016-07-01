@@ -148,7 +148,7 @@ namespace Hdf5DotNetTools
                     break;
 
                 case TypeCode.DateTime:
-                    Hdf5.WriteOneValue(groupId, name, Convert.ToDateTime(prim).ToOADate());
+                    Hdf5.WriteOneValue(groupId, name, Convert.ToDateTime(prim).Ticks);
                     Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
@@ -262,8 +262,8 @@ namespace Hdf5DotNetTools
                     break;
 
                 case TypeCode.DateTime:
-                    var dts = collection.Cast<DateTime>().Select(dt => dt.ToOADate()).ToArray();
-                    Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(dts));
+                    var dts = collection.Cast<DateTime>().Select(dt => dt.Ticks).ToArray();
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<long>(dts));
                     Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
