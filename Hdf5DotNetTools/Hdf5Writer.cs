@@ -116,22 +116,27 @@ namespace Hdf5DotNetTools
             {
                 case TypeCode.Boolean:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToBoolean(prim));
+                    Hdf5.WriteAttribute<string>(groupId, name, "Boolean", name);
                     break;
 
                 case TypeCode.Byte:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToUInt16(prim));
+                    Hdf5.WriteAttribute<string>(groupId, name, "Byte", name);
                     break;
 
                 case TypeCode.Char:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToString(prim));
+                    Hdf5.WriteAttribute<string>(groupId, name, "Char", name);
                     break;
 
                 case TypeCode.DateTime:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToDateTime(prim).ToOADate());
+                    Hdf5.WriteAttribute<string>(groupId, name, "DateTime",name);
                     break;
 
                 case TypeCode.Decimal:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToDecimal(prim).ToString(CultureInfo.InvariantCulture));
+                    Hdf5.WriteAttribute<string>(groupId, name, "Decimal", name);
                     break;
 
                 case TypeCode.Double:
@@ -152,6 +157,7 @@ namespace Hdf5DotNetTools
 
                 case TypeCode.SByte:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToInt16(prim));
+                    Hdf5.WriteAttribute<string>(groupId, name, "SByte", name);
                     break;
 
                 case TypeCode.Single:
@@ -176,7 +182,10 @@ namespace Hdf5DotNetTools
 
                 default:
                     if (type == typeof(TimeSpan))
+                    {
                         Hdf5.WriteOneValue(groupId, name, ((TimeSpan)prim).Ticks);
+                        Hdf5.WriteAttribute<string>(groupId, name, "TimeStamp",name);
+                    }
                     else
                     {
                         //string str = SingletonConfiguration.Instance.RsrcMgr.GetString("notSuppExceptStr");
@@ -219,25 +228,30 @@ namespace Hdf5DotNetTools
                 {
                     case TypeCode.Boolean:
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "Boolean", name);
+                    break;
 
                     case TypeCode.Byte:
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "Byte", name);
+                    break;
 
                     case TypeCode.Char:
                         Hdf5.WriteStrings(groupId, name, collection.OfType<object>().Select(o => o.ToString()));
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "Char", name);
+                    break;
 
                     case TypeCode.DateTime:
                         var dts = collection.Cast<DateTime>().Select(dt => dt.ToOADate()).ToArray();
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(dts));
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
+                    break;
 
                     case TypeCode.Decimal:
                         var decs = collection.OfType<object>().Select(o => Convert.ToDecimal(o).ToString(CultureInfo.InvariantCulture));
                         Hdf5.WriteStrings(groupId, name, decs);
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "Decimal", name);
+                    break;
 
                     case TypeCode.Double:
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
@@ -257,7 +271,8 @@ namespace Hdf5DotNetTools
 
                     case TypeCode.SByte:
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<Int16>(collection));
-                        break;
+                    Hdf5.WriteAttribute<string>(groupId, name, "SByte", name);
+                    break;
 
                     case TypeCode.Single:
                         Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
@@ -284,8 +299,10 @@ namespace Hdf5DotNetTools
                         {
                             var ticks = collection.Cast<TimeSpan>().Select(t => t.Ticks).ToArray();
                             Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(ticks));
-                        }
-                        else
+                        Hdf5.WriteAttribute<string>(groupId, name, "TimeSpan", name);
+
+                    }
+                    else
                         {
                             string str = "type is not supported: ";
                             throw new NotSupportedException(str + elementType.FullName);
