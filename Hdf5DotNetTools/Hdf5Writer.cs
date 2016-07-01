@@ -12,7 +12,7 @@ namespace Hdf5DotNetTools
 {
     public partial class Hdf5
     {
-        
+
 
         public static object WriteObject(int groupId, object writeValue, string groupName = null)
         {
@@ -39,9 +39,27 @@ namespace Hdf5DotNetTools
 
             WriteProperties(tyObject, writeValue, groupId);
             WriteFields(tyObject, writeValue, groupId);
+            WriteHdf5Attributes(tyObject, groupId, groupName);
             if (createGroupName)
                 Hdf5.CloseGroup(groupId);
             return (writeValue);
+        }
+
+        private static void WriteHdf5Attributes(Type type, int groupId, string name, string datasetName = null)
+        {
+            foreach (Attribute attr in Attribute.GetCustomAttributes(type))
+            {
+                if (attr is Hdf5Attribute)
+                {
+                    var h5at = attr as Hdf5Attribute;
+                    WriteAttribute(groupId, name, h5at.Name, datasetName);
+                }
+                if (attr is Hdf5Attributes)
+                {
+                    var h5ats = attr as Hdf5Attributes;
+                    WriteAttribute(groupId, name, h5ats.Names, datasetName);
+                }
+            }
         }
 
         private static void WriteFields(Type tyObject, object writeValue, int groupId)
@@ -69,7 +87,7 @@ namespace Hdf5DotNetTools
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
                     WriteArray(groupId, name, (Array)infoVal);
-                else if (primitiveTypes.Contains(code) || ty==typeof(TimeSpan))
+                else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                     WriteValue(groupId, name, infoVal);
                 else
                     WriteObject(groupId, infoVal, name);
@@ -131,7 +149,7 @@ namespace Hdf5DotNetTools
 
                 case TypeCode.DateTime:
                     Hdf5.WriteOneValue(groupId, name, Convert.ToDateTime(prim).ToOADate());
-                    Hdf5.WriteAttribute<string>(groupId, name, "DateTime",name);
+                    Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
                 case TypeCode.Decimal:
@@ -184,7 +202,7 @@ namespace Hdf5DotNetTools
                     if (type == typeof(TimeSpan))
                     {
                         Hdf5.WriteOneValue(groupId, name, ((TimeSpan)prim).Ticks);
-                        Hdf5.WriteAttribute<string>(groupId, name, "TimeStamp",name);
+                        Hdf5.WriteAttribute<string>(groupId, name, "TimeStamp", name);
                     }
                     else
                     {
@@ -194,6 +212,7 @@ namespace Hdf5DotNetTools
                     }
                     break;
             }
+            WriteHdf5Attributes(type, groupId, name, name);
         }
 
         private static T[,] convertArrayToType<T>(Array collection)
@@ -216,100 +235,101 @@ namespace Hdf5DotNetTools
         private static void WriteArray(int groupId, string name, Array collection)
         {
 
-            Type elementType = collection.GetType().GetElementType();
-            TypeCode type = Type.GetTypeCode(elementType);
+            Type type = collection.GetType();
+            Type elementType = type.GetElementType();
+            TypeCode typeCode = Type.GetTypeCode(elementType);
 
             //if (!(elementType.IsPrimitive || elementType.Name == "String"))
             //    throw new NotSupportedException("type is not supported: " + elementType.FullName);
             //if (!(elementType.IsPrimitive && elementType.IsClass))
             //    Hdf5.WriteCompounds(groupId, name, collection.OfType<object>());
-           // else
-                switch (type)
-                {
-                    case TypeCode.Boolean:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
+            // else
+            switch (typeCode)
+            {
+                case TypeCode.Boolean:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
                     Hdf5.WriteAttribute<string>(groupId, name, "Boolean", name);
                     break;
 
-                    case TypeCode.Byte:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
+                case TypeCode.Byte:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
                     Hdf5.WriteAttribute<string>(groupId, name, "Byte", name);
                     break;
 
-                    case TypeCode.Char:
-                        Hdf5.WriteStrings(groupId, name, collection.OfType<object>().Select(o => o.ToString()));
+                case TypeCode.Char:
+                    Hdf5.WriteStrings(groupId, name, collection.OfType<object>().Select(o => o.ToString()));
                     Hdf5.WriteAttribute<string>(groupId, name, "Char", name);
                     break;
 
-                    case TypeCode.DateTime:
-                        var dts = collection.Cast<DateTime>().Select(dt => dt.ToOADate()).ToArray();
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(dts));
+                case TypeCode.DateTime:
+                    var dts = collection.Cast<DateTime>().Select(dt => dt.ToOADate()).ToArray();
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(dts));
                     Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
-                    case TypeCode.Decimal:
-                        var decs = collection.OfType<object>().Select(o => Convert.ToDecimal(o).ToString(CultureInfo.InvariantCulture));
-                        Hdf5.WriteStrings(groupId, name, decs);
+                case TypeCode.Decimal:
+                    var decs = collection.OfType<object>().Select(o => Convert.ToDecimal(o).ToString(CultureInfo.InvariantCulture));
+                    Hdf5.WriteStrings(groupId, name, decs);
                     Hdf5.WriteAttribute<string>(groupId, name, "Decimal", name);
                     break;
 
-                    case TypeCode.Double:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
-                        break;
+                case TypeCode.Double:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
+                    break;
 
-                    case TypeCode.Int16:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<Int16>(collection));
-                        break;
+                case TypeCode.Int16:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<Int16>(collection));
+                    break;
 
-                    case TypeCode.Int32:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<Int32>(collection));
-                        break;
+                case TypeCode.Int32:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<Int32>(collection));
+                    break;
 
-                    case TypeCode.Int64:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(collection));
-                        break;
+                case TypeCode.Int64:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(collection));
+                    break;
 
-                    case TypeCode.SByte:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<Int16>(collection));
+                case TypeCode.SByte:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<Int16>(collection));
                     Hdf5.WriteAttribute<string>(groupId, name, "SByte", name);
                     break;
 
-                    case TypeCode.Single:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
-                        break;
+                case TypeCode.Single:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<double>(collection));
+                    break;
 
-                    case TypeCode.UInt16:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
-                        break;
+                case TypeCode.UInt16:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt16>(collection));
+                    break;
 
-                    case TypeCode.UInt32:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt32>(collection));
-                        break;
+                case TypeCode.UInt32:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt32>(collection));
+                    break;
 
-                    case TypeCode.UInt64:
-                        Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt64>(collection));
-                        break;
+                case TypeCode.UInt64:
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<UInt64>(collection));
+                    break;
 
-                    case TypeCode.String:
-                        Hdf5.WriteStrings(groupId, name, collection.OfType<object>().Select(o => o.ToString()));
-                        break;
+                case TypeCode.String:
+                    Hdf5.WriteStrings(groupId, name, collection.OfType<object>().Select(o => o.ToString()));
+                    break;
 
-                    default:
-                        if (elementType == typeof(TimeSpan))
-                        {
-                            var ticks = collection.Cast<TimeSpan>().Select(t => t.Ticks).ToArray();
-                            Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(ticks));
+                default:
+                    if (elementType == typeof(TimeSpan))
+                    {
+                        var ticks = collection.Cast<TimeSpan>().Select(t => t.Ticks).ToArray();
+                        Hdf5.WriteDataset(groupId, name, convertArrayToType<Int64>(ticks));
                         Hdf5.WriteAttribute<string>(groupId, name, "TimeSpan", name);
 
                     }
                     else
-                        {
-                            string str = "type is not supported: ";
-                            throw new NotSupportedException(str + elementType.FullName);
-                        }
-                        break;
-                }
-
+                    {
+                        string str = "type is not supported: ";
+                        throw new NotSupportedException(str + elementType.FullName);
+                    }
+                    break;
+            }
+            WriteHdf5Attributes(type, groupId, name, name);
         }
     }
 }

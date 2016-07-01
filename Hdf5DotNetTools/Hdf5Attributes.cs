@@ -21,6 +21,28 @@ namespace Hdf5DotNetTools
         public string Name { get; private set; }
     }
 
+    sealed public class Hdf5Attributes : Attribute
+    {
+
+        public Hdf5Attributes(string[] names)
+        {
+            Names = names;
+        }
+
+        public string[] Names { get; private set; }
+    }
+
+    sealed public class Hdf5Attribute : Attribute
+    {
+
+        public Hdf5Attribute(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; private set; }
+    }
+
     public static partial class Hdf5
     {
         public static IEnumerable<T> ReadAttributes<T>(int groupId, string name)

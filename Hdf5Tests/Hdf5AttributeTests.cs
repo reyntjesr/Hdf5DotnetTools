@@ -15,17 +15,16 @@ namespace Hdf5UnitTests
         public void WriteAndReadAttribute()
         {
             string filename = Path.Combine(folder, "testAttribute.H5");
-            var dset = dsets.First();
-
             try
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                //double[,] dset2 = Hdf5.ReadDataset<double>(fileId, "/test");
-                //compareDatasets(dset, dset2);
-                //bool same = dset == dset2;
-
-                Hdf5.CloseFile(fileId);
+                int groupId = Hdf5.CreateGroup(fileId, "test");
+                DateTime nowTime = DateTime.Now;
+                Hdf5.WriteAttribute(groupId, "time", nowTime);
+                DateTime readTime = Hdf5.ReadAttribute<DateTime>(groupId, "time");
+                Assert.IsTrue(readTime == nowTime);
+                Assert.IsTrue(Hdf5.CloseFile(fileId)==0);
             }
             catch (Exception ex)
             {
@@ -92,6 +91,22 @@ namespace Hdf5UnitTests
             }
         }
 
-
+        [TestMethod]
+        public void WriteAndReadObjectWithHdf5Attributes()
+        {
+            string filename = Path.Combine(folder, "testHdf5Attribute.H5");
+            var attObject = new AttributeClass();
+            try
+            {
+                int fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Hdf5.WriteObject(fileId, attObject,"anObject");
+                Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
     }
 }
