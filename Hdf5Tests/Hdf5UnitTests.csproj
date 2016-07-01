@@ -81,6 +81,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Hdf5AttributeTests.cs" />
     <Compile Include="Hdf5GroupTests.cs" />
     <Compile Include="Hdf5ObjectTests.cs" />
     <Compile Include="Hdf5StringsTests.cs" />

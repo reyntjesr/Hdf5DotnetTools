@@ -112,10 +112,17 @@ namespace Hdf5DotNetTools
         internal static int GetDatatype(System.Type type)
         {
             //var typeName = type.Name;
-            var typeCode = Type.GetTypeCode(type);
             int dataType;
+
+            var typeCode = Type.GetTypeCode(type);
             switch (typeCode)
             {
+                case TypeCode.Byte:
+                    dataType = H5T.NATIVE_INT8;
+                    break;
+                case TypeCode.SByte:
+                    dataType = H5T.NATIVE_UINT8;
+                    break;
                 case TypeCode.Int16:
                     dataType = H5T.NATIVE_INT16;
                     break;
@@ -164,7 +171,7 @@ namespace Hdf5DotNetTools
             switch (typeCode)
             {
                 case TypeCode.Int16:
-                    dataType = H5T.STD_I32BE;
+                    dataType = H5T.STD_I16BE;
                     break;
                 case TypeCode.Int32:
                     dataType = H5T.STD_I32BE;
