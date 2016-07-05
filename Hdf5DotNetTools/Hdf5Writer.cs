@@ -86,9 +86,10 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteArray(groupId, name, (Array)infoVal);
+                    WriteTmpArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    WriteValue(groupId, name, infoVal);
+                    //WriteOneValue(groupId, name, infoVal);
+                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
             }
@@ -118,15 +119,24 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteArray(groupId, name, (Array)infoVal);
+                    WriteTmpArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    WriteValue(groupId, name, infoVal);
+                    //WriteOneValue(groupId, name, infoVal);
+                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
             }
         }
+        static void CallByReflection(string name, Type typeArg,
+                             object[] values)
+        {
+            // Just for simplicity, assume it's public etc
+            MethodInfo method = typeof(Hdf5).GetMethod(name);
+            MethodInfo generic = method.MakeGenericMethod(typeArg);
+            generic.Invoke(null, values);
+        }
 
-        private static void WriteValue(int groupId, string name, object prim)
+        /*private static void WriteValue(int groupId, string name, object prim)
         {
             Type type = prim.GetType();
 
@@ -330,6 +340,6 @@ namespace Hdf5DotNetTools
                     break;
             }
             WriteHdf5Attributes(type, groupId, name, name);
-        }
+        }*/
     }
 }
