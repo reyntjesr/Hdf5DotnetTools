@@ -86,21 +86,12 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteTmpArray(groupId, name, (Array)infoVal);
+                    WriteArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    //WriteOneValue(groupId, name, infoVal);
-                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
+                    WriteValue(groupId, name, infoVal);
                 else
                     WriteObject(groupId, infoVal, name);
             }
-        }
-        static void CallByReflection(string name, Type typeArg,
-                             object[] values)
-        {
-            // Just for simplicity, assume it's public etc
-            MethodInfo method = typeof(Hdf5).GetMethod(name);
-            MethodInfo generic = method.MakeGenericMethod(typeArg);
-            generic.Invoke(null, values);
         }
 
         private static void WriteProperties(Type tyObject, object writeValue, int groupId)
@@ -127,16 +118,15 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteTmpArray(groupId, name, (Array)infoVal);
+                    WriteArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    //WriteOneValue(groupId, name, infoVal);
-                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
+                    WriteValue(groupId, name, infoVal);
                 else
                     WriteObject(groupId, infoVal, name);
             }
         }
 
-        /*private static void WriteValue(int groupId, string name, object prim)
+        private static void WriteValue(int groupId, string name, object prim)
         {
             Type type = prim.GetType();
 
@@ -240,9 +230,9 @@ namespace Hdf5DotNetTools
                     for (int col = 0; col <= collection.GetUpperBound(1); col++)
                         output[row, col] = (T)collection.GetValue(row, col);
             return output;
-        }*/
+        }
 
-       /* private static void WriteArray(int groupId, string name, Array collection)
+        private static void WriteArray(int groupId, string name, Array collection)
         {
 
             Type type = collection.GetType();
@@ -273,7 +263,7 @@ namespace Hdf5DotNetTools
 
                 case TypeCode.DateTime:
                     var dts = collection.Cast<DateTime>().Select(dt => dt.Ticks).ToArray();
-                    Hdf5.WriteDatasetFromArray<long>(groupId, name, dts);
+                    Hdf5.WriteDataset(groupId, name, convertArrayToType<long>(dts));
                     Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
@@ -340,6 +330,6 @@ namespace Hdf5DotNetTools
                     break;
             }
             WriteHdf5Attributes(type, groupId, name, name);
-        }*/
+        }
     }
 }
