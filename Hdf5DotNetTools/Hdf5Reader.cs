@@ -78,14 +78,15 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    Object value = ReadArray(ty, name, groupId);
-                    info.SetValue(readValue, value);
+                    Array values = ReadTmpArray(ty, groupId, name);
+                    info.SetValue(readValue, values);
                     //throw new Exception("Not implemented yet");
                 }
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                     {
-                    Object value = ReadValue(ty, name, groupId);
-                    info.SetValue(readValue, value);
+                    Array values = ReadTmpArray(ty, groupId, name);
+                    int[] first = new int[values.Rank].Select(f => 0).ToArray();
+                    info.SetValue(readValue, values.GetValue(first));
                 }
                 else
                 {
@@ -116,14 +117,15 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    object value = ReadArray(ty, name, groupId);
+                    object value = ReadTmpArray(ty.GetElementType(), groupId, name);
                     info.SetValue(readValue, value, null);
                     //throw new Exception("Not implemented yet");
                 }
                 else if(primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                 {
-                    object value = ReadValue(ty, name, groupId);
-                    info.SetValue(readValue, value, null);
+                    Array values = ReadTmpArray(ty, groupId, name);
+                    int[] first = new int[values.Rank].Select(f => 0).ToArray();
+                    info.SetValue(readValue, values.GetValue(first));
                 }
                 else
                 {

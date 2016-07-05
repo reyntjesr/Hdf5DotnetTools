@@ -13,6 +13,7 @@ namespace Hdf5UnitTests
         [TestMethod]
         public void WriteAndReadObjectWithPropertiesTest()
         {
+            string filename = Path.Combine(folder, "testObjects.H5");
             try
             {
 
@@ -22,12 +23,22 @@ namespace Hdf5UnitTests
                 testClass.TestString = "test string";
                 // 31-Oct-2003, 18:00 is  731885.75 in matlab
                 testClass.TestTime = new DateTime(2003, 10, 31, 18, 0, 0); 
-                string filename = Path.Combine(folder, "testObjects.H5");
 
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
 
                 Hdf5.WriteObject(fileId, testClass, "objectWithProperties");
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                int fileId = Hdf5.OpenFile(filename);
+                Assert.IsTrue(fileId > 0);
 
                 TestClass readObject = new TestClass();
                 readObject = Hdf5.ReadObject(fileId, readObject, "objectWithProperties");

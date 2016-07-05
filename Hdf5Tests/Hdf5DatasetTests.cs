@@ -12,6 +12,64 @@ namespace Hdf5UnitTests
     public partial class Hdf5UnitTests
     {
         [TestMethod]
+        public void WriteAndReadDatetimeDataset()
+        {
+            string filename = Path.Combine(folder, "testDatetime.H5");
+            var times = new DateTime[10, 5];
+            var offset = new DateTime(2000, 1, 1, 12, 0, 0);
+            for (var i = 0; i < 10; i++)
+                for (var j = 0; j < 5; j++)
+                {
+                    times[i,j] = offset.AddDays(i + j * 5);
+                }
+
+            try
+            {
+                int fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Hdf5.WriteTmpArray(fileId, "/test", times);
+
+                var timesRead = (DateTime[,]) Hdf5.ReadTmpArray<DateTime>(fileId, "/test");
+                compareDatasets(times, timesRead);
+
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+        [TestMethod]
+        public void WriteAndReadTimespanDataset()
+        {
+            string filename = Path.Combine(folder, "testTimespan.H5");
+            var times = new TimeSpan[10, 5];
+            var offset = new TimeSpan(1, 0, 0, 0, 0);
+            for (var i = 0; i < 10; i++)
+                for (var j = 0; j < 5; j++)
+                {
+                    times[i, j] = offset.Add(new TimeSpan(i + j * 5, 0, 0));
+                }
+
+            try
+            {
+                int fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Hdf5.WriteTmpArray(fileId, "/test", times);
+
+                TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadTmpArray<TimeSpan>(fileId, "/test");
+                compareDatasets(times, timesRead);
+
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+        [TestMethod]
         public void WriteAndReadDataset()
         {
             string filename = Path.Combine(folder, "testDataset.H5");
@@ -21,7 +79,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteDataset(fileId, "/test", dset);
+                Hdf5.WriteTmpArray(fileId, "/test", dset);
                 Hdf5.CloseFile(fileId);
             }
             catch (Exception ex)
@@ -33,7 +91,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                double[,] dset2 = Hdf5.ReadDataset<double>(fileId, "/test");
+                double[,] dset2 = (double[,])Hdf5.ReadTmpArray<double>(fileId, "/test");
                 compareDatasets(dset, dset2);
                 bool same = dset == dset2;
 
@@ -48,7 +106,7 @@ namespace Hdf5UnitTests
         [TestMethod]
         public void WriteAndReadPrimitives()
         {
-            string filename = Path.Combine(folder, "testDataset.H5");
+            string filename = Path.Combine(folder, "testPrimitives.H5");
             int intValue = 2;
             double dblValue = 1.1;
             string strValue = "test";
@@ -65,7 +123,7 @@ namespace Hdf5UnitTests
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(dblValue)), dblValue);
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(strValue)), strValue);
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(boolValue)), boolValue);
-                H5G.close(groupId);
+                Hdf5.CloseGroup(groupId);
                 Hdf5.CloseFile(fileId);
             }
             catch (Exception ex)

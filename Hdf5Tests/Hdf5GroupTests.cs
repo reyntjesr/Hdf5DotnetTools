@@ -22,15 +22,15 @@ namespace Hdf5UnitTests
                 var dset = dsets.First();
 
                 int groupId = H5G.create(fileId, "/A"); ///B/C/D/E/F/G/H
-                Hdf5.WriteDataset(groupId, "test", dset);
+                Hdf5.WriteTmpArray(groupId, "test", dset);
                 int subGroupId = Hdf5.CreateGroup(groupId, "C");
                 dset = dsets.Skip(1).First();
-                Hdf5.WriteDataset(subGroupId, "test2", dset);
+                Hdf5.WriteTmpArray(subGroupId, "test2", dset);
                 Hdf5.CloseGroup(subGroupId);
                 Hdf5.CloseGroup(groupId);
                 groupId = H5G.create(fileId, "/A/B"); ///B/C/D/E/F/G/H
                 dset = dsets.Skip(1).First();
-                Hdf5.WriteDataset(groupId, "test", dset);
+                Hdf5.WriteTmpArray(groupId, "test", dset);
                 Hdf5.CloseGroup(groupId);
 
                 groupId = Hdf5.CreateGroupRecursively(fileId, "A/B/C/D/E/F/I");

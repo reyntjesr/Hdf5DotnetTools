@@ -173,13 +173,13 @@ namespace Hdf5UnitTests
         }
 
 
-        private static void compareDatasets(double[,] dset, double[,] dset2)
+        private static void compareDatasets<T>(T[,] dset, T[,] dset2)
         {
             Assert.IsTrue(dset.Rank == dset2.Rank);
             Assert.IsTrue(
                 Enumerable.Range(0, dset.Rank).All(dimension =>
                 dset.GetLength(dimension) == dset2.GetLength(dimension)));
-            Assert.IsTrue(dset.Cast<double>().SequenceEqual(dset2.Cast<double>()));
+            Assert.IsTrue(dset.Cast<T>().SequenceEqual(dset2.Cast<T>()));
         }
 
         private void CreateExceptionAssert(Exception ex)

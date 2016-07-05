@@ -33,6 +33,27 @@ namespace Hdf5UnitTests
         }
 
         [TestMethod]
+        public void WriteAndReadStringAttribute()
+        {
+            string filename = Path.Combine(folder, "testAttributeString.H5");
+            try
+            {
+                int fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                int groupId = Hdf5.CreateGroup(fileId, "test");
+                string attrStr = "this is an attribute";
+                Hdf5.WriteAttribute(groupId, "time", attrStr);
+                string readStr= Hdf5.ReadAttribute<string>(groupId, "time");
+                Assert.IsTrue(readStr == attrStr);
+                Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+        [TestMethod]
         public void WriteAndReadAttributes()
         {
             string filename = Path.Combine(folder, "testAttributes.H5");

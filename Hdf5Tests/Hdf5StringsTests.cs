@@ -11,6 +11,38 @@ namespace Hdf5UnitTests
     {
 
         [TestMethod]
+        public void WriteAndReadOneString()
+        {
+            try
+            {
+                string[] str = new string[] { "test" };
+
+                string filename = Path.Combine(folder, "testOneStringList.H5");
+
+
+                // Open file and write the strings
+                int fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Hdf5.WriteStrings(fileId, "/test", str);
+
+                // Read the strings and close file
+                Assert.IsTrue(fileId > 0);
+                IEnumerable<string> strs2 = Hdf5.ReadStrings(fileId, "/test");
+                Assert.IsTrue(strs2.Count()==1);
+                foreach (var s in strs2)
+                {
+                    Assert.IsTrue(str[0] == s);
+                };
+
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+        [TestMethod]
         public void WriteAndReadListOfStrings()
         {
             try
