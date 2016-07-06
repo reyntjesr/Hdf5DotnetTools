@@ -230,7 +230,7 @@ namespace Hdf5DotNetTools
             return output;
         }
 
-        public static Array ReadArray(Type type, string name, int groupId)
+        /*public static Array ReadArray(Type type, string name, int groupId)
         {
             if (type == null) return null;
             Type elementType = type.GetElementType();
@@ -244,7 +244,7 @@ namespace Hdf5DotNetTools
                 switch (ty)
                 {
                     case TypeCode.Boolean:
-                        Array array = convert2DtoArray(Hdf5.ReadDataset<UInt16>(groupId, name), Convert.ToBoolean);
+                        Array array = convert2DtoArray(Hdf5.ReadTmpDataset<UInt16>(groupId, name), Convert.ToBoolean);
                         return array;
 
                     case TypeCode.Byte:
@@ -299,7 +299,7 @@ namespace Hdf5DotNetTools
                         string str = "type is not supported: ";
                         throw new NotSupportedException(str + elementType.FullName);
                 }
-        }
+        }*/
     }
 
 }

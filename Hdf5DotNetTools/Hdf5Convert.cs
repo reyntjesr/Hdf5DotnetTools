@@ -176,7 +176,7 @@ namespace Hdf5DotNetTools
                 case TypeCode.DateTime:
                     var dts = collection.ConvertArray<DateTime, long>(dt => dt.Ticks);
                     Hdf5.WriteDatasetFromArray<long>(groupId, name, dts);
-                    //Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
+                    Hdf5.WriteAttribute<string>(groupId, name, "DateTime", name);
                     break;
 
                 case TypeCode.Decimal:

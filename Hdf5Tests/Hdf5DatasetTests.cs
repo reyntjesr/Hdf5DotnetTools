@@ -204,7 +204,7 @@ namespace Hdf5UnitTests
             try
             {
                 int fileId = Hdf5.OpenFile(filename);
-                var dset = Hdf5.ReadDataset<double>(fileId, "/test");
+                var dset = Hdf5.ReadTmpDataset<double>(fileId, "/test");
 
 
                 Assert.IsTrue(dset.Rank == dsets.First().Rank);

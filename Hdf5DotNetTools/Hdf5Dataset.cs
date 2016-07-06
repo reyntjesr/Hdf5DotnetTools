@@ -19,7 +19,7 @@ namespace Hdf5DotNetTools
         /// <param name="groupId">id of the group. Can also be a file Id</param>
         /// <param name="name">name of the dataset</param>
         /// <returns>The two dimensional dataset</returns>
-        public static T[,] ReadDataset<T>(int groupId, string name) //where T : struct
+        /*public static T[,] ReadDataset<T>(int groupId, string name) //where T : struct
         {
             var datatype = GetDatatype(typeof(T));
 
@@ -56,7 +56,7 @@ namespace Hdf5DotNetTools
             H5S.close(spaceId);
             return dset;
 
-        }
+        }*/
 
         /// <summary>
         /// Reads a two dimensional dataset.
