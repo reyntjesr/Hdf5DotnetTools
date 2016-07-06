@@ -78,13 +78,14 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    Array values = ReadTmpArray(ty, groupId, name);
+                    Array values = dsetRW.ReadArray(ty, groupId, name);
                     info.SetValue(readValue, values);
                     //throw new Exception("Not implemented yet");
                 }
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                     {
-                    Array values = ReadTmpArray(ty, groupId, name);
+                    Array values = dsetRW.ReadArray(ty, groupId, name);
+                    // get first value depending on rank of the matrix
                     int[] first = new int[values.Rank].Select(f => 0).ToArray();
                     info.SetValue(readValue, values.GetValue(first));
                 }
@@ -117,13 +118,13 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    object value = ReadTmpArray(ty.GetElementType(), groupId, name);
+                    object value = dsetRW.ReadArray(ty.GetElementType(), groupId, name);
                     info.SetValue(readValue, value, null);
                     //throw new Exception("Not implemented yet");
                 }
                 else if(primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                 {
-                    Array values = ReadTmpArray(ty, groupId, name);
+                    Array values = dsetRW.ReadArray(ty, groupId, name);
                     int[] first = new int[values.Rank].Select(f => 0).ToArray();
                     info.SetValue(readValue, values.GetValue(first));
                 }
@@ -136,7 +137,7 @@ namespace Hdf5DotNetTools
             }
         }
 
-        public static object ReadValue(Type type, string name, int groupId)
+        /*public static object ReadValue(Type type, string name, int groupId)
         {
             if (type == null) return null;
 
@@ -198,7 +199,7 @@ namespace Hdf5DotNetTools
                     string str = "type is not supported: ";
                     throw new NotSupportedException(str + type.FullName);
             }
-        }
+        }*/
 
         private static T[] convert2DtoArray<T>(T[,] set)
         {

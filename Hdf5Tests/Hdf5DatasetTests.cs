@@ -27,9 +27,9 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteTmpArray(fileId, "/test", times);
+                Hdf5.WriteArray(fileId, "/test", times);
 
-                var timesRead = (DateTime[,]) Hdf5.ReadTmpArray<DateTime>(fileId, "/test");
+                var timesRead = (DateTime[,]) Hdf5.ReadArray<DateTime>(fileId, "/test");
                 compareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
@@ -56,9 +56,9 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteTmpArray(fileId, "/test", times);
+                Hdf5.WriteArray(fileId, "/test", times);
 
-                TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadTmpArray<TimeSpan>(fileId, "/test");
+                TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadArray<TimeSpan>(fileId, "/test");
                 compareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
@@ -79,7 +79,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteTmpArray(fileId, "/test", dset);
+                Hdf5.WriteArray(fileId, "/test", dset);
                 Hdf5.CloseFile(fileId);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                double[,] dset2 = (double[,])Hdf5.ReadTmpArray<double>(fileId, "/test");
+                double[,] dset2 = (double[,])Hdf5.ReadArray<double>(fileId, "/test");
                 compareDatasets(dset, dset2);
                 bool same = dset == dset2;
 

@@ -74,6 +74,7 @@
     <Compile Include="Hdf5Attributes.cs" />
     <Compile Include="Hdf5Common.cs" />
     <Compile Include="Hdf5Compounds.cs" />
+    <Compile Include="Hdf5ReadWrite.cs" />
     <Compile Include="Hdf5Convert.cs" />
     <Compile Include="Hdf5Dataset.cs" />
     <Compile Include="Hdf5Groups.cs" />

@@ -75,10 +75,10 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 int groupId = Hdf5.CreateGroup(fileId, groupStr);
-                Hdf5.WriteAttribute(groupId, intName, intValues);
+                Hdf5.WriteAttributes<int>(groupId, intName, intValues);
                 Hdf5.WriteAttribute(groupId, dblName, dblValue);
                 Hdf5.WriteAttribute(groupId, strName, strValue);
-                Hdf5.WriteAttribute(groupId, strNames, strValues);
+                Hdf5.WriteAttributes<string>(groupId, strNames, strValues);
                 Hdf5.WriteAttribute(groupId, boolName, boolValue);
                 H5G.close(groupId);
                 Hdf5.CloseFile(fileId);
@@ -93,13 +93,13 @@ namespace Hdf5UnitTests
                 int fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 int groupId = H5G.open(fileId, groupStr);
-                IEnumerable<int> readInts = Hdf5.ReadAttributes<int>(groupId, intName);
+                IEnumerable<int> readInts = (int[])Hdf5.ReadAttributes<int>(groupId, intName);
                 Assert.IsTrue(intValues.SequenceEqual(readInts));
                 double readDbl = Hdf5.ReadAttribute<double>(groupId, dblName);
                 Assert.IsTrue(dblValue == readDbl);
                 string readStr = Hdf5.ReadAttribute<string>(groupId, strName);
                 Assert.IsTrue(strValue == readStr);
-                IEnumerable<string> readStrs = Hdf5.ReadAttributes<string>(groupId, strNames);
+                IEnumerable<string> readStrs = (string[])Hdf5.ReadAttributes<string>(groupId, strNames);
                 Assert.IsTrue(strValues.SequenceEqual(readStrs));
                 bool readBool = Hdf5.ReadAttribute<bool>(groupId, boolName);
                 Assert.IsTrue(boolValue == readBool);

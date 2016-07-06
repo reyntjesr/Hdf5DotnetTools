@@ -9,9 +9,11 @@ using System.IO;
 
 namespace Hdf5DotNetTools
 {
+
+
     public static partial class Hdf5
     {
-
+        static Hdf5ReaderWriter dsetRW = new Hdf5ReaderWriter(new Hdf5Dataset());
         /// <summary>
         /// Reads a two dimensional dataset.
         /// </summary>
@@ -82,7 +84,7 @@ namespace Hdf5DotNetTools
             var memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
             Type type = typeof(T);
             long[] lengths = dims.Select(d => Convert.ToInt64(d)).ToArray();
-            var dset = Array.CreateInstance(type,lengths); ;
+            var dset = Array.CreateInstance(type, lengths);
             var typeId = H5D.get_type(datasetId);
             var mem_type = H5T.copy(datatype);
             if (datatype == H5T.C_S1)
@@ -165,20 +167,9 @@ namespace Hdf5DotNetTools
         /// <returns>One value or string</returns>
         public static T ReadOneValue<T>(int groupId, string name) //where T : struct
         {
-            T result;
-            if (typeof(T) == typeof(string))
-            {
-                T[] temp = (T[])ReadTmpArray<T>(groupId, name);
-                result = temp[0];
-                //var strs = ReadStrings(groupId, name);
-                //result = strs.Cast<T>().First();
-                //result = (T)Convert.ChangeType(strs.First(), typeof(T));
-            }
-            else
-            {
-                T[,] temp = (T[,]) ReadTmpArray<T>(groupId, name);
-                result = temp[0, 0];
-            }
+            var dset = dsetRW.ReadArray<T>(groupId, name);
+            int[] first = new int[dset.Rank].Select(f => 0).ToArray();
+            T result = (T)dset.GetValue(first);
             return result;
         }
 
@@ -194,11 +185,11 @@ namespace Hdf5DotNetTools
         {
             if (typeof(T) == typeof(string))
                 //WriteStrings(groupId, name, new string[] { dset.ToString() });
-                WriteTmpArray(groupId, name, new T[1]  { dset } );
+                dsetRW.WriteArray(groupId, name, new T[1] { dset });
             else
             {
                 Array oneVal = new T[1, 1] { { dset } };
-                WriteTmpArray(groupId, name, oneVal);
+                dsetRW.WriteArray(groupId, name, oneVal);
             }
         }
 
@@ -233,10 +224,10 @@ namespace Hdf5DotNetTools
             return result;
         }*/
 
-        public static int WriteDatasetFromArray<T>(int groupId, string name, Array dset) //where T : struct
+        public static int WriteDatasetFromArray<T>(int groupId, string name, Array dset, string datasetName = null) //where T : struct
         {
             int rank = dset.Rank;
-            ulong[] dims = Enumerable.Range(0,rank).Select(i => { return (ulong)dset.GetLength(i); }).ToArray();
+            ulong[] dims = Enumerable.Range(0, rank).Select(i => { return (ulong)dset.GetLength(i); }).ToArray();
 
             ulong[] maxDims = null;
             var spaceId = H5S.create_simple(rank, dims, maxDims);

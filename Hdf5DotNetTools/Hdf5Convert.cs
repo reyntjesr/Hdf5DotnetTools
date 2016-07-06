@@ -148,8 +148,16 @@ namespace Hdf5DotNetTools
 
             return ar;
         }
+        public static void WriteArray(int groupId, string name, Array collection)
+        {
+            dsetRW.WriteArray(groupId, name, collection);
+        }
 
-        public static void WriteTmpArray(int groupId, string name, Array collection)
+        public static Array ReadArray<T>(int groupId, string name)
+        {
+            return dsetRW.ReadArray<T>(groupId, name);
+        }
+        /*public static void WriteTmpArray(int groupId, string name, Array collection)
         {
 
             Type type = collection.GetType();
@@ -244,10 +252,10 @@ namespace Hdf5DotNetTools
                     break;
             }
             //WriteHdf5Attributes(type, groupId, name, name);
-        }
+        }*/
 
 
-        public static Array ReadTmpArray<T>(int groupId, string name)
+        /*public static Array ReadTmpArray<T>(int groupId, string name)
         {
             return ReadTmpArray(typeof(T), groupId, name);
         }
@@ -317,7 +325,7 @@ namespace Hdf5DotNetTools
                     throw new NotSupportedException(str + elementType.FullName);
 
             }
-        }
+        }*/
 
     }
 }

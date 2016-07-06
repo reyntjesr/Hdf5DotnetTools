@@ -57,7 +57,7 @@ namespace Hdf5DotNetTools
                 if (attr is Hdf5Attributes)
                 {
                     var h5ats = attr as Hdf5Attributes;
-                    WriteAttribute(groupId, name, h5ats.Names, datasetName);
+                    WriteAttributes<string>(groupId, name, h5ats.Names, datasetName);
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteTmpArray(groupId, name, (Array)infoVal);
+                    dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                     //WriteOneValue(groupId, name, infoVal);
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
@@ -119,7 +119,7 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                     //throw new Exception("Not implemented yet");
-                    WriteTmpArray(groupId, name, (Array)infoVal);
+                    dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                     //WriteOneValue(groupId, name, infoVal);
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });

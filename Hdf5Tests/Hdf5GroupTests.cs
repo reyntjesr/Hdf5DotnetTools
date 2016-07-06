@@ -22,15 +22,15 @@ namespace Hdf5UnitTests
                 var dset = dsets.First();
 
                 int groupId = H5G.create(fileId, "/A"); ///B/C/D/E/F/G/H
-                Hdf5.WriteTmpArray(groupId, "test", dset);
+                Hdf5.WriteArray(groupId, "test", dset);
                 int subGroupId = Hdf5.CreateGroup(groupId, "C");
                 dset = dsets.Skip(1).First();
-                Hdf5.WriteTmpArray(subGroupId, "test2", dset);
+                Hdf5.WriteArray(subGroupId, "test2", dset);
                 Hdf5.CloseGroup(subGroupId);
                 Hdf5.CloseGroup(groupId);
                 groupId = H5G.create(fileId, "/A/B"); ///B/C/D/E/F/G/H
                 dset = dsets.Skip(1).First();
-                Hdf5.WriteTmpArray(groupId, "test", dset);
+                Hdf5.WriteArray(groupId, "test", dset);
                 Hdf5.CloseGroup(groupId);
 
                 groupId = Hdf5.CreateGroupRecursively(fileId, "A/B/C/D/E/F/I");
@@ -41,16 +41,16 @@ namespace Hdf5UnitTests
                 fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 groupId = H5G.open(fileId, "/A/B");
-                double[,] dset2 = (double[,])Hdf5.ReadTmpArray<double>(groupId, "test");
+                double[,] dset2 = (double[,])Hdf5.ReadArray<double>(groupId, "test");
                 compareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.CloseGroup(groupId) >= 0);
                 groupId = H5G.open(fileId, "/A/C");
-                dset2 = (double[,])Hdf5.ReadTmpArray<double>(groupId, "test2");
+                dset2 = (double[,])Hdf5.ReadArray<double>(groupId, "test2");
                 compareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.CloseGroup(groupId) >= 0);
                 bool same = dset == dset2;
                 dset = dsets.First();
-                dset2 = (double[,])Hdf5.ReadTmpArray<double>(fileId, "/A/test");
+                dset2 = (double[,])Hdf5.ReadArray<double>(fileId, "/A/test");
                 compareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.GroupExists(fileId, "A/B/C/D/E/F/I"));
 

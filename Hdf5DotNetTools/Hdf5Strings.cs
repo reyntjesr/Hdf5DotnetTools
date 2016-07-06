@@ -61,7 +61,7 @@ namespace Hdf5DotNetTools
         }
 
 
-        public static int WriteStrings(int groupId, string name, IEnumerable<string> strs)
+        public static int WriteStrings(int groupId, string name, IEnumerable<string> strs, string datasetName=null)
         {
 
             // create UTF-8 encoded test datasets
