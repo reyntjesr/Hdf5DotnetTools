@@ -43,7 +43,7 @@ namespace Hdf5DotNetTools
             FirstDataset(dataset);
         }
 
-        public void FirstDataset(T[,] dataset)
+        public void FirstDataset(Array dataset)
         {
             if (FalseGroupId) throw new Exception("cannot call FirstDataset because group or file couldn't be created");
             if (DatasetExists) throw new Exception("cannot call FirstDataset because dataset already exists");
@@ -69,16 +69,19 @@ namespace Hdf5DotNetTools
             hnd.Free();
         }
 
-        public void AppendDataset(T[,] dataset)
+        public void AppendDataset(Array dataset)
         {
             if (!DatasetExists) throw new Exception("call constructor or FirstDataset first before appending.");
             oldDims = currentDims;
             currentDims = getDims(dataset);
+            int rank = dataset.Rank;
+            ulong[] zeros = Enumerable.Range(0, rank).Select(z => (ulong)0).ToArray();
 
             /* Extend the dataset. Dataset becomes 10 x 3  */
-            var size = new ulong[] { oldDims[0] + currentDims[0], oldDims[1] };
+            var size = new ulong[] { oldDims[0] + currentDims[0] }.Concat(oldDims.Skip(1)).ToArray();
+
             status = H5D.set_extent(datasetId, size);
-            ulong[] offset = new ulong[] { oldDims[0], 0 };
+            ulong[] offset = new ulong[] { oldDims[0]}.Concat(zeros.Skip(1)).ToArray();
 
             /* Select a hyperslab in extended portion of dataset  */
             var filespaceId = H5D.get_space(datasetId);
@@ -124,9 +127,10 @@ namespace Hdf5DotNetTools
             }
         }
 
-        private ulong[] getDims(T[,] dataset)
+        private ulong[] getDims(Array dset)
         {
-            return new ulong[] { (ulong)dataset.GetLength(0), (ulong)dataset.GetLength(1) };
+            return Enumerable.Range(0, dset.Rank).Select(i =>
+            { return (ulong)dset.GetLength(i); }).ToArray();
         }
 
         /// <summary>
