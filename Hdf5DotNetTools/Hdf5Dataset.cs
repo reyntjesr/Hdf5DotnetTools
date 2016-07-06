@@ -14,64 +14,18 @@ namespace Hdf5DotNetTools
     public static partial class Hdf5
     {
         static Hdf5ReaderWriter dsetRW = new Hdf5ReaderWriter(new Hdf5Dataset());
+
         /// <summary>
-        /// Reads a two dimensional dataset.
+        /// Reads an n-dimensional dataset.
         /// </summary>
         /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
         /// <param name="groupId">id of the group. Can also be a file Id</param>
         /// <param name="name">name of the dataset</param>
-        /// <returns>The two dimensional dataset</returns>
-        /*public static T[,] ReadDataset<T>(int groupId, string name) //where T : struct
+        /// <returns>The n-dimensional dataset</returns>
+        public static Array ReadDatasetToArray<T>(int groupId, string name) //where T : struct
         {
             var datatype = GetDatatype(typeof(T));
 
-            //name = ToHdf5Name(name);
-
-            var datasetId = H5D.open(groupId, name);
-            var spaceId = H5D.get_space(datasetId);
-            int rank = H5S.get_simple_extent_ndims(spaceId);
-            long count = H5S.get_simple_extent_npoints(spaceId);
-            int rankChunk;
-            ulong[] maxDims = new ulong[rank];
-            ulong[] dims = new ulong[rank];
-            ulong[] chunkDims = new ulong[rank];
-            var memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
-            Type type = typeof(T);
-            T[,] dset = new T[dims[0], dims[1]];
-            var typeId = H5D.get_type(datasetId);
-            var mem_type = H5T.copy(datatype);
-            if (datatype == H5T.C_S1)
-                H5T.set_size(datatype, new IntPtr(2));
-
-            var propId = H5D.get_create_plist(datasetId);
-
-            if (H5D.layout_t.CHUNKED == H5P.get_layout(propId))
-                rankChunk = H5P.get_chunk(propId, rank, chunkDims);
-
-            memId = H5S.create_simple(rank, dims, maxDims);
-            GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
-            H5D.read(datasetId, datatype, memId, spaceId,
-                H5P.DEFAULT, hnd.AddrOfPinnedObject());
-            hnd.Free();
-            H5D.close(typeId);
-            H5D.close(datasetId);
-            H5S.close(spaceId);
-            return dset;
-
-        }*/
-
-        /// <summary>
-        /// Reads a two dimensional dataset.
-        /// </summary>
-        /// <typeparam name="T">Generic parameter strings or primitive type</typeparam>
-        /// <param name="groupId">id of the group. Can also be a file Id</param>
-        /// <param name="name">name of the dataset</param>
-        /// <returns>The two dimensional dataset</returns>
-        public static Array ReadTmpDataset<T>(int groupId, string name) //where T : struct
-        {
-            var datatype = GetDatatype(typeof(T));
-
-            //name = ToHdf5Name(name);
 
             var datasetId = H5D.open(groupId, name);
             var spaceId = H5D.get_space(datasetId);
@@ -173,6 +127,11 @@ namespace Hdf5DotNetTools
             return result;
         }
 
+        public static Array ReadDataset<T>(int groupId, string name)
+        {
+            return dsetRW.ReadArray<T>(groupId, name);
+        }
+
         /// <summary>
         /// Writes one value to a hdf5 file
         /// </summary>
@@ -193,36 +152,11 @@ namespace Hdf5DotNetTools
             }
         }
 
-        /// <summary>
-        /// Write a two dimensional dataset to a hdf5 file
-        /// </summary>
-        /// <typeparam name="T">Generic parameter only primitive types are allowed</typeparam>
-        /// <param name="groupId">id of the group. Can also be a file Id</param>
-        /// <param name="name">name of the dataset</param>
-        /// <param name="dset">The dataset</param>
-        /// <returns>status of the write method</returns>
-        /*public static int WriteDataset<T>(int groupId, string name, T[,] dset) //where T : struct
+        public static void WriteDataset(int groupId, string name, Array collection)
         {
+            dsetRW.WriteArray(groupId, name, collection);
+        }
 
-            ulong[] dims = new ulong[] { (ulong)dset.GetLength(0), (ulong)dset.GetLength(1) };
-            ulong[] maxDims = null;
-            var spaceId = H5S.create_simple(2, dims, maxDims);
-            var datatype = GetDatatype(typeof(T));
-            var typeId = H5T.copy(datatype);
-            if (datatype == H5T.C_S1)
-            {
-                H5T.set_size(datatype, new IntPtr(2));
-            }
-            var datasetId = H5D.create(groupId, name, datatype, spaceId);
-            GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
-            var result = H5D.write(datasetId, datatype, H5S.ALL, H5S.ALL, H5P.DEFAULT,
-                hnd.AddrOfPinnedObject());
-            hnd.Free();
-            H5D.close(datasetId);
-            H5S.close(spaceId);
-            H5T.close(typeId);
-            return result;
-        }*/
 
         public static int WriteDatasetFromArray<T>(int groupId, string name, Array dset, string datasetName = null) //where T : struct
         {
@@ -256,12 +190,14 @@ namespace Hdf5DotNetTools
         /// <param name="name">name of the dataset</param>
         /// <param name="dset">The dataset</param>
         /// <returns>status of the write method</returns>
-        public static int AppendDataset<T>(int groupId, string name, T[,] dset, ulong chunkX = 200) where T : struct
+        public static int AppendDataset<T>(int groupId, string name, Array dset, ulong chunkX = 200) where T : struct
         {
             var rank = dset.Rank;
-            ulong[] dimsExtend = new ulong[] { (ulong)dset.GetLength(0), (ulong)dset.GetLength(1) };
+            ulong[] dimsExtend = Enumerable.Range(0, rank).Select(i =>
+            { return (ulong)dset.GetLength(i); }).ToArray();
             ulong[] maxDimsExtend = null;
-            ulong[] dimsChunk = new ulong[] { chunkX, (ulong)dset.GetLength(1) };
+            ulong[] dimsChunk = new ulong[] { chunkX }.Concat(dimsExtend.Skip(1)).ToArray();
+            ulong[] zeros = Enumerable.Range(0, rank).Select(z => (ulong)0).ToArray();
             int status, spaceId, datasetId;
 
 
@@ -303,12 +239,12 @@ namespace Hdf5DotNetTools
                 status = H5P.get_chunk(propId, chunkDims, oldChunk);
 
                 /* Extend the dataset. */
-                var size = new ulong[] { dims[0] + dimsExtend[0], dims[1] };
+                var size = new ulong[] { dims[0] + dimsExtend[0] }.Concat(dims.Skip(1)).ToArray();
                 status = H5D.set_extent(datasetId, size);
 
                 /* Select a hyperslab in extended portion of dataset  */
                 var filespaceId = H5D.get_space(datasetId);
-                var offset = new ulong[] { dims[0], 0 };
+                var offset = new ulong[] { dims[0] }.Concat(zeros.Skip(1)).ToArray();
                 status = H5S.select_hyperslab(filespaceId, H5S.seloper_t.SET, offset, null,
                                               dimsExtend, null);
 

@@ -14,7 +14,7 @@ namespace Hdf5DotNetTools
     {
         public Array ReadToArray<T>(int groupId, string name)
         {
-            return Hdf5.ReadTmpDataset<T>(groupId, name);
+            return Hdf5.ReadDatasetToArray<T>(groupId, name);
         }
 
         public void WriteFromArray<T>(int groupId, string name, Array dset, string datasetName = null)

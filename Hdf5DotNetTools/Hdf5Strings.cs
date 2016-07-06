@@ -74,7 +74,6 @@ namespace Hdf5DotNetTools
             int spaceId = H5S.create_simple(1,
                 new ulong[] { (ulong)strSz }, null);
 
-            //name = ToHdf5Name(name);
             var datasetId = H5D.create(groupId, name, datatype, spaceId);
 
             GCHandle[] hnds = new GCHandle[strSz];
@@ -105,82 +104,6 @@ namespace Hdf5DotNetTools
             H5T.close(datatype);
             return result;
         }
-
-
-        //public static void WriteStringsToAscii2(int groupId, string name, IEnumerable<string> strs)
-        //{
-        //    var maxLength = strs.Select(s => s.Length).Max();
-        //    ulong strSz = (ulong)strs.Count();
-        //    var buf = strs.SelectMany(s => s.PadRight(maxLength).ToCharArray()).ToString();
-
-        //    ulong[] dimsa = new ulong[] { strSz, 1 };
-
-        //    /* Create the data space for the dataset. */
-        //    ulong[] dims = new ulong[] { strSz, (ulong)maxLength + 1 };
-        //    var spaceId = H5S.create_simple(2, dims, null);
-
-        //    /* Create the dataset. */
-        //    name = ToHdf5Name(name);
-        //    var datasetId = H5D.create(groupId, name, H5T.STD_I32BE, spaceId, H5P.DEFAULT);
-
-        //    var aId = H5S.create_simple(2, dimsa, null);
-
-        //    var aTypeId = H5T.copy(H5T.C_S1);
-        //    H5T.set_size(aTypeId, new IntPtr(maxLength));
-
-        //    var attr = H5A.create(datasetId, "string-att", aTypeId, aId, H5P.DEFAULT);
-
-        //    IntPtr bufArray = Marshal.StringToHGlobalAnsi(buf);
-        //    H5A.write(attr, aTypeId, bufArray);
-        //    Marshal.FreeHGlobal(bufArray);
-
-
-        //    /* End access to the dataset and release resources used by it. */
-        //    H5D.close(datasetId);
-
-        //    /* Terminate access to the data space. */
-        //    H5S.close(spaceId);
-
-        //    H5S.close(aId);
-        //    H5T.close(aTypeId);
-        //    H5A.close(attr);
-        //}
-        //public static int WriteStringsToAscii(int groupId, string name, IEnumerable<string> strs)
-        //{
-        //    var maxLength = strs.Select(s => s.Length).Max();
-        //    ulong strSz = (ulong)strs.Count();
-        //    var buf = strs.SelectMany(s => s.PadRight(maxLength).ToCharArray()).ToArray();
-
-        //    ulong[] dimsa = new ulong[] { strSz, 1 };
-
-        //    /* Create the data space for the dataset. */
-        //    ulong[] dims = new ulong[] { strSz, (ulong)maxLength };
-        //    var spaceId = H5S.create_simple(2, dims, null);
-
-        //    /* Create the dataset. */
-        //    //name = ToHdf5Name(name);
-
-        //    //var aId = H5S.create_simple(2, dimsa, null);
-
-        //    var aTypeId = H5T.copy(H5T.C_S1);
-        //    H5T.set_size(aTypeId, new IntPtr(2));
-        //    byte[] wdata = new byte[2 * buf.Length];
-        //    for (int i = 0; i < buf.Length; ++i)
-        //    {
-        //        wdata[2 * i] = (byte)buf[i];
-        //    }
-
-        //    var datasetId = H5D.create(groupId, name, H5T.FORTRAN_S1, spaceId);
-        //    GCHandle hnd = GCHandle.Alloc(wdata, GCHandleType.Pinned);
-        //    var result = H5D.write(datasetId, aTypeId, H5S.ALL, H5S.ALL, H5P.DEFAULT,
-        //        hnd.AddrOfPinnedObject());
-        //    hnd.Free();
-        //    H5D.close(datasetId);
-        //    H5S.close(spaceId);
-        //    H5T.close(aTypeId);
-        //    return result;
-        //}
-
 
         public static int WriteAsciiString(int groupId, string name, string str)
         {
@@ -318,69 +241,5 @@ namespace Hdf5DotNetTools
             return s;
         }
     }
-
-    //public static int Write64Strings(int groupId, string name, string str)
-    //{
-    //    var spaceNullId = H5S.create(H5S.class_t.NULL);
-    //    var spaceScalarId = H5S.create(H5S.class_t.SCALAR);
-
-    //    // store as H5T.FORTRAN_S1 -> space padding
-
-    //    int strSz = 64;
-    //    int strLength = 256 / strSz;
-    //    ulong[] dims = { (ulong)strSz, 1 };
-
-    //    var wbyte = new byte[256];
-    //    for (int i = 0; i < 256; ++i)
-    //        wbyte[i] = (byte)i;
-    //    var wdata = Encoding.ASCII.GetString(wbyte.ToArray());
-    //    wdata.Insert(0,str);
-
-    //    /* Create the dataset. */
-    //    //name = ToHdf5Name(name);
-
-    //    var spaceId = H5S.create_simple(1, dims, null);
-    //    var datasetId = H5D.create(groupId, name,
-    //            H5T.FORTRAN_S1, spaceId);
-    //    H5S.close(spaceId);
-
-
-    //    var memId = H5T.copy(H5T.C_S1);
-    //    H5T.set_size(memId, new IntPtr(2));
-    //    //H5T.set_strpad(memId, H5T.str_t.NULLTERM);
-
-    //    // we write from C and must provide null-terminated strings
-    //    GCHandle[] hnds = new GCHandle[strSz];
-    //    IntPtr[] wdata1 = new IntPtr[strSz];
-    //    byte[] bytes = new byte[strLength * 2];
-
-    //    for (int i = 0; i < strSz; ++i)
-    //    {
-    //        for (int j = 0; j < strLength; ++j)
-    //        {
-    //            var tmp = wdata.Substring(i * strLength, strLength);
-    //            bytes[2 * j] = Convert.ToByte(tmp[j]);
-    //        }
-    //        hnds[i] = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-    //        wdata1[i] = hnds[i].AddrOfPinnedObject();
-    //    }
-
-    //    var hnd = GCHandle.Alloc(wdata1, GCHandleType.Pinned);
-
-    //    int result = H5D.write(datasetId, memId, H5S.ALL, H5S.ALL,
-    //        H5P.DEFAULT, hnd.AddrOfPinnedObject());
-    //    hnd.Free();
-
-    //    for (int i = 0; i < strSz; ++i)
-    //    {
-    //        hnds[i].Free();
-    //    }
-
-
-    //    H5T.close(memId);
-    //    H5D.close(datasetId);
-    //    return result;
-    //}
-
 
 }

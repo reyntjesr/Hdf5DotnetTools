@@ -27,9 +27,9 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteArray(fileId, "/test", times);
+                Hdf5.WriteDataset(fileId, "/test", times);
 
-                var timesRead = (DateTime[,]) Hdf5.ReadArray<DateTime>(fileId, "/test");
+                var timesRead = (DateTime[,]) Hdf5.ReadDataset<DateTime>(fileId, "/test");
                 compareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
@@ -56,9 +56,9 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteArray(fileId, "/test", times);
+                Hdf5.WriteDataset(fileId, "/test", times);
 
-                TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadArray<TimeSpan>(fileId, "/test");
+                TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadDataset<TimeSpan>(fileId, "/test");
                 compareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
@@ -79,7 +79,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                Hdf5.WriteArray(fileId, "/test", dset);
+                Hdf5.WriteDataset(fileId, "/test", dset);
                 Hdf5.CloseFile(fileId);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Hdf5UnitTests
             {
                 int fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                double[,] dset2 = (double[,])Hdf5.ReadArray<double>(fileId, "/test");
+                double[,] dset2 = (double[,])Hdf5.ReadDataset<double>(fileId, "/test");
                 compareDatasets(dset, dset2);
                 bool same = dset == dset2;
 
@@ -204,8 +204,7 @@ namespace Hdf5UnitTests
             try
             {
                 int fileId = Hdf5.OpenFile(filename);
-                var dset = Hdf5.ReadTmpDataset<double>(fileId, "/test");
-
+                var dset = Hdf5.ReadDatasetToArray<double>(fileId, "/test");
 
                 Assert.IsTrue(dset.Rank == dsets.First().Rank);
                 var xSum = dsets.Select(d => d.GetLength(0)).Sum();

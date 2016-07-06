@@ -208,6 +208,94 @@ namespace Hdf5DotNetTools
             return dataType;
         }
 
+        /*private static T[,] convertArrayToType<T>(Array collection)
+        {
+            System.Collections.IEnumerator myEnumerator = collection.GetEnumerator();
+            if (collection.Rank > 2)
+                throw new Exception("rank of the array rank is to high");
+            int rows = collection.GetLength(0);
+            int cols = (collection.Rank == 1) ? 1 : collection.GetLength(1);
+            T[,] output = new T[rows, cols];
+            for (int row = 0; row <= collection.GetUpperBound(0); row++)
+                if (cols == 1)
+                    output[row, 0] = (T)collection.GetValue(row);
+                else
+                    for (int col = 0; col <= collection.GetUpperBound(1); col++)
+                        output[row, col] = (T)collection.GetValue(row, col);
+            return output;
+        }*/
+
+        /// <summary>
+        /// http://stackoverflow.com/questions/9914230/iterate-through-an-array-of-arbitrary-dimension
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static Array ConvertArray<T1, T2>(this Array array, Func<T1, T2> convertFunc)
+        {
+            // Gets the lengths and lower bounds of the input array
+            int[] lowerBounds = new int[array.Rank];
+            int[] lengths = new int[array.Rank];
+            for (int numDimension = 0; numDimension < array.Rank; numDimension++)
+            {
+                lowerBounds[numDimension] = array.GetLowerBound(numDimension);
+                lengths[numDimension] = array.GetLength(numDimension);
+            }
+            Func<Array, int[]> firstIndex = a => Enumerable.Range(0, a.Rank).Select(_i => a.GetLowerBound(_i)).ToArray();
+
+            Func<Array, int[], int[]> nextIndex = (a, index) =>
+            {
+                for (int i = index.Length - 1; i >= 0; --i)
+                {
+                    index[i]++;
+                    if (index[i] <= array.GetUpperBound(i))
+                        return index;
+                    index[i] = array.GetLowerBound(i);
+                }
+                return null;
+            };
+
+            Type type = typeof(T2);
+            Array ar = Array.CreateInstance(type, lengths, lowerBounds);
+            for (var index = firstIndex(array); index != null; index = nextIndex(array, index))
+            {
+                var v = (T1)array.GetValue(index);
+                ar.SetValue(convertFunc(v), index);
+            }
+
+            return ar;
+        }
+
+        private static T[] convert2DtoArray<T>(T[,] set)
+        {
+            int rows = set.GetLength(0);
+            int cols = set.GetLength(1);
+            T[] output = new T[cols * rows];
+            for (int i = 0; i < cols; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    output[i * cols + j] = set[j, i];
+                }
+            }
+            return output;
+        }
+
+        private static Tout[] convert2DtoArray<Tin, Tout>(Tin[,] set, Func<Tin, Tout> convert)
+        {
+            int rows = set.GetLength(0);
+            int cols = set.GetLength(1);
+            Tout[] output = new Tout[cols * rows];
+            for (int i = 0; i < cols; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    output[i * cols + j] = convert(set[j, i]);
+                }
+            }
+            return output;
+        }
+
         //private static T[] getdataOfType<T>(int datatype) where T : struct
         //{
         //    System.Type type;
