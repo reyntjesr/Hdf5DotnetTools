@@ -26,7 +26,8 @@ namespace Hdf5DotNetTools
                 groupId = Hdf5.CreateGroup(groupId, groupName);
 
             Type tyObject = writeValue.GetType();
-            foreach (Attribute attr in Attribute.GetCustomAttributes(tyObject))
+            var attributes = Attribute.GetCustomAttributes(tyObject);
+            foreach (Attribute attr in attributes)
             {
                 Hdf5SaveAttribute legAt = attr as Hdf5SaveAttribute;
                 if (legAt != null)
@@ -39,25 +40,25 @@ namespace Hdf5DotNetTools
 
             WriteProperties(tyObject, writeValue, groupId);
             WriteFields(tyObject, writeValue, groupId);
-            WriteHdf5Attributes(tyObject, groupId, groupName);
+            WriteHdf5Attributes(attributes, groupId, groupName, groupName);
             if (createGroupName)
                 Hdf5.CloseGroup(groupId);
             return (writeValue);
         }
 
-        private static void WriteHdf5Attributes(Type type, int groupId, string name, string datasetName = null)
+        private static void WriteHdf5Attributes(Attribute[] attributes, int groupId, string name, string datasetName = null)
         {
-            foreach (Attribute attr in Attribute.GetCustomAttributes(type))
+            foreach (Attribute attr in attributes)
             {
-                if (attr is Hdf5Attribute)
+                if (attr is Hdf5StringAttribute)
                 {
-                    var h5at = attr as Hdf5Attribute;
-                    WriteAttribute(groupId, name, h5at.Name, datasetName);
+                    var h5at = attr as Hdf5StringAttribute;
+                    Hdf5.WriteStringAttribute(groupId, name, h5at.Name, datasetName);
                 }
-                if (attr is Hdf5Attributes)
+                if (attr is Hdf5StringAttributes)
                 {
-                    var h5ats = attr as Hdf5Attributes;
-                    WriteAttributes<string>(groupId, name, h5ats.Names, datasetName);
+                    var h5ats = attr as Hdf5StringAttributes;
+                    Hdf5.WriteStringAttributes(groupId, name, h5ats.Names, datasetName);
                 }
             }
         }
@@ -70,7 +71,8 @@ namespace Hdf5DotNetTools
             foreach (FieldInfo info in miMembers)
             {
                 bool nextInfo = false;
-                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
+                var attributes = Attribute.GetCustomAttributes(info);
+                foreach (Attribute attr in attributes)
                 {
                     var legAttr = attr as Hdf5SaveAttribute;
                     var kind = legAttr?.SaveKind;
@@ -92,6 +94,8 @@ namespace Hdf5DotNetTools
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
+                WriteHdf5Attributes(attributes, groupId, name, name);
+
             }
         }
 
@@ -103,7 +107,8 @@ namespace Hdf5DotNetTools
             foreach (PropertyInfo info in miMembers)
             {
                 bool nextInfo = false;
-                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
+                var attributes = Attribute.GetCustomAttributes(info);
+                foreach (Attribute attr in attributes)
                 {
                     var legAttr = attr as Hdf5SaveAttribute;
                     var kind = legAttr?.SaveKind;
@@ -125,6 +130,7 @@ namespace Hdf5DotNetTools
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
+                WriteHdf5Attributes(attributes, groupId, name, name);
             }
         }
         static void CallByReflection(string name, Type typeArg,

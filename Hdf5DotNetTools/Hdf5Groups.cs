@@ -53,5 +53,11 @@ namespace Hdf5DotNetTools
             return gid == 0;
         }
 
+        public static ulong NumberOfAttributes(int groupId, string groupName)
+        {
+            H5O.info_t info = new H5O.info_t();
+            var gid = H5O.get_info(groupId, ref info);
+            return info.num_attrs;
+        }
     }
 }

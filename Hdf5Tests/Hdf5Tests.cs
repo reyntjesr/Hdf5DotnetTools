@@ -11,18 +11,18 @@ namespace Hdf5UnitTests
     [TestClass]
     public partial class Hdf5UnitTests
     {
-        [Hdf5Attributes(new string[] { "some info", "more info" })]
+        [Hdf5StringAttributes(new string[] { "some info", "more info" })]
         class AttributeClass
         {
             public class NestedInfo
             {
                 public int noAttribute = 10;
 
-                [Hdf5Attribute("some money")]
+                [Hdf5StringAttribute("some money")]
                 public decimal money = 100.12M;
             }
 
-            [Hdf5Attribute("birthdate")]
+            [Hdf5StringAttribute("birthdate")]
             public DateTime aDatetime = new DateTime(1969, 12, 01, 12, 00, 00, DateTimeKind.Local);
 
             public double noAttribute = 10.0;

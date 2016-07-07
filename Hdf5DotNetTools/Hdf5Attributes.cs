@@ -21,10 +21,10 @@ namespace Hdf5DotNetTools
         public string Name { get; private set; }
     }
 
-    sealed public class Hdf5Attributes : Attribute
+    sealed public class Hdf5StringAttributes : Attribute
     {
 
-        public Hdf5Attributes(string[] names)
+        public Hdf5StringAttributes(string[] names)
         {
             Names = names;
         }
@@ -32,10 +32,10 @@ namespace Hdf5DotNetTools
         public string[] Names { get; private set; }
     }
 
-    sealed public class Hdf5Attribute : Attribute
+    sealed public class Hdf5StringAttribute : Attribute
     {
 
-        public Hdf5Attribute(string name)
+        public Hdf5StringAttribute(string name)
         {
             Name = name;
         }
@@ -141,13 +141,17 @@ namespace Hdf5DotNetTools
 
         public static int WriteStringAttributes(int groupId, string name, IEnumerable<string> strs, string datasetName = null)
         {
-            var tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
             {
                 var datasetId = H5D.open(groupId, datasetName);
                 if (datasetId > 0)
+                {
                     groupId = datasetId;
+                }
+                name = datasetName;
             }
+            var nrOfAttributes = NumberOfAttributes(groupId, name);
+            name = string.Format("{0}_{1}", name, nrOfAttributes+1);
 
             // create UTF-8 encoded attributes
             int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
