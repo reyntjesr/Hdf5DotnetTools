@@ -79,7 +79,7 @@ The object is written to a file and than read back in a new object.
     Hdf5.CloseFile(fileId);
     
 ## ToDo
-This is a very early version of the library. Reading and writing attributes is still missing. I tried writing a generic method that could write compound arrays but that still doesn't work.
+This is a very early version of the library. I tried writing a generic method that could write compound arrays but that still doesn't work. Any help with this will be much appreciated.
 
 ## Other projects that use the HDF.Pinvoke library
 Another project on github that uses the [HDF.Pinvoke](https://github.com/HDFGroup/HDF.PInvoke) library to read and write HDF5 files is the [sharpHDF](https://github.com/sharpHDF/sharpHDF) project. I discovered it while I was working on my own library. It has a different approah to writing and reading hdf5 files. You have to create a Hdf5File object and fill it with groups, attributes and datasets. When you close the Hdf5File object it writes the file.

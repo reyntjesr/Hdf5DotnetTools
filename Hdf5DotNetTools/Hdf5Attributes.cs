@@ -70,6 +70,7 @@ namespace Hdf5DotNetTools
             int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
+            //name = getAttributeName(groupId, name);
 
             //name = ToHdf5Name(name);
 
@@ -107,6 +108,7 @@ namespace Hdf5DotNetTools
         {
             Type type = typeof(T);
             var datatype = GetDatatype(type);
+            //name = getAttributeName(groupId, name);
 
             var attributeId = H5A.open(groupId, name);
             var spaceId = H5A.get_space(attributeId);
@@ -141,17 +143,9 @@ namespace Hdf5DotNetTools
 
         public static int WriteStringAttributes(int groupId, string name, IEnumerable<string> strs, string datasetName = null)
         {
-            if (!string.IsNullOrWhiteSpace(datasetName))
-            {
-                var datasetId = H5D.open(groupId, datasetName);
-                if (datasetId > 0)
-                {
-                    groupId = datasetId;
-                }
-                name = datasetName;
-            }
-            var nrOfAttributes = NumberOfAttributes(groupId, name);
-            name = string.Format("{0}_{1}", name, nrOfAttributes+1);
+            var tmpId = groupId;
+            openDataset(ref groupId, ref name, datasetName);
+            //name = getAttributeName(groupId, name);
 
             // create UTF-8 encoded attributes
             int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
@@ -189,6 +183,7 @@ namespace Hdf5DotNetTools
 
             H5S.close(spaceId);
             H5T.close(datatype);
+            if (tmpId != groupId)
             {
                 H5D.close(groupId);
             }
@@ -216,15 +211,31 @@ namespace Hdf5DotNetTools
                 return WritePrimitiveAttribute<T>(groupId, name, attributes, datasetName);*/
         }
 
-        public static int WritePrimitiveAttribute<T>(int groupId, string name, Array attributes, string datasetName = null) //where T : struct
+        static void openDataset(ref int groupId, ref string name, string datasetName)
         {
-            var tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
             {
                 var datasetId = H5D.open(groupId, datasetName);
                 if (datasetId > 0)
+                {
                     groupId = datasetId;
+                }
+                //name = datasetName;
             }
+        }
+
+       static string getAttributeName(int groupId, string name)
+            {
+            var nrOfAttributes = NumberOfAttributes(groupId, name);
+            return string.Format("{0}_{1}", name, nrOfAttributes + 1);
+        }
+
+        public static int WritePrimitiveAttribute<T>(int groupId, string name, Array attributes, string datasetName = null) //where T : struct
+        {
+            var tmpId = groupId;
+            openDataset(ref groupId, ref name, datasetName);
+            //name = getAttributeName(groupId, name);
+
             int rank = attributes.Rank;
             ulong[] dims = Enumerable.Range(0, rank).Select(i =>
             { return (ulong)attributes.GetLength(i); }).ToArray();

@@ -40,7 +40,7 @@ namespace Hdf5DotNetTools
 
             WriteProperties(tyObject, writeValue, groupId);
             WriteFields(tyObject, writeValue, groupId);
-            WriteHdf5Attributes(attributes, groupId, groupName, groupName);
+            WriteHdf5Attributes(attributes, groupId, groupName);
             if (createGroupName)
                 Hdf5.CloseGroup(groupId);
             return (writeValue);
@@ -50,6 +50,9 @@ namespace Hdf5DotNetTools
         {
             foreach (Attribute attr in attributes)
             {
+                name = name + "_attr";
+                //if (!string.IsNullOrWhiteSpace(datasetName))
+                //    datasetName = datasetName + "_attr";
                 if (attr is Hdf5StringAttribute)
                 {
                     var h5at = attr as Hdf5StringAttribute;
