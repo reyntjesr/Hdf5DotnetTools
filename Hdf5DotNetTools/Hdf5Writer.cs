@@ -51,8 +51,6 @@ namespace Hdf5DotNetTools
             foreach (Attribute attr in attributes)
             {
                 name = name + "_attr";
-                //if (!string.IsNullOrWhiteSpace(datasetName))
-                //    datasetName = datasetName + "_attr";
                 if (attr is Hdf5StringAttribute)
                 {
                     var h5at = attr as Hdf5StringAttribute;
