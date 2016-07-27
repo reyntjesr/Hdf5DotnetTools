@@ -9,9 +9,9 @@ using System.IO;
 using System.Reflection;
 
 #if HDF5_VER1_10
-using hid_t = System.Int64;
+    using hid_t = System.Int64;
 #else
-using hid_t = System.Int32;
+    using hid_t = System.Int32;
 #endif
 
 
@@ -23,7 +23,7 @@ namespace Hdf5DotNetTools
         public int offset;
         public int size;
         public Type type;
-        public int datatype;
+        public hid_t datatype;
     }
 
 
@@ -83,22 +83,22 @@ namespace Hdf5DotNetTools
         /// <param name="filename"></param>
         /// <param name="readOnly"></param>
         /// <returns></returns>
-        public static int OpenFile(string filename, bool readOnly = false, bool overwrite = false)
+        public static hid_t OpenFile(string filename, bool readOnly = false, bool overwrite = false)
         {
-            int fileId;
+            hid_t fileId;
             uint access = (readOnly) ? H5F.ACC_RDONLY : H5F.ACC_RDWR;
             fileId = H5F.open(filename, access);
             return fileId;
         }
 
-        public static int CreateFile(string filename)
+        public static hid_t CreateFile(string filename)
         {
             return H5F.create(filename, H5F.ACC_TRUNC);
         }
 
 
 
-        public static int CloseFile(int fileId)
+        public static hid_t CloseFile(hid_t fileId)
         {
             return H5F.close(fileId);
         }
@@ -109,10 +109,10 @@ namespace Hdf5DotNetTools
         //}
 
 
-        internal static int GetDatatype(System.Type type)
+        internal static hid_t GetDatatype(System.Type type)
         {
             //var typeName = type.Name;
-            int dataType;
+            hid_t dataType;
 
             var typeCode = Type.GetTypeCode(type);
             switch (typeCode)
@@ -161,10 +161,10 @@ namespace Hdf5DotNetTools
             return dataType;
         }
 
-        internal static int GetDatatypeIEEE(System.Type type)
+        internal static hid_t GetDatatypeIEEE(System.Type type)
         {
             var typeCode = Type.GetTypeCode(type);
-            int dataType;
+            hid_t dataType;
             switch (typeCode)
             {
                 case TypeCode.Int16:

@@ -21,7 +21,7 @@ namespace Hdf5UnitTests
 
 
                 // Open file and write the strings
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteStrings(fileId, "/test", str);
 
@@ -57,7 +57,7 @@ namespace Hdf5UnitTests
 
 
                 // Open file and write the strings
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteStrings(fileId, "/test", strs);
 
@@ -87,7 +87,7 @@ namespace Hdf5UnitTests
                 string filename = Path.Combine(folder, "testOneString.H5");
 
 
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Hdf5.WriteAsciiString(fileId, "/test", test);
                 Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);
 
@@ -112,7 +112,7 @@ namespace Hdf5UnitTests
                 string filename = Path.Combine(folder, "testUnicodeString.H5");
 
 
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Hdf5.WriteUnicodeString(fileId, "/test", test);
                 Assert.IsTrue(Hdf5.CloseFile(fileId) >= 0);
 

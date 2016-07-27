@@ -24,7 +24,7 @@ namespace Hdf5UnitTests
                 // 31-Oct-2003, 18:00 is  731885.75 in matlab
                 testClass.TestTime = new DateTime(2003, 10, 31, 18, 0, 0); 
 
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
 
                 Hdf5.WriteObject(fileId, testClass, "objectWithProperties");
@@ -37,7 +37,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
 
                 TestClass readObject = new TestClass();
@@ -77,7 +77,7 @@ namespace Hdf5UnitTests
 
                 string filename = Path.Combine(folder, "testArrayObjects.H5");
 
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId >= 0);
 
                 Hdf5.WriteObject(fileId, testClassWithArrays, "objectWithTwoArrays");

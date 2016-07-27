@@ -10,11 +10,16 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public partial class Hdf5
     {
 
 
-        public static object WriteObject(int groupId, object writeValue, string groupName = null)
+        public static object WriteObject(hid_t groupId, object writeValue, string groupName = null)
         {
             if (writeValue == null)
             {
@@ -26,8 +31,7 @@ namespace Hdf5DotNetTools
                 groupId = Hdf5.CreateGroup(groupId, groupName);
 
             Type tyObject = writeValue.GetType();
-            var attributes = Attribute.GetCustomAttributes(tyObject);
-            foreach (Attribute attr in attributes)
+            foreach (Attribute attr in Attribute.GetCustomAttributes(tyObject))
             {
                 Hdf5SaveAttribute legAt = attr as Hdf5SaveAttribute;
                 if (legAt != null)
@@ -40,31 +44,30 @@ namespace Hdf5DotNetTools
 
             WriteProperties(tyObject, writeValue, groupId);
             WriteFields(tyObject, writeValue, groupId);
-            WriteHdf5Attributes(attributes, groupId, groupName);
+            WriteHdf5Attributes(tyObject, groupId, groupName);
             if (createGroupName)
                 Hdf5.CloseGroup(groupId);
             return (writeValue);
         }
 
-        private static void WriteHdf5Attributes(Attribute[] attributes, int groupId, string name, string datasetName = null)
+        private static void WriteHdf5Attributes(Type type, hid_t groupId, string name, string datasetName = null)
         {
-            foreach (Attribute attr in attributes)
+            foreach (Attribute attr in Attribute.GetCustomAttributes(type))
             {
-                name = name + "_attr";
-                if (attr is Hdf5StringAttribute)
+                if (attr is Hdf5Attribute)
                 {
-                    var h5at = attr as Hdf5StringAttribute;
-                    Hdf5.WriteStringAttribute(groupId, name, h5at.Name, datasetName);
+                    var h5at = attr as Hdf5Attribute;
+                    WriteAttribute(groupId, name, h5at.Name, datasetName);
                 }
-                if (attr is Hdf5StringAttributes)
+                if (attr is Hdf5Attributes)
                 {
-                    var h5ats = attr as Hdf5StringAttributes;
-                    Hdf5.WriteStringAttributes(groupId, name, h5ats.Names, datasetName);
+                    var h5ats = attr as Hdf5Attributes;
+                    WriteAttributes<string>(groupId, name, h5ats.Names, datasetName);
                 }
             }
         }
 
-        private static void WriteFields(Type tyObject, object writeValue, int groupId)
+        private static void WriteFields(Type tyObject, object writeValue, hid_t groupId)
         {
             FieldInfo[] miMembers = tyObject.GetFields(BindingFlags.DeclaredOnly |
        /*BindingFlags.NonPublic |*/ BindingFlags.Instance | BindingFlags.Public);
@@ -72,8 +75,7 @@ namespace Hdf5DotNetTools
             foreach (FieldInfo info in miMembers)
             {
                 bool nextInfo = false;
-                var attributes = Attribute.GetCustomAttributes(info);
-                foreach (Attribute attr in attributes)
+                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
                 {
                     var legAttr = attr as Hdf5SaveAttribute;
                     var kind = legAttr?.SaveKind;
@@ -95,12 +97,10 @@ namespace Hdf5DotNetTools
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
-                WriteHdf5Attributes(attributes, groupId, name, name);
-
             }
         }
 
-        private static void WriteProperties(Type tyObject, object writeValue, int groupId)
+        private static void WriteProperties(Type tyObject, object writeValue, hid_t groupId)
         {
             PropertyInfo[] miMembers = tyObject.GetProperties(/*BindingFlags.DeclaredOnly |*/
        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
@@ -108,8 +108,7 @@ namespace Hdf5DotNetTools
             foreach (PropertyInfo info in miMembers)
             {
                 bool nextInfo = false;
-                var attributes = Attribute.GetCustomAttributes(info);
-                foreach (Attribute attr in attributes)
+                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
                 {
                     var legAttr = attr as Hdf5SaveAttribute;
                     var kind = legAttr?.SaveKind;
@@ -131,7 +130,6 @@ namespace Hdf5DotNetTools
                     CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
                 else
                     WriteObject(groupId, infoVal, name);
-                WriteHdf5Attributes(attributes, groupId, name, name);
             }
         }
         static void CallByReflection(string name, Type typeArg,
