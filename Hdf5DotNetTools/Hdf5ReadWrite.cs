@@ -10,22 +10,27 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public class Hdf5Dataset : IHdf5ReaderWriter
     {
-        public Array ReadToArray<T>(int groupId, string name)
+        public Array ReadToArray<T>(hid_t groupId, string name)
         {
             return Hdf5.ReadDatasetToArray<T>(groupId, name);
         }
 
-        public void WriteFromArray<T>(int groupId, string name, Array dset, string datasetName = null)
+        public void WriteFromArray<T>(hid_t groupId, string name, Array dset, string datasetName = null)
         {
             Hdf5.WriteDatasetFromArray<T>(groupId, name, dset, datasetName);
         }
-        public void WriteStrings(int groupId, string name, IEnumerable<string> collection, string datasetName = null)
+        public void WriteStrings(hid_t groupId, string name, IEnumerable<string> collection, string datasetName = null)
         {
             Hdf5.WriteStrings(groupId, name, (string[])collection, datasetName);
         }
-        public IEnumerable<string> ReadStrings(int groupId, string name)
+        public IEnumerable<string> ReadStrings(hid_t groupId, string name)
         {
             return Hdf5.ReadStrings(groupId, name);
         }
@@ -34,22 +39,22 @@ namespace Hdf5DotNetTools
 
     public class Hdf5AttributeRW : IHdf5ReaderWriter
     {
-        public Array ReadToArray<T>(int groupId, string name)
+        public Array ReadToArray<T>(hid_t groupId, string name)
         {
             return Hdf5.ReadPrimitiveAttributes<T>(groupId, name);
         }
 
-        public void WriteFromArray<T>(int groupId, string name, Array dset, string datasetName = null)
+        public void WriteFromArray<T>(hid_t groupId, string name, Array dset, string datasetName = null)
         {
             Hdf5.WritePrimitiveAttribute<T>(groupId, name, dset, datasetName);
         }
 
-        public void WriteStrings(int groupId, string name, IEnumerable<string> collection, string datasetName = null)
+        public void WriteStrings(hid_t groupId, string name, IEnumerable<string> collection, string datasetName = null)
         {
             Hdf5.WriteStringAttributes(groupId, name, (string[])collection, datasetName);
         }
 
-        public IEnumerable<string> ReadStrings(int groupId, string name)
+        public IEnumerable<string> ReadStrings(hid_t groupId, string name)
         {
             return Hdf5.ReadStringAttributes(groupId, name);
         }
@@ -58,11 +63,11 @@ namespace Hdf5DotNetTools
 
     public interface IHdf5ReaderWriter
     {
-        void WriteFromArray<T>(int groupId, string name, Array dset, string datasetName = null);
-        Array ReadToArray<T>(int groupId, string name);
+        void WriteFromArray<T>(hid_t groupId, string name, Array dset, string datasetName = null);
+        Array ReadToArray<T>(hid_t groupId, string name);
 
-        void WriteStrings(int groupId, string name, IEnumerable<string> collection, string datasetName = null);
-        IEnumerable<string> ReadStrings(int groupId, string name);
+        void WriteStrings(hid_t groupId, string name, IEnumerable<string> collection, string datasetName = null);
+        IEnumerable<string> ReadStrings(hid_t groupId, string name);
 
     }
 
@@ -74,7 +79,7 @@ namespace Hdf5DotNetTools
             rw = _rw;
         }
 
-        public void WriteArray(int groupId, string name, Array collection, string datasetName = null)
+        public void WriteArray(hid_t groupId, string name, Array collection, string datasetName = null)
         {
 
             Type type = collection.GetType();
@@ -173,12 +178,12 @@ namespace Hdf5DotNetTools
         }
 
 
-        public Array ReadArray<T>(int groupId, string name)
+        public Array ReadArray<T>(hid_t groupId, string name)
         {
             return ReadArray(typeof(T), groupId, name);
         }
 
-        public Array ReadArray(Type elementType, int groupId, string name)
+        public Array ReadArray(Type elementType, hid_t groupId, string name)
         {
             TypeCode ty = Type.GetTypeCode(elementType);
 

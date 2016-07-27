@@ -17,13 +17,13 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var dset = dsets.First();
 
-                int groupId = H5G.create(fileId, "/A"); ///B/C/D/E/F/G/H
+                var groupId = H5G.create(fileId, "/A"); ///B/C/D/E/F/G/H
                 Hdf5.WriteDataset(groupId, "test", dset);
-                int subGroupId = Hdf5.CreateGroup(groupId, "C");
+                var subGroupId = Hdf5.CreateGroup(groupId, "C");
                 dset = dsets.Skip(1).First();
                 Hdf5.WriteDataset(subGroupId, "test2", dset);
                 Hdf5.CloseGroup(subGroupId);

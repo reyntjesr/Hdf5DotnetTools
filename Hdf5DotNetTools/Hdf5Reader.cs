@@ -10,10 +10,15 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public partial class Hdf5
     {
 
-        public static T ReadObject<T>(int groupId, T readValue, string groupName)
+        public static T ReadObject<T>(hid_t groupId, T readValue, string groupName)
         {
             if (readValue == null)
             {
@@ -45,13 +50,13 @@ namespace Hdf5DotNetTools
             return readValue;
         }
 
-        public static T ReadObject<T>(int groupId, string groupName) where T: new()
+        public static T ReadObject<T>(hid_t groupId, string groupName) where T: new()
         {
             T readValue = new T();
             return ReadObject<T>(groupId, readValue, groupName);
         }
 
-        private static void ReadFields(Type tyObject, object readValue, int groupId)
+        private static void ReadFields(Type tyObject, object readValue, hid_t groupId)
         {
             FieldInfo[] miMembers = tyObject.GetFields(BindingFlags.DeclaredOnly |
        /*BindingFlags.NonPublic |*/ BindingFlags.Public | BindingFlags.Instance);
@@ -98,7 +103,7 @@ namespace Hdf5DotNetTools
             }
         }
 
-        private static void ReadProperties(Type tyObject, object readValue, int groupId)
+        private static void ReadProperties(Type tyObject, object readValue, hid_t groupId)
         {
             PropertyInfo[] miMembers = tyObject.GetProperties(/*BindingFlags.DeclaredOnly |*/
        BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);

@@ -10,14 +10,19 @@ using System.Reflection;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public static partial class Hdf5
     {
         // information: https://www.hdfgroup.org/ftp/HDF5/examples/examples-by-api/hdf5-examples/1_8/C/H5T/h5ex_t_cmpd.c
         //or: https://www.hdfgroup.org/HDF5/doc/UG/HDF5_Users_Guide-Responsive%20HTML5/index.html#t=HDF5_Users_Guide%2FDatatypes%2FHDF5_Datatypes.htm%3Frhtocid%3Dtoc6.5%23TOC_6_8_Complex_Combinationsbc-22
 
-        public static int WriteCompounds<T>(int groupId, string name, IEnumerable<T> array) where T : struct
+        public static int WriteCompounds<T>(hid_t groupId, string name, IEnumerable<T> array) where T : struct
         {
-            int memId=0, filetype=0;
+            hid_t memId=0, filetype=0;
             Type type = typeof(T);
             var fields = type.GetFields();
             //array = changeStrings(array, fields);
@@ -69,7 +74,7 @@ namespace Hdf5DotNetTools
 
 
         ///
-        private static int calcCompoundSize(Type type,bool useIEEE, ref int id)
+        private static int calcCompoundSize(Type type,bool useIEEE, ref hid_t id)
         {
             // Create the compound datatype for the file.  Because the standard
             // types we are using for the file may have different sizes than
@@ -126,10 +131,10 @@ namespace Hdf5DotNetTools
             return constSize;
         }
 
-        public static IEnumerable<T> ReadCompounds<T>(int groupId, string name) where T : struct
+        public static IEnumerable<T> ReadCompounds<T>(hid_t groupId, string name) where T : struct
         {
             Type type = typeof(T);
-            int memId = 0;
+            hid_t memId = 0;
             // open dataset
             var datasetId = H5D.open(groupId, name);
 

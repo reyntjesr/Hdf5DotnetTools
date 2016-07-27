@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     [System.AttributeUsage(System.AttributeTargets.Class |
                        System.AttributeTargets.Struct)]
     sealed public class Hdf5GroupName : Attribute
@@ -47,7 +52,7 @@ namespace Hdf5DotNetTools
     {
         static Hdf5ReaderWriter attrRW = new Hdf5ReaderWriter(new Hdf5AttributeRW());
 
-        public static Array ReadAttributes<T>(int groupId, string name)
+        public static Array ReadAttributes<T>(hid_t groupId, string name)
         {
             return attrRW.ReadArray<T>(groupId, name);
             /*if (typeof(T) == typeof(string))
@@ -56,7 +61,7 @@ namespace Hdf5DotNetTools
                 return ReadPrimitiveAttributes<T>(groupId, name);*/
         }
 
-        public static T ReadAttribute<T>(int groupId, string name)
+        public static T ReadAttribute<T>(hid_t groupId, string name)
         {
             var attrs = attrRW.ReadArray<T>(groupId, name);
             int[] first = new int[attrs.Rank].Select(f => 0).ToArray();
@@ -64,17 +69,17 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static IEnumerable<string> ReadStringAttributes(int groupId, string name)
+        public static IEnumerable<string> ReadStringAttributes(hid_t groupId, string name)
         {
 
-            int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
+            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
 
             //name = ToHdf5Name(name);
 
             var datasetId = H5A.open(groupId, name);
-            int spaceId = H5A.get_space(datasetId);
+            hid_t spaceId = H5A.get_space(datasetId);
 
             long count = H5S.get_simple_extent_npoints(spaceId);
             H5S.close(spaceId);
@@ -103,7 +108,7 @@ namespace Hdf5DotNetTools
             return strs;
         }
 
-        public static Array ReadPrimitiveAttributes<T>(int groupId, string name) //where T : struct
+        public static Array ReadPrimitiveAttributes<T>(hid_t groupId, string name) //where T : struct
         {
             Type type = typeof(T);
             var datatype = GetDatatype(type);
@@ -113,7 +118,7 @@ namespace Hdf5DotNetTools
             int rank = H5S.get_simple_extent_ndims(spaceId);
             ulong[] maxDims = new ulong[rank];
             ulong[] dims = new ulong[rank];
-            var memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
+            hid_t memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
             long[] lengths = dims.Select(d => Convert.ToInt64(d)).ToArray();
             Array attributes = Array.CreateInstance(type, lengths);
 
@@ -134,28 +139,28 @@ namespace Hdf5DotNetTools
             return attributes;
         }
 
-        public static int WriteStringAttribute(int groupId, string name, string str, string datasetName = null)
+        public static int WriteStringAttribute(hid_t groupId, string name, string str, string datasetName = null)
         {
             return WriteStringAttributes(groupId, name, new string[] { str }, datasetName);
         }
 
-        public static int WriteStringAttributes(int groupId, string name, IEnumerable<string> strs, string datasetName = null)
+        public static int WriteStringAttributes(hid_t groupId, string name, IEnumerable<string> strs, string datasetName = null)
         {
-            var tmpId = groupId;
+            hid_t tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
             {
-                var datasetId = H5D.open(groupId, datasetName);
+                hid_t datasetId = H5D.open(groupId, datasetName);
                 if (datasetId > 0)
                     groupId = datasetId;
             }
 
             // create UTF-8 encoded attributes
-            int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
+            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.SPACEPAD);
 
             int strSz = strs.Count();
-            int spaceId = H5S.create_simple(1,
+            hid_t spaceId = H5S.create_simple(1,
                 new ulong[] { (ulong)strSz }, null);
 
             var attributeId = H5A.create(groupId, name, datatype, spaceId);
@@ -191,7 +196,7 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static void WriteAttribute<T>(int groupId, string name, T attribute, string datasetName = null) //where T : struct
+        public static void WriteAttribute<T>(hid_t groupId, string name, T attribute, string datasetName = null) //where T : struct
         {
             WriteAttributes<T>(groupId, name, new T[1] { attribute }, datasetName);
             /*if (typeof(T) == typeof(string))
@@ -203,7 +208,7 @@ namespace Hdf5DotNetTools
             }*/
         }
 
-        public static void WriteAttributes<T>(int groupId, string name, Array attributes, string datasetName = null) //
+        public static void WriteAttributes<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //
         {
             attrRW.WriteArray(groupId, name, attributes, datasetName);
            /* if (attributes.GetType().GetElementType() == typeof(string))
@@ -212,7 +217,7 @@ namespace Hdf5DotNetTools
                 return WritePrimitiveAttribute<T>(groupId, name, attributes, datasetName);*/
         }
 
-        public static int WritePrimitiveAttribute<T>(int groupId, string name, Array attributes, string datasetName = null) //where T : struct
+        public static int WritePrimitiveAttribute<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //where T : struct
         {
             var tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
