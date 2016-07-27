@@ -10,12 +10,17 @@ using static HDF.PInvoke.H5T;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public class ChunkedDataset<T> : IDisposable where T : struct
     {
         ulong[] currentDims, oldDims;
         ulong[] maxDims = new ulong[] { H5S.UNLIMITED, H5S.UNLIMITED };
         ulong[] chunkDims;
-        int status, spaceId, datasetId, typeId, datatype, propId;
+        hid_t status, spaceId, datasetId, typeId, datatype, propId;
 
         /// <summary>
         /// Constructor to create a chuncked dataset object
@@ -23,7 +28,7 @@ namespace Hdf5DotNetTools
         /// <param name="name"></param>
         /// <param name="groupId"></param>
         /// <param name="chunckSize"></param>
-        public ChunkedDataset(string name, int groupId, ulong[] chunckSize)
+        public ChunkedDataset(string name, hid_t groupId, ulong[] chunckSize)
         {
             //Datasetname = Hdf5.ToHdf5Name(name);
             Datasetname = name;
@@ -39,7 +44,7 @@ namespace Hdf5DotNetTools
         /// <param name="name"></param>
         /// <param name="groupId"></param>
         /// <param name="dataset"></param>
-        public ChunkedDataset(string name, int groupId, T[,] dataset) : this(name, groupId, new ulong[] { Convert.ToUInt64(dataset.GetLongLength(0)), Convert.ToUInt64(dataset.GetLongLength(1)) })
+        public ChunkedDataset(string name, hid_t groupId, T[,] dataset) : this(name, groupId, new ulong[] { Convert.ToUInt64(dataset.GetLongLength(0)), Convert.ToUInt64(dataset.GetLongLength(1)) })
         {
             FirstDataset(dataset);
         }
@@ -146,7 +151,7 @@ namespace Hdf5DotNetTools
 
         public string Datasetname { get; private set; }
         public int Rank { get; private set; }
-        public int GroupId { get; private set; }
+        public hid_t GroupId { get; private set; }
         protected bool DatasetExists => H5L.exists(GroupId, Datasetname) > 0;
         protected bool FalseGroupId => GroupId <= 0;
     }

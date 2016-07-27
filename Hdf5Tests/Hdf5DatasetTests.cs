@@ -25,7 +25,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteDataset(fileId, "/test", times);
 
@@ -54,7 +54,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteDataset(fileId, "/test", times);
 
@@ -77,7 +77,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteDataset(fileId, "/test", dset);
                 Hdf5.CloseFile(fileId);
@@ -89,7 +89,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 double[,] dset2 = (double[,])Hdf5.ReadDataset<double>(fileId, "/test");
                 compareDatasets(dset, dset2);
@@ -116,9 +116,9 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = Hdf5.CreateGroup(fileId, groupStr);
+                var groupId = Hdf5.CreateGroup(fileId, groupStr);
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(intValue)), intValue);
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(dblValue)), dblValue);
                 Hdf5.WriteOneValue(groupId, concatFunc(nameof(strValue)), strValue);
@@ -133,9 +133,9 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = H5G.open(fileId, groupStr);
+                var groupId = H5G.open(fileId, groupStr);
                 int readInt = Hdf5.ReadOneValue<int>(groupId, concatFunc(nameof(intValue)));
                 Assert.IsTrue(intValue == readInt);
                 double readDbl = Hdf5.ReadOneValue<double>(groupId, concatFunc(nameof(dblValue)));
@@ -162,7 +162,7 @@ namespace Hdf5UnitTests
             Func<string, string> concatFunc = (x) => string.Concat(groupStr, "/", x);
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteObject(fileId, allTypesObject, "/test");
 
@@ -183,7 +183,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var chunkSize = new ulong[] { 5, 5 };
                 using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
@@ -203,7 +203,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 var dset = Hdf5.ReadDatasetToArray<double>(fileId, "/test");
 
                 Assert.IsTrue(dset.Rank == dsets.First().Rank);
@@ -229,7 +229,7 @@ namespace Hdf5UnitTests
             string filename = Path.Combine(folder, "testSubset.H5");
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var chunkSize = new ulong[] { 5, 5 };
                 using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
@@ -250,7 +250,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 ulong begIndex = 8;
                 ulong endIndex = 21;
                 var dset = Hdf5.ReadDataset<double>(fileId, "/test", begIndex, endIndex);

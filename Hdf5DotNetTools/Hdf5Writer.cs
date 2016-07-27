@@ -10,11 +10,16 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public partial class Hdf5
     {
 
 
-        public static object WriteObject(int groupId, object writeValue, string groupName = null)
+        public static object WriteObject(hid_t groupId, object writeValue, string groupName = null)
         {
             if (writeValue == null)
             {
@@ -45,7 +50,7 @@ namespace Hdf5DotNetTools
             return (writeValue);
         }
 
-        private static void WriteHdf5Attributes(Type type, int groupId, string name, string datasetName = null)
+        private static void WriteHdf5Attributes(Type type, hid_t groupId, string name, string datasetName = null)
         {
             foreach (Attribute attr in Attribute.GetCustomAttributes(type))
             {
@@ -62,7 +67,7 @@ namespace Hdf5DotNetTools
             }
         }
 
-        private static void WriteFields(Type tyObject, object writeValue, int groupId)
+        private static void WriteFields(Type tyObject, object writeValue, hid_t groupId)
         {
             FieldInfo[] miMembers = tyObject.GetFields(BindingFlags.DeclaredOnly |
        /*BindingFlags.NonPublic |*/ BindingFlags.Instance | BindingFlags.Public);
@@ -95,7 +100,7 @@ namespace Hdf5DotNetTools
             }
         }
 
-        private static void WriteProperties(Type tyObject, object writeValue, int groupId)
+        private static void WriteProperties(Type tyObject, object writeValue, hid_t groupId)
         {
             PropertyInfo[] miMembers = tyObject.GetProperties(/*BindingFlags.DeclaredOnly |*/
        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);

@@ -20,7 +20,7 @@ namespace Hdf5UnitTests
             try
             {
 
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var status = Hdf5.WriteCompounds(fileId, "/test", wDataList);
                 Hdf5.CloseFile(fileId);
@@ -32,7 +32,7 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 var cmpList = Hdf5.ReadCompounds<wData>(fileId, "/test").ToArray();
                 Hdf5.CloseFile(fileId);

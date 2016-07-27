@@ -9,6 +9,11 @@ using System.Reflection;
 
 namespace Hdf5UnitTests
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public partial class Hdf5UnitTests
     {
         [TestMethod]
@@ -17,9 +22,9 @@ namespace Hdf5UnitTests
             string filename = Path.Combine(folder, "testAttribute.H5");
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = Hdf5.CreateGroup(fileId, "test");
+                var groupId = Hdf5.CreateGroup(fileId, "test");
                 DateTime nowTime = DateTime.Now;
                 Hdf5.WriteAttribute(groupId, "time", nowTime);
                 DateTime readTime = Hdf5.ReadAttribute<DateTime>(groupId, "time");
@@ -38,9 +43,9 @@ namespace Hdf5UnitTests
             string filename = Path.Combine(folder, "testAttributeString.H5");
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = Hdf5.CreateGroup(fileId, "test");
+                var groupId = Hdf5.CreateGroup(fileId, "test");
                 string attrStr = "this is an attribute";
                 Hdf5.WriteAttribute(groupId, "time", attrStr);
                 string readStr= Hdf5.ReadAttribute<string>(groupId, "time");
@@ -72,9 +77,9 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = Hdf5.CreateGroup(fileId, groupStr);
+                var groupId = Hdf5.CreateGroup(fileId, groupStr);
                 Hdf5.WriteAttributes<int>(groupId, intName, intValues);
                 Hdf5.WriteAttribute(groupId, dblName, dblValue);
                 Hdf5.WriteAttribute(groupId, strName, strValue);
@@ -90,9 +95,9 @@ namespace Hdf5UnitTests
 
             try
             {
-                int fileId = Hdf5.OpenFile(filename);
+                var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                int groupId = H5G.open(fileId, groupStr);
+                var groupId = H5G.open(fileId, groupStr);
                 IEnumerable<int> readInts = (int[])Hdf5.ReadAttributes<int>(groupId, intName);
                 Assert.IsTrue(intValues.SequenceEqual(readInts));
                 double readDbl = Hdf5.ReadAttribute<double>(groupId, dblName);
@@ -119,7 +124,7 @@ namespace Hdf5UnitTests
             var attObject = new AttributeClass();
             try
             {
-                int fileId = Hdf5.CreateFile(filename);
+                var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteObject(fileId, attObject,"anObject");
                 Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);

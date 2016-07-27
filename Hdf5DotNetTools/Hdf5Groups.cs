@@ -9,17 +9,22 @@ using System.IO;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public static partial class Hdf5
     {
 
-        public static int CloseGroup(int groupId)
+        public static int CloseGroup(hid_t groupId)
         {
             return H5G.close(groupId);
         }
 
-        public static int CreateGroup(int groupId, string groupName)
+        public static hid_t CreateGroup(hid_t groupId, string groupName)
         {
-            int gid;
+            hid_t gid;
             if (GroupExists(groupId, groupName))
                 gid = H5G.open(groupId, groupName);
             else
@@ -33,10 +38,10 @@ namespace Hdf5DotNetTools
         /// <param name="groupId"></param>
         /// <param name="groupName"></param>
         /// <returns></returns>
-        public static int CreateGroupRecursively(int groupId, string groupName)
+        public static hid_t CreateGroupRecursively(hid_t groupId, string groupName)
         {
             IEnumerable<string> grps = groupName.Split('/');
-            int gid=groupId;
+            hid_t gid=groupId;
             groupName = "";
             foreach (var name in grps)
             {
@@ -46,7 +51,7 @@ namespace Hdf5DotNetTools
             return gid;
         }
 
-        public static bool GroupExists(int groupId, string groupName)
+        public static bool GroupExists(hid_t groupId, string groupName)
         {
             H5G.info_t info = new H5G.info_t();
             var gid = H5G.get_info_by_name(groupId, groupName, ref info);

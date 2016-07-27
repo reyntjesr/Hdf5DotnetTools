@@ -16,21 +16,26 @@ using hid_t = System.Int32;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
     public static partial class Hdf5
     {
 
 
-        public static IEnumerable<string> ReadStrings(int groupId, string name)
+        public static IEnumerable<string> ReadStrings(hid_t groupId, string name)
         {
 
-            int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
+            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
 
             //name = ToHdf5Name(name);
 
             var datasetId = H5D.open(groupId, name);
-            int spaceId = H5D.get_space(datasetId);
+            hid_t spaceId = H5D.get_space(datasetId);
 
             long count = H5S.get_simple_extent_npoints(spaceId);
             H5S.close(spaceId);
@@ -61,17 +66,17 @@ namespace Hdf5DotNetTools
         }
 
 
-        public static int WriteStrings(int groupId, string name, IEnumerable<string> strs, string datasetName=null)
+        public static int WriteStrings(hid_t groupId, string name, IEnumerable<string> strs, string datasetName=null)
         {
 
             // create UTF-8 encoded test datasets
 
-            int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
+            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.SPACEPAD);
 
             int strSz = strs.Count();
-            int spaceId = H5S.create_simple(1,
+            hid_t spaceId = H5S.create_simple(1,
                 new ulong[] { (ulong)strSz }, null);
 
             var datasetId = H5D.create(groupId, name, datatype, spaceId);
@@ -105,7 +110,7 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static int WriteAsciiString(int groupId, string name, string str)
+        public static int WriteAsciiString(hid_t groupId, string name, string str)
         {
             var spaceNullId = H5S.create(H5S.class_t.NULL);
             var spaceScalarId = H5S.create(H5S.class_t.SCALAR);
@@ -148,7 +153,7 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static string ReadAsciiString(int groupId, string name)
+        public static string ReadAsciiString(hid_t groupId, string name)
         {
             var datatype = H5T.FORTRAN_S1;
 
@@ -182,11 +187,11 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static int WriteUnicodeString(int groupId, string name, string str)
+        public static int WriteUnicodeString(hid_t groupId, string name, string str)
         {
             byte[] wdata = Encoding.UTF8.GetBytes(str);
 
-            int spaceId = H5S.create(H5S.class_t.SCALAR);
+            hid_t spaceId = H5S.create(H5S.class_t.SCALAR);
 
             hid_t dtype = H5T.create(H5T.class_t.STRING, new IntPtr(wdata.Length));
             H5T.set_cset(dtype, H5T.cset_t.UTF8);
@@ -205,9 +210,9 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static string ReadUnicodeString(int groupId, string name)
+        public static string ReadUnicodeString(hid_t groupId, string name)
         {
-            int datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
+            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
             H5T.set_strpad(datatype, H5T.str_t.SPACEPAD);
 
@@ -219,7 +224,7 @@ namespace Hdf5DotNetTools
             IntPtr size = H5T.get_size(typeId);
             int strLen = (int)size;
 
-            int spaceId = H5D.get_space(datasetId);
+            var spaceId = H5D.get_space(datasetId);
 
             byte[] wdata = new byte[strLen];
 
