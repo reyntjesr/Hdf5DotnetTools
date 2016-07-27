@@ -6,9 +6,15 @@ using System.Threading.Tasks;
 using HDF.PInvoke;
 using System.Runtime.InteropServices;
 using System.IO;
+using static HDF.PInvoke.H5T;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
 
 
     public static partial class Hdf5
@@ -198,7 +204,7 @@ namespace Hdf5DotNetTools
             ulong[] maxDimsExtend = null;
             ulong[] dimsChunk = new ulong[] { chunkX }.Concat(dimsExtend.Skip(1)).ToArray();
             ulong[] zeros = Enumerable.Range(0, rank).Select(z => (ulong)0).ToArray();
-            int status, spaceId, datasetId;
+            hid_t status, spaceId, datasetId;
 
 
             // name = ToHdf5Name(name);
