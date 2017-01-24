@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Hdf5AttributeTests.cs" />
     <Compile Include="Hdf5GroupTests.cs" />
+    <Compile Include="Hdf5AcquisitionFileTests.cs" />
     <Compile Include="Hdf5ObjectTests.cs" />
     <Compile Include="Hdf5StringsTests.cs" />
     <Compile Include="Hdf5DatasetTests.cs" />

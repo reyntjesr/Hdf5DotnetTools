@@ -71,6 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChunkedDataset.cs" />
+    <Compile Include="Hdf5AcquisitionWriter.cs" />
+    <Compile Include="Hdf5AcquisitionReader.cs" />
     <Compile Include="Hdf5AcquisitionFile.cs" />
     <Compile Include="Hdf5Attributes.cs" />
     <Compile Include="Hdf5Common.cs" />

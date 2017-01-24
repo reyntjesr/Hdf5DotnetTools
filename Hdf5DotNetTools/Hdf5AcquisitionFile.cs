@@ -9,133 +9,6 @@ using System.Threading.Tasks;
 namespace Hdf5DotNetTools
 {
 
-    public class Hdf5AcquisitionFileReader
-    {
-
-        long fileId;
-        Hdf5AcquisitionFile _header;
-        IList<string> _labels;
-        IList<short[]> _signals;
-        Dictionary<string, short> _usedChannels;
-        int /*_fileChannelCnt,*/ _readChannelCnt;
-
-        readonly string groupName = "EEG";
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Hdf5AcquisitionFileReader"/> class.
-        /// </summary>
-        /// <param name="aFilename">A filename.</param>
-        /// <param name="aMode">A mode enumeration that specifies how the file system should open a file.</param>
-        public Hdf5AcquisitionFileReader(string aFilename, bool checking = false, string[] labels = null)
-        {
-            fileId = Hdf5.OpenFile(aFilename, readOnly: true);
-            _header = Hdf5.ReadObject(fileId, _header, groupName);
-
-            _usedChannels = new Dictionary<string, short>();
-            for (short i = 0; i < _header.Recording.NrOfChannels; i++)
-                _usedChannels.Add(_header.Channels.Labels[i], i);
-            _labels = labels ?? _header.Channels.Labels;
-            _readChannelCnt = _labels.Count();
-            _signals = new List<short[]>(_readChannelCnt);
-        }
-
-        /// <summary>
-        /// Reads this instance.
-        /// </summary>
-        public void Read()
-        {
-            Read(_header.Recording.StartTime, _header.Recording.EndTime);
-        }
-
-        /// <summary>
-        /// Reads this instance from a specified start index to a specified end index.
-        /// </summary>
-        /// <param name="startIndex">The start index.</param>
-        /// <param name="endIndex">The end index.</param>
-        public IList<short[]> Read(ulong startIndex, ulong endIndex)
-        {
-            int rows = Convert.ToInt32(endIndex - startIndex);
-            int cols = _labels.Count();
-            short[,] data = Hdf5.ReadDataset<short>(fileId, "Data", startIndex, endIndex);
-           
-            int byteLength = sizeof(short) * rows;
-            TimeSpan zeroSpan = new TimeSpan(0);
-            for (int i = 0; i < _readChannelCnt; i++)
-            {
-                var sig = _signals[i];
-                string lbl = _labels[i];
-                int nr = _usedChannels[lbl];
-                int pos = nr * byteLength;
-                _signals[i] = new short[rows];
-                Buffer.BlockCopy(data, pos, _signals[i], 0, byteLength);
-            }
-            return _signals;
-        }
-
-        /// <summary>
-        /// Reads this instance from a specified start time to a specified end time.
-        /// </summary>
-        /// <param name="startIndex">The start index.</param>
-        /// <param name="endIndex">The end index.</param>
-        public IList<double[]> ReadDouble(ulong startIndex, ulong endIndex)
-        {
-            Read(startIndex, endIndex);
-            int rows = Convert.ToInt32(endIndex - startIndex);
-            var dblList = new List<double[]>(_readChannelCnt);
-            for (int i = 0; i < _readChannelCnt; i++)
-            {
-                var sig = _signals[i];
-                string lbl = _labels[i];
-                int nr = _usedChannels[lbl];
-                double amp = _header.Channels.Amplifications[nr];
-                double offset = _header.Channels.Offsets[nr];
-                dblList[i] =sig.Select(s => s * amp + offset).ToArray();
-
-            }
-            return dblList;
-        }
-
-        /// <summary>
-        /// Reads this instance from a specified start time to a specified end time.
-        /// </summary>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="endTime">The end time.</param>
-        public IList<double[]> ReadDouble(DateTime startTime, DateTime endTime)
-        {
-            double sr = _header.Recording.SampleRate;
-            TimeSpan startSpan = startTime - _header.Recording.StartTime;
-            TimeSpan endSpan = endTime - _header.Recording.StartTime;
-            ulong startIndex = Convert.ToUInt64(Math.Round(startSpan.TotalSeconds * sr, MidpointRounding.AwayFromZero));
-            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr));
-            return ReadDouble(startIndex, endIndex);
-        }
-
-        /// <summary>
-        /// Reads this instance from a specified start time to a specified end time.
-        /// </summary>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="endTime">The end time.</param>
-        public void Read(DateTime startTime, DateTime endTime)
-        {
-            double sr = _header.Recording.SampleRate;
-            TimeSpan startSpan = startTime - _header.Recording.StartTime;
-            TimeSpan endSpan = endTime - _header.Recording.StartTime;
-            ulong startIndex = Convert.ToUInt64(Math.Round(startSpan.TotalSeconds * sr, MidpointRounding.AwayFromZero));
-            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr));
-            Read(startIndex, endIndex);
-        }
-    }
-
-    public class Hdf5AcquisitionFileWriter
-    {
-
-        public Hdf5AcquisitionFileWriter()
-        {
-
-        }
-    }
-
     [Hdf5SaveAttribute(Hdf5Save.Save)]
     public class Hdf5AcquisitionFile
     {
@@ -143,7 +16,7 @@ namespace Hdf5DotNetTools
         {
             Patient = new Hdf5Patient();
             Recording = new Hdf5Recording();
-            Events = new Hdf5Events();
+            Events = new Hdf5Events(0);
             //Events = new Hdf5Event[0];
 
             Recording.PropertyChanged += (sender, eventArgs) =>
@@ -212,14 +85,14 @@ namespace Hdf5DotNetTools
         int _nrOfChannels;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public string Id { get; set; }
-        public bool ActiveFilter { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public ulong NrOfSamples { get; set; }
+        public string Id { get; set; } = "";
+        public bool ActiveFilter { get; set; } = false;
+        public DateTime StartTime { get; set; } = DateTime.Now;
+        public DateTime EndTime { get; set; } = DateTime.Now;
+        public ulong NrOfSamples { get; set; } = 0;
         public double SampleRate { get; set; } = double.NaN;
-        public string Physician { get; set; }
-        public string Laborant { get; set; }
+        public string Physician { get; set; } = "";
+        public string Laborant { get; set; } = "";
 
         public int NrOfChannels
         {
@@ -238,28 +111,33 @@ namespace Hdf5DotNetTools
     [Hdf5GroupName("Patient")]
     public class Hdf5Patient
     {
-        public string Name;
-        public string Id;
-        public int RecId;
-        public string Gender;
-        public DateTime BirthDate;
-        public double Height;
-        public double Weight;
-        public DateTime EditData;
+        public string Name = "";
+        public string Id = "";
+        public int RecId = -1;
+        public string Gender = "";
+        public DateTime BirthDate = DateTime.Now;
+        public double Height = double.NaN;
+        public double Weight = double.NaN;
+        public DateTime EditData = DateTime.Now;
     }
 
     [Hdf5GroupName("Events")]
     public struct Hdf5Events
     {
+        //public Hdf5Events():this(0)
+        //{
+
+        //}
+
         public Hdf5Events(int length)
         {
             Events = new string[length];
             Times = new DateTime[length];
             Durations = new TimeSpan[length];
         }
-        public string[] Events;
-        public DateTime[] Times;
-        public TimeSpan[] Durations;
+        public string[] Events { get; set; }
+        public DateTime[] Times { get; set; }
+        public TimeSpan[] Durations { get; set; }
     }
 
 }
