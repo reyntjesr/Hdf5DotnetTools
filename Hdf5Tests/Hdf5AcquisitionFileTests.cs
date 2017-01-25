@@ -61,6 +61,11 @@ namespace Hdf5UnitTests
             }
         }
 
+        /// <summary>
+        /// an acquisition file is created that has 5 channels of data
+        /// for each channel 100 samples are written in two steps of 50 samples to the file
+        /// The total number of samples is written to the channels and recording objects
+        /// </summary>
         [TestMethod]
         public void WriteAndReadWithDataAcquisitionFile()
         {
@@ -83,6 +88,8 @@ namespace Hdf5UnitTests
                         signals.Add(Enumerable.Range((i + 1) * 50, 50).Select(j => j / 50.0).ToArray());
                     }
                     writer.Write(signals);
+                    header.Recording.NrOfSamples = 100;
+                    header.Channels.NrOfSamples = Enumerable.Range(0, header.Recording.NrOfChannels).Select(c => 100).ToArray();
                 }
             }
             catch (Exception ex)
@@ -96,7 +103,9 @@ namespace Hdf5UnitTests
                 {
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
+                    Assert.IsTrue(header.Recording.NrOfSamples == 100);
                     Assert.IsTrue(header.Channels.Labels.SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.NrOfSamples.SequenceEqual(new int[] { 100, 100, 100, 100, 100 }));
                     var data = reader.ReadDouble(0, 49);
                     var sig = data.First().Take(5);
                     Assert.IsTrue(sig.Similar(new double[] { 0, 1 / 50f, 2 / 50f, 3 / 50f, 4 / 50f }));
