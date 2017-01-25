@@ -9,7 +9,7 @@ using System.IO;
 using System.Reflection;
 
 #if HDF5_VER1_10
-    using hid_t = System.Int64;
+using hid_t = System.Int64;
 #else
     using hid_t = System.Int32;
 #endif
@@ -257,11 +257,12 @@ namespace Hdf5DotNetTools
 
             Type type = typeof(T2);
             Array ar = Array.CreateInstance(type, lengths, lowerBounds);
-            for (var index = firstIndex(array); index != null; index = nextIndex(array, index))
-            {
-                var v = (T1)array.GetValue(index);
-                ar.SetValue(convertFunc(v), index);
-            }
+            if (lowerBounds[0] != 0 || lengths[0] != 0)
+                for (var index = firstIndex(array); index != null; index = nextIndex(array, index))
+                {
+                    var v = (T1)array.GetValue(index);
+                    ar.SetValue(convertFunc(v), index);
+                }
 
             return ar;
         }
@@ -321,6 +322,12 @@ namespace Hdf5DotNetTools
         //    }
         //    return type;
         //}
+
+        public static bool Similar(this IEnumerable<double> first, IEnumerable<double> second, double precision = 1e-2)
+        {
+            var result = first.Zip(second,  (f, s) => Math.Abs(f - s) < precision);
+            return result.All(r => r);
+        }
 
     }
 }

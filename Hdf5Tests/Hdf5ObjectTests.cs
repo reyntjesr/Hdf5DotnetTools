@@ -16,7 +16,6 @@ namespace Hdf5UnitTests
             string filename = Path.Combine(folder, "testObjects.H5");
             try
             {
-
                 testClass.TestInteger = 2;
                 testClass.TestDouble = 1.1;
                 testClass.TestBoolean = true;

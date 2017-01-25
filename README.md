@@ -55,31 +55,31 @@ The object is written to a file and than read back in a new object.
         }
       return dset;
     }
-    
+
     // create a list of matrices
     dsets = new List<double[,]> {
                 createDataset(),
                 createDataset(10),
                 createDataset(20) };
-    
+
     string filename = Path.Combine(folder, "testChunks.H5");
     int fileId = Hdf5.CreateFile(filename);    
-    
+
     // create a dataset and append two more datasets to it
     using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
     {
       foreach (var ds in dsets.Skip(1))
         chunkedDset.AppendDataset(ds);
     }
-    
+
     // read rows 9 to 22 of the dataset
     ulong begIndex = 8;
     ulong endIndex = 21;
     var dset = Hdf5.ReadDataset<double>(fileId, "/test", begIndex, endIndex);
     Hdf5.CloseFile(fileId);
-    
+
 ## ToDo
-This is a very early version of the library. I tried writing a generic method that could write compound arrays but that still doesn't work. Any help with this will be much appreciated.
+This is still an early version of the library. If there are any problems please let me know
 
 ## Other projects that use the HDF.Pinvoke library
 Another project on github that uses the [HDF.Pinvoke](https://github.com/HDFGroup/HDF.PInvoke) library to read and write HDF5 files is the [sharpHDF](https://github.com/sharpHDF/sharpHDF) project. I discovered it while I was working on my own library. It has a different approah to writing and reading hdf5 files. You have to create a Hdf5File object and fill it with groups, attributes and datasets. When you close the Hdf5File object it writes the file.
