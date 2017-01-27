@@ -68,7 +68,7 @@ namespace Hdf5DotNetTools
 
         short convert2Short(double val,int channelNr)
         {
-            val = (val - _header.Channels.Offsets[channelNr]) / _header.Channels.Amplifications[channelNr];
+            val = (val - _header.Channels[channelNr].Offset) / _header.Channels[channelNr].Amplification;
             if (val > short.MaxValue)
                 val = short.MaxValue;
             if (val < short.MinValue)

@@ -16,7 +16,7 @@ namespace Hdf5DotNetTools
         }
     }*/
 
-    public class Hdf5AcquisitionFileReader: IDisposable
+    public class Hdf5AcquisitionFileReader : IDisposable
     {
 
         long fileId;
@@ -41,8 +41,11 @@ namespace Hdf5DotNetTools
 
             _usedChannels = new Dictionary<string, short>();
             for (short i = 0; i < _header.Recording.NrOfChannels; i++)
-                _usedChannels.Add(_header.Channels.Labels[i], i);
-            _labels = labels ?? _header.Channels.Labels;
+                _usedChannels.Add(_header.Channels[i].Label, i);
+            if (labels == null)
+                _labels = _header.Channels.Select(c => c.Label).ToList();
+            else
+                _labels = labels;
             _readChannelCnt = _labels.Count();
             _signals = new List<short[]>(_readChannelCnt);
         }
@@ -63,12 +66,12 @@ namespace Hdf5DotNetTools
         public IList<short[]> Read(ulong startIndex, ulong endIndex)
         {
             _signals.Clear();
-            int rows = Convert.ToInt32(endIndex - startIndex+1);
+            int rows = Convert.ToInt32(endIndex - startIndex + 1);
             int cols = _labels.Count();
             var dataName = string.Concat("/", _groupName, "/Data");
             short[,] data = Hdf5.ReadDataset<short>(fileId, dataName, startIndex, endIndex);
             IEnumerable<short> dataEnum = data.Cast<short>();
-           
+
 
             int byteLength = sizeof(short) * rows;
             TimeSpan zeroSpan = new TimeSpan(0);
@@ -78,7 +81,7 @@ namespace Hdf5DotNetTools
                 string lbl = _labels[i];
                 int nr = _usedChannels[lbl];
                 int pos = nr * byteLength;
-                var ar =dataEnum.Where((d, j) => (j-nr) % cols == 0);
+                var ar = dataEnum.Where((d, j) => (j - nr) % cols == 0);
                 _signals.Add(ar.ToArray());
                 //Buffer.BlockCopy(data, pos, _signals[i], 0, byteLength);
             }
@@ -100,8 +103,8 @@ namespace Hdf5DotNetTools
                 var sig = _signals[i];
                 string lbl = _labels[i];
                 int nr = _usedChannels[lbl];
-                double amp = _header.Channels.Amplifications[nr];
-                double offset = _header.Channels.Offsets[nr];
+                double amp = _header.Channels[nr].Amplification;
+                double offset = _header.Channels[nr].Offset;
                 dblList.Add(sig.Select(s => s * amp + offset).ToArray());
 
             }

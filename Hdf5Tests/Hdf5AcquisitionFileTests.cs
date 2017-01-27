@@ -20,11 +20,12 @@ namespace Hdf5UnitTests
             header.Recording.SampleRate = 200;
             for (int i = 0; i < header.Recording.NrOfChannels; i++)
             {
-                header.Channels.Labels[i] = $"DC{(i + 1):D2}";
-                header.Channels.Dimensions[i] = "V";
-                header.Channels.Offsets[i] = 0;
-                header.Channels.Amplifications[i] = (double)(10 - -10) / (short.MaxValue - short.MinValue);
-                header.Channels.SamplingRates[i] = header.Recording.SampleRate;
+                var chn = header.Channels[i];
+                chn.Label = $"DC{(i + 1):D2}";
+                chn.Dimension = "V";
+                chn.Offset = 0;
+                chn.Amplification = (double)(10 - -10) / (short.MaxValue - short.MinValue);
+                chn.SamplingRate = header.Recording.SampleRate;
             }
             return header;
 
@@ -52,7 +53,7 @@ namespace Hdf5UnitTests
                 {
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
-                    Assert.IsTrue(header.Channels.Labels.SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c=>c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
                 }
             }
             catch (Exception ex)
@@ -89,7 +90,7 @@ namespace Hdf5UnitTests
                     }
                     writer.Write(signals);
                     header.Recording.NrOfSamples = 100;
-                    header.Channels.NrOfSamples = Enumerable.Range(0, header.Recording.NrOfChannels).Select(c => 100).ToArray();
+                    header.Channels.Select(c => c.NrOfSamples =  100);
                 }
             }
             catch (Exception ex)
@@ -104,8 +105,8 @@ namespace Hdf5UnitTests
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
                     Assert.IsTrue(header.Recording.NrOfSamples == 100);
-                    Assert.IsTrue(header.Channels.Labels.SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
-                    Assert.IsTrue(header.Channels.NrOfSamples.SequenceEqual(new int[] { 100, 100, 100, 100, 100 }));
+                    Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new int[] { 100, 100, 100, 100, 100 }));
                     var data = reader.ReadDouble(0, 49);
                     var sig = data.First().Take(5);
                     Assert.IsTrue(sig.Similar(new double[] { 0, 1 / 50f, 2 / 50f, 3 / 50f, 4 / 50f }));

@@ -58,7 +58,10 @@ namespace Hdf5UnitTests
             public string location;
             public double temperature;
             public double pressure;
+
+            
         }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct wData2
         {
@@ -102,12 +105,20 @@ namespace Hdf5UnitTests
             }
         }
 
+        class TestClassWithStructs {
+            public TestClassWithStructs()
+            {
+            }
+            public wData[] DataList { get; set; }
+        }
+
         static private TestClass testClass;
         static private TestClassWithArray testClassWithArrays;
         static private List<double[,]> dsets;
         static private wData[] wDataList;
         static private wData2[] wData2List;
         static private AllTypesClass allTypesObject;
+        static private TestClassWithStructs classWithStructs;
 
         static private string folder;
 
@@ -135,6 +146,8 @@ namespace Hdf5UnitTests
                 new wData2() { serial_no = 1313, location = "Exhaust manifold", label="mV", temperature = 1252.89, pressure = 84.11 }
             };
 
+            classWithStructs = new TestClassWithStructs();
+            classWithStructs.DataList = wDataList;
             testClass = new TestClass();
             testClassWithArrays = new TestClassWithArray();
             allTypesObject = new AllTypesClass();

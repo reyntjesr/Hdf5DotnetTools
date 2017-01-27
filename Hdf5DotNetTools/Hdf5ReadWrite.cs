@@ -30,6 +30,16 @@ namespace Hdf5DotNetTools
         {
             Hdf5.WriteStrings(groupId, name, (string[])collection, datasetName);
         }
+        public void WriteStucts<T>(hid_t groupId, string name, IEnumerable<T> dset, string datasetName = null)
+        {
+            Hdf5.WriteCompounds<T>(groupId, name, dset);
+        }
+
+        public Array ReadStucts<T>(hid_t groupId, string name) where T:struct
+        {
+            return Hdf5.ReadCompounds<T>(groupId, name).ToArray();
+        }
+
         public IEnumerable<string> ReadStrings(hid_t groupId, string name)
         {
             return Hdf5.ReadStrings(groupId, name);
@@ -54,6 +64,7 @@ namespace Hdf5DotNetTools
             Hdf5.WriteStringAttributes(groupId, name, (string[])collection, datasetName);
         }
 
+       
         public IEnumerable<string> ReadStrings(hid_t groupId, string name)
         {
             return Hdf5.ReadStringAttributes(groupId, name);
@@ -69,7 +80,15 @@ namespace Hdf5DotNetTools
         void WriteStrings(hid_t groupId, string name, IEnumerable<string> collection, string datasetName = null);
         IEnumerable<string> ReadStrings(hid_t groupId, string name);
 
+
     }
+
+   /* public interface IHdf5ReaderWriter:IHdf5AttributeReaderWriter
+    {
+        void WriteStucts<T>(hid_t groupId, string name, IEnumerable<T> dset, string datasetName = null);
+        Array ReadStucts<T>(hid_t groupId, string name) where T : struct;
+
+    }*/
 
     public class Hdf5ReaderWriter
     {
@@ -85,6 +104,7 @@ namespace Hdf5DotNetTools
             Type type = collection.GetType();
             Type elementType = type.GetElementType();
             TypeCode typeCode = Type.GetTypeCode(elementType);
+            Boolean isStruct = type.IsValueType && !type.IsEnum;
 
             switch (typeCode)
             {
@@ -168,6 +188,9 @@ namespace Hdf5DotNetTools
                         Hdf5.WriteStringAttribute(groupId, name, "TimeSpan", name);
 
                     }
+                    //else if (isStruct) {
+                    //    rw.WriteStucts(groupId, name, collection);
+                    //}
                     else
                     {
                         string str = "type is not supported: ";

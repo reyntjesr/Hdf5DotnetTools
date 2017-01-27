@@ -16,13 +16,13 @@ namespace Hdf5DotNetTools
         {
             Patient = new Hdf5Patient();
             Recording = new Hdf5Recording();
-            Events = new Hdf5Events(0);
+            Events = new List<Hdf5Event>();
             //Events = new Hdf5Event[0];
 
             Recording.PropertyChanged += (sender, eventArgs) =>
             {
                 if (eventArgs.PropertyName == nameof(Hdf5Recording.NrOfChannels))
-                    Channels = new Hdf5Channels(Recording.NrOfChannels);
+                    Channels = new Hdf5Channel[Recording.NrOfChannels];
             };
 
         }
@@ -32,10 +32,10 @@ namespace Hdf5DotNetTools
 
         //[Hdf5Save(Hdf5Save.DoNotSave)]
         //public Hdf5Channel[] Channels { get; set; }
-        public Hdf5Channels Channels { get; set; }
+        public Hdf5Channel[] Channels { get; set; }
 
         //[Hdf5Save(Hdf5Save.DoNotSave)]
-        public Hdf5Events Events { get; set; }
+        public IList<Hdf5Event> Events { get; set; }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public short[,] Data { get; set; }
@@ -65,6 +65,7 @@ namespace Hdf5DotNetTools
 
     }
 
+    [Hdf5GroupName("Channel")]
     [StructLayout(LayoutKind.Sequential)]
     public struct Hdf5Channel
     {
@@ -124,11 +125,6 @@ namespace Hdf5DotNetTools
     [Hdf5GroupName("Events")]
     public struct Hdf5Events
     {
-        //public Hdf5Events():this(0)
-        //{
-
-        //}
-
         public Hdf5Events(int length)
         {
             Events = new string[length];
@@ -140,4 +136,14 @@ namespace Hdf5DotNetTools
         public TimeSpan[] Durations { get; set; }
     }
 
+
+    [Hdf5GroupName("Event")]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Hdf5Event
+    {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
+        public string Events;
+        public DateTime Times;
+        public TimeSpan Durations;
+    }
 }

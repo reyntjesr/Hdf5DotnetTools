@@ -11,6 +11,44 @@ namespace Hdf5UnitTests
     public partial class Hdf5UnitTests
     {
 
+        [TestMethod]
+        public void WriteAndReadObjectWithStructs()
+        {
+            string filename = Path.Combine(folder, "testObjectWithStructArray.H5");
+
+
+            try
+            {
+
+                var fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                var status = Hdf5.WriteObject(fileId, classWithStructs, "test");
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                TestClassWithStructs objWithStructs;
+                var fileId = Hdf5.OpenFile(filename);
+                Assert.IsTrue(fileId > 0);
+                objWithStructs = Hdf5.ReadObject<TestClassWithStructs>(fileId, "test");
+                CollectionAssert.AreEqual(wDataList, objWithStructs.DataList);
+                Hdf5.CloseFile(fileId);
+               
+
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+        }
+    
+
 
         [TestMethod]
         public void WriteAndReadStructs()
@@ -22,7 +60,7 @@ namespace Hdf5UnitTests
 
                 var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                var status = Hdf5.WriteCompounds(fileId, "/test", wDataList);
+                var status = Hdf5.WriteCompounds(fileId, "/test", wData2List);
                 Hdf5.CloseFile(fileId);
             }
             catch (Exception ex)
@@ -34,9 +72,9 @@ namespace Hdf5UnitTests
             {
                 var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                var cmpList = Hdf5.ReadCompounds<wData>(fileId, "/test").ToArray();
+                var cmpList = Hdf5.ReadCompounds<wData2>(fileId, "/test").ToArray();
                 Hdf5.CloseFile(fileId);
-                CollectionAssert.AreEqual(wDataList,cmpList);
+                CollectionAssert.AreEqual(wData2List,cmpList);
 
             }
             catch (Exception ex)

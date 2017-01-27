@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+    using System.Collections;
 #if HDF5_VER1_10
     using hid_t = System.Int64;
 #else
@@ -50,7 +51,7 @@ namespace Hdf5DotNetTools
             return readValue;
         }
 
-        public static T ReadObject<T>(hid_t groupId, string groupName) where T: new()
+        public static T ReadObject<T>(hid_t groupId, string groupName) where T : new()
         {
             T readValue = new T();
             return ReadObject<T>(groupId, readValue, groupName);
@@ -83,12 +84,21 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    Array values = dsetRW.ReadArray(ty, groupId, name);
+                    Array values;
+                    if (code != TypeCode.Object)
+                    {
+                        values = dsetRW.ReadArray(ty, groupId, name);
+                    }
+                    else
+                    {
+                        var elType = ty.GetElementType();
+                        var obj = CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
+                        values = (Array)obj;
+                    }
                     info.SetValue(readValue, values);
-                    //throw new Exception("Not implemented yet");
                 }
                 else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    {
+                {
                     Array values = dsetRW.ReadArray(ty, groupId, name);
                     // get first value depending on rank of the matrix
                     int[] first = new int[values.Rank].Select(f => 0).ToArray();
@@ -123,11 +133,22 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
-                    object value = dsetRW.ReadArray(ty.GetElementType(), groupId, name);
-                    info.SetValue(readValue, value, null);
-                    //throw new Exception("Not implemented yet");
+                    Array values;
+                    if (code != TypeCode.Object)
+                    {
+                        values = dsetRW.ReadArray(ty, groupId, name);
+                    }
+                    else
+                    {
+                        var elType = ty.GetElementType();
+                        var obj=CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
+                        var objArr = ((IEnumerable)obj).Cast<object>().ToArray();
+                        values = Array.CreateInstance(elType, objArr.Length);
+                        Array.Copy(objArr, values, objArr.Length);
+                    }
+                    info.SetValue(readValue, values);
                 }
-                else if(primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
+                else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                 {
                     Array values = dsetRW.ReadArray(ty, groupId, name);
                     int[] first = new int[values.Rank].Select(f => 0).ToArray();
