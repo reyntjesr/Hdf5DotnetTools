@@ -16,7 +16,7 @@ namespace Hdf5DotNetTools
         {
             Patient = new Hdf5Patient();
             Recording = new Hdf5Recording();
-            Events = new List<Hdf5Event>();
+            Events = new Hdf5Event[0];
             //Events = new Hdf5Event[0];
 
             Recording.PropertyChanged += (sender, eventArgs) =>
@@ -34,8 +34,8 @@ namespace Hdf5DotNetTools
         //public Hdf5Channel[] Channels { get; set; }
         public Hdf5Channel[] Channels { get; set; }
 
-        //[Hdf5Save(Hdf5Save.DoNotSave)]
-        public IList<Hdf5Event> Events { get; set; }
+        [Hdf5Save(Hdf5Save.DoNotSave)]
+        public Hdf5Event[] Events { get; set; }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public short[,] Data { get; set; }
@@ -76,7 +76,7 @@ namespace Hdf5DotNetTools
         public double Amplification;
         public double Offset;
         public double SamplingRate;
-        public int NrOfSamples;
+        public ulong NrOfSamples;
 
     }
 
@@ -84,6 +84,7 @@ namespace Hdf5DotNetTools
     public class Hdf5Recording
     {
         int _nrOfChannels;
+        [Hdf5Save(Hdf5Save.DoNotSave)]
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string Id { get; set; } = "";

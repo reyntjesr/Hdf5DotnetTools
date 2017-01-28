@@ -26,6 +26,7 @@ namespace Hdf5UnitTests
                 chn.Offset = 0;
                 chn.Amplification = (double)(10 - -10) / (short.MaxValue - short.MinValue);
                 chn.SamplingRate = header.Recording.SampleRate;
+                header.Channels[i] = chn;
             }
             return header;
 
@@ -90,7 +91,10 @@ namespace Hdf5UnitTests
                     }
                     writer.Write(signals);
                     header.Recording.NrOfSamples = 100;
-                    header.Channels.Select(c => c.NrOfSamples =  100);
+                    for (int i = 0; i < header.Channels.Length; i++)
+                    {
+                        header.Channels[i].NrOfSamples = header.Recording.NrOfSamples;
+                    }
                 }
             }
             catch (Exception ex)
@@ -106,7 +110,7 @@ namespace Hdf5UnitTests
                     Assert.IsTrue(header.Patient.Name == "Robert");
                     Assert.IsTrue(header.Recording.NrOfSamples == 100);
                     Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
-                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new int[] { 100, 100, 100, 100, 100 }));
+                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new ulong[] { 100, 100, 100, 100, 100 }));
                     var data = reader.ReadDouble(0, 49);
                     var sig = data.First().Take(5);
                     Assert.IsTrue(sig.Similar(new double[] { 0, 1 / 50f, 2 / 50f, 3 / 50f, 4 / 50f }));

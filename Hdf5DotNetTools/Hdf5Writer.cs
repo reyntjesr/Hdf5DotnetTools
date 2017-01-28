@@ -149,11 +149,12 @@ namespace Hdf5DotNetTools
 
             if (ty.IsArray)
             {
-                if (code != TypeCode.Object)
+                var elType = ty.GetElementType();
+                TypeCode elCode = Type.GetTypeCode(elType);
+                if (elCode != TypeCode.Object)
                     dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else
                 {
-                    var elType = ty.GetElementType();
                     CallByReflection(nameof(WriteCompounds), elType, new object[] { groupId, name, infoVal });
                 }
             }

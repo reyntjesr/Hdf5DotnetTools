@@ -104,7 +104,7 @@ namespace Hdf5DotNetTools
             Type type = collection.GetType();
             Type elementType = type.GetElementType();
             TypeCode typeCode = Type.GetTypeCode(elementType);
-            Boolean isStruct = type.IsValueType && !type.IsEnum;
+            //Boolean isStruct = type.IsValueType && !type.IsEnum;
 
             switch (typeCode)
             {

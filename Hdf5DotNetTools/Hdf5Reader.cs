@@ -84,14 +84,16 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
+                    var elType = ty.GetElementType();
+                    TypeCode elCode = Type.GetTypeCode(elType);
+
                     Array values;
-                    if (code != TypeCode.Object)
+                    if (elCode != TypeCode.Object)
                     {
                         values = dsetRW.ReadArray(ty, groupId, name);
                     }
                     else
                     {
-                        var elType = ty.GetElementType();
                         var obj = CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
                         values = (Array)obj;
                     }
@@ -133,14 +135,16 @@ namespace Hdf5DotNetTools
 
                 if (ty.IsArray)
                 {
+                    var elType = ty.GetElementType();
+                    TypeCode elCode = Type.GetTypeCode(elType);
+
                     Array values;
-                    if (code != TypeCode.Object)
+                    if (elCode != TypeCode.Object)
                     {
-                        values = dsetRW.ReadArray(ty, groupId, name);
+                        values = dsetRW.ReadArray(elType, groupId, name);
                     }
                     else
                     {
-                        var elType = ty.GetElementType();
                         var obj=CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
                         var objArr = ((IEnumerable)obj).Cast<object>().ToArray();
                         values = Array.CreateInstance(elType, objArr.Length);
