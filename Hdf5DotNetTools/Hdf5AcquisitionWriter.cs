@@ -16,7 +16,7 @@ namespace Hdf5DotNetTools
         const int MaxRecordSize = 61440;
         string _groupName;
         ChunkedDataset<short> dset = null;
-        int _nrOfRecords, _sampleCount;
+        ulong _nrOfRecords, _sampleCount;
 
         public Hdf5AcquisitionFileWriter(string aFilename, string groupName="EEG")
         {
@@ -30,6 +30,11 @@ namespace Hdf5DotNetTools
         public void Dispose()
         {
             _header.Recording.EndTime = _header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / _header.Recording.SampleRate);
+            Header.Recording.NrOfSamples = _sampleCount;
+            for (int i = 0; i < Header.Channels.Count(); i++)
+            {
+                Header.Channels[i].NrOfSamples = _sampleCount;
+            }
             Hdf5.WriteObject(fileId, _header, _groupName);
             fileId = Hdf5.CloseFile(fileId);
         }
@@ -69,6 +74,7 @@ namespace Hdf5DotNetTools
             }
             else
                 dset.AppendDataset(data);
+            _sampleCount += (ulong)data.GetLongLength(0);
             _nrOfRecords++;
 
         }
