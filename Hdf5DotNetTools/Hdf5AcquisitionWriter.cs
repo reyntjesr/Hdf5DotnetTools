@@ -43,7 +43,7 @@ namespace Hdf5DotNetTools
             if (cols == 0) return;
             int rows = signals[0].Length;
             if (rows == 0) return;
-            double sr = _header.Recording.SampleRate;
+            //double sr = _header.Recording.SampleRate;
 
             var data = new short[rows, cols];
             //var byteLength = rows * sizeof(short);
@@ -53,6 +53,13 @@ namespace Hdf5DotNetTools
                 for (int j = 0; j < rows; j++)
                     data[j, i] = convert2Short(sig[j],i);
             }
+            Write(data);
+        }
+        /// <summary>
+        /// Writes data to the hdf5 file.
+        /// </summary>
+        public void Write(short[,] data)
+        {
             var dataName = string.Concat("/", _groupName, "/Data");
             if (_nrOfRecords == 0)
             {
