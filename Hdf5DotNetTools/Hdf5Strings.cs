@@ -214,7 +214,7 @@ namespace Hdf5DotNetTools
         {
             hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
             H5T.set_cset(datatype, H5T.cset_t.UTF8);
-            H5T.set_strpad(datatype, H5T.str_t.SPACEPAD);
+            H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
 
             var datasetId = H5D.open(groupId, name);
             var typeId = H5D.get_type(datasetId);
@@ -225,21 +225,23 @@ namespace Hdf5DotNetTools
             int strLen = (int)size;
 
             var spaceId = H5D.get_space(datasetId);
+            hid_t count = H5S.get_simple_extent_npoints(spaceId);
 
+            IntPtr[] rdata = new IntPtr[count];
             byte[] wdata = new byte[strLen];
 
-            //IntPtr ptr = new IntPtr();
-            GCHandle hnd = GCHandle.Alloc(wdata, GCHandleType.Pinned);
+            GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
             H5D.read(datasetId, datatype, H5S.ALL, H5S.ALL,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
-            hnd.Free();
 
-            //int len = 0;
-            //while (Marshal.ReadByte(ptr, len) != 0) { ++len; }
-            //byte[] name_buf = new byte[len];
-            //Marshal.Copy(ptr, name_buf, 0, len);
+            for (int i = 0; i < strLen; i++)
+            {
+                Marshal.ReadByte(rdata[0], i);
+            }
+            Marshal.Copy(rdata[0], wdata, 0, strLen);
             string s = Encoding.UTF8.GetString(wdata);
 
+            hnd.Free();
             H5S.close(spaceId);
             H5T.close(datatype);
             H5D.close(datasetId);

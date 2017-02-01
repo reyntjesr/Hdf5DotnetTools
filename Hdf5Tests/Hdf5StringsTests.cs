@@ -119,6 +119,7 @@ namespace Hdf5UnitTests
 
                 fileId = Hdf5.OpenFile(filename);
                 string readStr = Hdf5.ReadUnicodeString(fileId, "/test");
+                //var readStr = Hdf5.ReadStrings(fileId, "/test");
                 Assert.IsTrue(test == readStr);
                 Assert.IsTrue(Hdf5.CloseFile(fileId) >= 0);
                 Hdf5.CloseFile(fileId);
