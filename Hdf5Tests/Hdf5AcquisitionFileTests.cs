@@ -28,6 +28,7 @@ namespace Hdf5UnitTests
                 chn.SamplingRate = header.Recording.SampleRate;
                 header.Channels[i] = chn;
             }
+            header.EventList.Add(new Hdf5Event() { Event = "an event", Time=DateTime.Now});
             return header;
 
         }
@@ -55,6 +56,7 @@ namespace Hdf5UnitTests
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
                     Assert.IsTrue(header.Channels.Select(c=>c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Events.First().Event == "an event");
                 }
             }
             catch (Exception ex)

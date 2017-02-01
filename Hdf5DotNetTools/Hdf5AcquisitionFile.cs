@@ -16,7 +16,7 @@ namespace Hdf5DotNetTools
         {
             Patient = new Hdf5Patient();
             Recording = new Hdf5Recording();
-            Events = new Hdf5Event[0];
+            EventList = new List<Hdf5Event>();
             //Events = new Hdf5Event[0];
 
             Recording.PropertyChanged += (sender, eventArgs) =>
@@ -35,7 +35,16 @@ namespace Hdf5DotNetTools
         public Hdf5Channel[] Channels { get; set; }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
-        public Hdf5Event[] Events { get; set; }
+        public List<Hdf5Event> EventList { get; private set; }
+
+        public Hdf5Event[] Events
+        {
+            get { return EventList.ToArray(); }
+            private set
+            {
+                EventList = new List<Hdf5Event>(value);
+            }
+        }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public short[,] Data { get; set; }
@@ -143,8 +152,8 @@ namespace Hdf5DotNetTools
     public struct Hdf5Event
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
-        public string Events;
-        public DateTime Times;
-        public TimeSpan Durations;
+        public string Event;
+        public DateTime Time;
+        public TimeSpan Duration;
     }
 }

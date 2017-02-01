@@ -190,8 +190,8 @@ namespace Hdf5DotNetTools
             byte[] bytes = new byte[rows * compoundSize];
             // Read the data.
             GCHandle hnd = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            H5D.read(datasetId, typeId, spaceId, H5S.ALL, H5P.DEFAULT, hnd.AddrOfPinnedObject());
-            hnd.Free();
+            IntPtr hndAddr = hnd.AddrOfPinnedObject();
+            H5D.read(datasetId, typeId, spaceId, H5S.ALL, H5P.DEFAULT, hndAddr);
             int counter = 0;
             IEnumerable<T> strcts = Enumerable.Range(1, rows).Select(i =>
              {
@@ -201,6 +201,14 @@ namespace Hdf5DotNetTools
                  counter = counter + compoundSize;
                  return s;
              });
+            /*
+             * Close and release resources.
+             */
+            H5D.vlen_reclaim(typeId,spaceId,H5P.DEFAULT,hndAddr);
+            hnd.Free();
+            H5D.close(datasetId);
+            H5S.close(spaceId);
+            H5T.close(typeId);
 
             return strcts;
         }

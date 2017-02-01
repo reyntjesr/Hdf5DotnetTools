@@ -147,6 +147,9 @@ namespace Hdf5DotNetTools
                 case TypeCode.Double:
                     dataType = H5T.NATIVE_DOUBLE;
                     break;
+                //case TypeCode.DateTime:
+                //    dataType = H5T.Native_t;
+                //    break;
                 case TypeCode.Char:
                     //dataType = H5T.NATIVE_UCHAR;
                     dataType = H5T.C_S1;
