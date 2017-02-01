@@ -135,12 +135,13 @@ namespace Hdf5DotNetTools
             List<OffsetInfo> offsets = new List<OffsetInfo>();
             foreach (var x in type.GetFields())
             {
+                var fldType = x.FieldType;
                 OffsetInfo oi = new OffsetInfo()
                 {
                     name = x.Name,
-                    type = x.FieldType,
-                    datatype = ieee ? GetDatatypeIEEE(x.FieldType) : GetDatatype(x.FieldType),
-                    size = x.FieldType == typeof(string) ? stringLength(x) : Marshal.SizeOf(x.FieldType),
+                    type = fldType,
+                    datatype = ieee ? GetDatatypeIEEE(fldType) : GetDatatype(fldType),
+                    size = fldType == typeof(string) ? stringLength(x) : Marshal.SizeOf(fldType),
                     offset = 0 + curSize
                 };
                 if (oi.datatype == H5T.C_S1)
@@ -155,12 +156,53 @@ namespace Hdf5DotNetTools
 
                 offsets.Add(oi);
             }
+            /* poging om ook properties te bewaren.
+             * foreach (var x in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
+            {
+                bool saveProperty = false;
+                bool isNotPublic = x.PropertyType.Attributes != TypeAttributes.Public;
+                foreach (Attribute attr in Attribute.GetCustomAttributes(x))
+                {
+                    var legAttr = attr as Hdf5SaveAttribute;
+                    var kind = legAttr?.SaveKind;
+                    bool saveAndPrivateProp = isNotPublic && kind == Hdf5Save.Save;
+                    bool doNotSaveProp = (kind == Hdf5Save.DoNotSave) ;
+                    if (saveAndPrivateProp && !doNotSaveProp)
+                    {
+                        saveProperty = true;
+                        continue;
+                    }
+
+                }
+                if (!saveProperty)
+                    continue;
+                var propType = x.PropertyType;
+                OffsetInfo oi = new OffsetInfo()
+                {
+                    name = x.Name,
+                    type = propType,
+                    datatype = ieee ? GetDatatypeIEEE(propType) : GetDatatype(propType),
+                    size = propType == typeof(string) ? stringLength(x) : Marshal.SizeOf(propType),
+                    offset = 0 + curSize
+                };
+                if (oi.datatype == H5T.C_S1)
+                {
+                    strtype = H5T.copy(H5T.C_S1);
+                    H5T.set_size(strtype, new IntPtr(oi.size));
+                    oi.datatype = strtype;
+                }
+                if (oi.datatype == H5T.STD_I64BE)
+                    oi.size = oi.size * 2;
+                curSize = curSize + oi.size;
+
+                offsets.Add(oi);
+            }*/
             H5T.close(strtype);
             return offsets;
 
         }
 
-        private static int stringLength(FieldInfo fld)
+        private static int stringLength(MemberInfo fld)
         {
             var attr = fld.GetCustomAttributes(typeof(MarshalAsAttribute), false);
             MarshalAsAttribute maa = (MarshalAsAttribute)attr[0];

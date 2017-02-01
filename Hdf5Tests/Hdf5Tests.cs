@@ -59,7 +59,16 @@ namespace Hdf5UnitTests
             public double temperature;
             public double pressure;
 
-            
+            public DateTime time
+            {
+                get { return new DateTime(timeTicks); }
+                set
+                {
+                    timeTicks = value.Ticks;
+                }
+            }
+
+            public long timeTicks;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -105,7 +114,8 @@ namespace Hdf5UnitTests
             }
         }
 
-        class TestClassWithStructs {
+        class TestClassWithStructs
+        {
             public TestClassWithStructs()
             {
             }
@@ -133,10 +143,10 @@ namespace Hdf5UnitTests
                 createDataset(20) };
 
             wDataList = new wData[4] {
-                new wData() { serial_no = 1153, location = "Exterior (static)", temperature = 53.23, pressure = 24.57 },
-                new wData() { serial_no = 1184, location = "Intake",  temperature = 55.12, pressure = 22.95 },
-                new wData() { serial_no = 1027, location = "Intake manifold", temperature = 103.55, pressure = 31.23 },
-                new wData() { serial_no = 1313, location = "Exhaust manifold", temperature = 1252.89, pressure = 84.11 }
+                new wData() { serial_no = 1153, location = "Exterior (static)", temperature = 53.23, pressure = 24.57, time=new DateTime(2000,1,1) },
+                new wData() { serial_no = 1184, location = "Intake",  temperature = 55.12, pressure = 22.95, time=new DateTime(2000,1,2) },
+                new wData() { serial_no = 1027, location = "Intake manifold", temperature = 103.55, pressure = 31.23, time=new DateTime(2000,1,3) },
+                new wData() { serial_no = 1313, location = "Exhaust manifold", temperature = 1252.89, pressure = 84.11, time=new DateTime(2000,1,4) }
             };
 
             wData2List = new wData2[4] {

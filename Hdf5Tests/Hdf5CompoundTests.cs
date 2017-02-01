@@ -38,7 +38,7 @@ namespace Hdf5UnitTests
                 objWithStructs = Hdf5.ReadObject<TestClassWithStructs>(fileId, "test");
                 CollectionAssert.AreEqual(wDataList, objWithStructs.DataList);
                 Hdf5.CloseFile(fileId);
-               
+
 
             }
             catch (Exception ex)
@@ -47,7 +47,7 @@ namespace Hdf5UnitTests
             }
 
         }
-    
+
 
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace Hdf5UnitTests
                 Assert.IsTrue(fileId > 0);
                 var cmpList = Hdf5.ReadCompounds<wData2>(fileId, "/test").ToArray();
                 Hdf5.CloseFile(fileId);
-                CollectionAssert.AreEqual(wData2List,cmpList);
+                CollectionAssert.AreEqual(wData2List, cmpList);
 
             }
             catch (Exception ex)
@@ -84,5 +84,38 @@ namespace Hdf5UnitTests
 
         }
 
+        [TestMethod]
+        public void WriteAndReadStructsWithDatetime()
+        {
+            string filename = Path.Combine(folder, "testCompounds.H5");
+
+            try
+            {
+
+                var fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                var status = Hdf5.WriteCompounds(fileId, "/test", wDataList);
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                var fileId = Hdf5.OpenFile(filename);
+                Assert.IsTrue(fileId > 0);
+                var cmpList = Hdf5.ReadCompounds<wData>(fileId, "/test").ToArray();
+                Hdf5.CloseFile(fileId);
+                CollectionAssert.AreEqual(wDataList, cmpList);
+
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+        }
     }
 }

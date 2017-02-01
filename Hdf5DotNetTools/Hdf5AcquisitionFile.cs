@@ -40,10 +40,7 @@ namespace Hdf5DotNetTools
         public Hdf5Event[] Events
         {
             get { return EventList.ToArray(); }
-            private set
-            {
-                EventList = new List<Hdf5Event>(value);
-            }
+            private set { EventList = new List<Hdf5Event>(value); }
         }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
@@ -153,7 +150,26 @@ namespace Hdf5DotNetTools
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
         public string Event;
-        public DateTime Time;
-        public TimeSpan Duration;
+        public DateTime Time
+        {
+            get { return new DateTime(TimeTicks); }
+            set
+            {
+                TimeTicks = value.Ticks;
+            }
+        }
+
+        public long TimeTicks;
+
+        public TimeSpan Duration
+        {
+            get { return new TimeSpan(DurationTicks); }
+            set
+            {
+                DurationTicks = value.Ticks;
+            }
+        }
+
+        public long DurationTicks;
     }
 }
