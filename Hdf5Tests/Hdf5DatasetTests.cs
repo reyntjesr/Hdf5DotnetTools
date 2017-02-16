@@ -20,7 +20,7 @@ namespace Hdf5UnitTests
             for (var i = 0; i < 10; i++)
                 for (var j = 0; j < 5; j++)
                 {
-                    times[i,j] = offset.AddDays(i + j * 5);
+                    times[i, j] = offset.AddDays(i + j * 5);
                 }
 
             try
@@ -29,7 +29,7 @@ namespace Hdf5UnitTests
                 Assert.IsTrue(fileId > 0);
                 Hdf5.WriteDataset(fileId, "/test", times);
 
-                var timesRead = (DateTime[,]) Hdf5.ReadDataset<DateTime>(fileId, "/test");
+                var timesRead = (DateTime[,])Hdf5.ReadDataset<DateTime>(fileId, "/test");
                 compareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
@@ -180,13 +180,17 @@ namespace Hdf5UnitTests
         public void WriteAndReadChunckedDataset()
         {
             string filename = Path.Combine(folder, "testChunks.H5");
+            string groupName = "/test";
+            string datasetName = "Data";
 
             try
             {
                 var fileId = Hdf5.CreateFile(filename);
                 Assert.IsTrue(fileId > 0);
-                var chunkSize = new ulong[] { 5, 5 };
-                using (var chunkedDset = new ChunkedDataset<double>("/test", fileId, dsets.First()))
+                var groupId = Hdf5.CreateGroup(fileId, groupName);
+                Assert.IsTrue(groupId >= 0);
+                //var chunkSize = new ulong[] { 5, 5 };
+                using (var chunkedDset = new ChunkedDataset<double>(datasetName, groupId, dsets.First()))
                 {
                     foreach (var ds in dsets.Skip(1))
                     {
@@ -204,7 +208,9 @@ namespace Hdf5UnitTests
             try
             {
                 var fileId = Hdf5.OpenFile(filename);
-                var dset = Hdf5.ReadDatasetToArray<double>(fileId, "/test");
+                //var groupId = H5G.open(fileId, groupName);
+                //var dset = Hdf5.ReadDatasetToArray<double>(groupId, datasetName);
+                var dset = Hdf5.ReadDatasetToArray<double>(fileId, string.Concat(groupName,"/",datasetName));
 
                 Assert.IsTrue(dset.Rank == dsets.First().Rank);
                 var xSum = dsets.Select(d => d.GetLength(0)).Sum();

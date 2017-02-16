@@ -28,7 +28,8 @@ namespace Hdf5UnitTests
                 chn.SamplingRate = header.Recording.SampleRate;
                 header.Channels[i] = chn;
             }
-            header.EventList.Add(new Hdf5Event() { Event = "an event", Time=DateTime.Now});
+            header.EventList.Add(new Hdf5Event() { Event = "an event", Time = DateTime.Now });
+            header.EventList.Add(new Hdf5Event() { Event = "a second event", Time = DateTime.Now +TimeSpan.FromSeconds(2)});
             return header;
 
         }
@@ -55,8 +56,71 @@ namespace Hdf5UnitTests
                 {
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
-                    Assert.IsTrue(header.Channels.Select(c=>c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
                     Assert.IsTrue(header.Events.First().Event == "an event");
+                    Assert.IsTrue(header.Events.Last().Event == "a second event");
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+        /// <summary>
+        /// an acquisition file is created that has 5 channels of data
+        /// for each channel 100 samples are written in two steps of 50 samples to the file
+        /// The total number of samples is written to the channels and recording objects
+        /// </summary>
+        [TestMethod]
+        public void WriteAndReadWithSignalsAcquisitionFile()
+        {
+            string filename = Path.Combine(folder, "testWithSignalsAcquisition.H5");
+            try
+            {
+                using (var writer = new Hdf5AcquisitionFileWriter(filename))
+                {
+                    var header = fillHeader(writer.Header);
+                    var signals = new List<double[]>(header.Recording.NrOfChannels);
+                    for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                    {
+                        signals.Add(Enumerable.Range(i * 50, 50).Select(j => j / 50.0).ToArray());
+                    }
+
+                    writer.Write(signals);
+                    signals = new List<double[]>(header.Recording.NrOfChannels);
+                    for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                    {
+                        signals.Add(Enumerable.Range((i + 1) * 50, 50).Select(j => j / 50.0).ToArray());
+                    }
+                    writer.Write(signals);
+                    //header.Recording.NrOfSamples = 100;
+                    //for (int i = 0; i < header.Channels.Length; i++)
+                    //{
+                    //    header.Channels[i].NrOfSamples = header.Recording.NrOfSamples;
+                    //}
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                using (var reader = new Hdf5AcquisitionFileReader(filename))
+                {
+                    var header = reader.Header;
+                    Assert.IsTrue(header.Patient.Name == "Robert");
+                    Assert.IsTrue(header.Recording.NrOfSamples == 100);
+                    Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new ulong[] { 100, 100, 100, 100, 100 }));
+                    var data = reader.ReadDouble(0, 49);
+                    var sig = data.First().Take(5);
+                    Assert.IsTrue(sig.Similar(new double[] { 0, 1 / 50f, 2 / 50f, 3 / 50f, 4 / 50f }));
+                    data = reader.ReadDouble(50, 99);
+                    sig = data.First().Take(5);
+                    Assert.IsTrue(sig.Similar(new double[] { 50 / 50f, 51 / 50f, 52 / 50f, 53 / 50f, 54 / 50f }));
                 }
             }
             catch (Exception ex)
@@ -79,24 +143,25 @@ namespace Hdf5UnitTests
                 using (var writer = new Hdf5AcquisitionFileWriter(filename))
                 {
                     var header = fillHeader(writer.Header);
-                    var signals = new List<double[]>(header.Recording.NrOfChannels);
+                    var data = new short[50,header.Recording.NrOfChannels];
                     for (int i = 0; i < header.Recording.NrOfChannels; i++)
-                    {
-                        signals.Add(Enumerable.Range(i * 50, 50).Select(j => j / 50.0).ToArray());
-                    }
+                        for (int j = 0; j < 50; j++)
+                        {
+                            data[j, i]= writer.Convert2Short(i+ j / 50.0,i);
+                        }                    
 
-                    writer.Write(signals);
-                    signals = new List<double[]>(header.Recording.NrOfChannels);
+                    writer.Write(data);
                     for (int i = 0; i < header.Recording.NrOfChannels; i++)
-                    {
-                        signals.Add(Enumerable.Range((i + 1) * 50, 50).Select(j => j / 50.0).ToArray());
-                    }
-                    writer.Write(signals);
-                    header.Recording.NrOfSamples = 100;
+                        for (int j = 0; j < 50; j++)
+                        {
+                            data[j, i] = writer.Convert2Short(i+1 + j / 50.0, i);
+                        }
+                    writer.Write(data);
+                    /*header.Recording.NrOfSamples = 100;
                     for (int i = 0; i < header.Channels.Length; i++)
                     {
                         header.Channels[i].NrOfSamples = header.Recording.NrOfSamples;
-                    }
+                    }*/
                 }
             }
             catch (Exception ex)

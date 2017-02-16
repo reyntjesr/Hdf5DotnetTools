@@ -65,14 +65,14 @@ namespace Hdf5DotNetTools
             status = H5P.set_chunk(propId, Rank, chunkDims);
 
             /* Create a new dataset within the file using chunk creation properties.  */
-            datasetId = H5D.create(GroupId, Datasetname, datatype, spaceId,
-                                 H5P.DEFAULT, propId, H5P.DEFAULT);
+            datasetId = H5D.create(GroupId, Datasetname, datatype, spaceId, H5P.DEFAULT, propId, H5P.DEFAULT);
 
             /* Write data to dataset */
             GCHandle hnd = GCHandle.Alloc(dataset, GCHandleType.Pinned);
             status = H5D.write(datasetId, datatype, H5S.ALL, H5S.ALL, H5P.DEFAULT,
                 hnd.AddrOfPinnedObject());
             hnd.Free();
+            H5S.close(spaceId);
         }
 
         public void AppendDataset(Array dataset)
@@ -104,8 +104,8 @@ namespace Hdf5DotNetTools
             hnd.Free();
 
             currentDims = size;
-            H5D.close(memId);
-            H5D.close(filespaceId);
+            H5S.close(memId);
+            H5S.close(filespaceId);
         }
 
         /// <summary>

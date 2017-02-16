@@ -24,9 +24,11 @@ namespace Hdf5UnitTests
                 var groupId = H5G.create(fileId, "/A"); ///B/C/D/E/F/G/H
                 Hdf5.WriteDataset(groupId, "test", dset);
                 var subGroupId = Hdf5.CreateGroup(groupId, "C");
+                var subGroupId2 = Hdf5.CreateGroup(groupId, "/D"); // will be saved at the root location 
                 dset = dsets.Skip(1).First();
                 Hdf5.WriteDataset(subGroupId, "test2", dset);
                 Hdf5.CloseGroup(subGroupId);
+                Hdf5.CloseGroup(subGroupId2);
                 Hdf5.CloseGroup(groupId);
                 groupId = H5G.create(fileId, "/A/B"); ///B/C/D/E/F/G/H
                 dset = dsets.Skip(1).First();

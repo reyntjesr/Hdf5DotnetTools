@@ -9,8 +9,16 @@ using System.Threading.Tasks;
 namespace Hdf5DotNetTools
 {
 
+    public interface IHdf5AcquisitionFile
+    {
+        Hdf5Patient Patient { get; set; }
+        Hdf5Recording Recording { get; set; }
+        Hdf5Channel[] Channels { get; set; }
+        List<Hdf5Event> EventList { get; }
+    }
+
     [Hdf5SaveAttribute(Hdf5Save.Save)]
-    public class Hdf5AcquisitionFile
+    public class Hdf5AcquisitionFile:IHdf5AcquisitionFile
     {
         public Hdf5AcquisitionFile()
         {
@@ -40,7 +48,11 @@ namespace Hdf5DotNetTools
         public Hdf5Event[] Events
         {
             get { return EventList.ToArray(); }
-            private set { EventList = new List<Hdf5Event>(value); }
+            private set
+            {
+                // When the array is read from the hdf5 file the EventList is created
+                EventList = new List<Hdf5Event>(value);
+            }
         }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
@@ -143,13 +155,19 @@ namespace Hdf5DotNetTools
         public TimeSpan[] Durations { get; set; }
     }
 
-
+    /// <summary>
+    /// 
+    /// </summary>
     [Hdf5GroupName("Event")]
     [StructLayout(LayoutKind.Sequential)]
     public struct Hdf5Event
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
         public string Event;
+
+        /// <summary>
+        /// Time property. Datetimes can't be saved so the TimeTicks field gets saved
+        /// </summary>
         public DateTime Time
         {
             get { return new DateTime(TimeTicks); }
@@ -161,6 +179,9 @@ namespace Hdf5DotNetTools
 
         public long TimeTicks;
 
+        /// <summary>
+        /// Duration property. Timespans can't be saved so the DurationTicks field gets saved
+        /// </summary>
         public TimeSpan Duration
         {
             get { return new TimeSpan(DurationTicks); }
