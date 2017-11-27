@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Hdf5DotNetTools
 {
 
-    public class Hdf5AcquisitionFileWriter:IDisposable
+    public class Hdf5AcquisitionFileWriter : IDisposable
     {
         long fileId;
         Hdf5AcquisitionFile _header;
@@ -19,7 +19,7 @@ namespace Hdf5DotNetTools
         ulong _nrOfRecords, _sampleCount;
         long _groupId;
 
-        public Hdf5AcquisitionFileWriter(string aFilename, string groupName="/EEG")
+        public Hdf5AcquisitionFileWriter(string aFilename, string groupName = "/EEG")
         {
             fileId = Hdf5.CreateFile(aFilename);
             _groupName = groupName;
@@ -34,11 +34,12 @@ namespace Hdf5DotNetTools
         {
             _header.Recording.EndTime = _header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / _header.Recording.SampleRate);
             Header.Recording.NrOfSamples = _sampleCount;
+            Header.EventListToEvents();
             for (int i = 0; i < Header.Channels.Count(); i++)
             {
                 Header.Channels[i].NrOfSamples = _sampleCount;
             }
-            Hdf5.WriteObject(_groupId, _header); 
+            Hdf5.WriteObject(_groupId, _header);
             fileId = Hdf5.CloseFile(fileId);
         }
 
@@ -59,11 +60,22 @@ namespace Hdf5DotNetTools
             foreach (var sig in signals)
             {
                 for (int j = 0; j < rows; j++)
-                    data[j, i] = Convert2Short(sig[j],i);
+                    data[j, i] = Convert2Short(sig[j], i);
                 i++;
             }
             Write(data);
         }
+
+        /// <summary>
+        /// Writes data asynchronously to the hdf5 file.
+        /// </summary>
+        public async void WriteAsync(IEnumerable<double[]> signals)
+        {
+            Task writeTask = new Task(() => Write(signals));
+            writeTask.Start();
+            await writeTask;
+        }
+
         /// <summary>
         /// Writes data to the hdf5 file.
         /// </summary>
@@ -82,7 +94,17 @@ namespace Hdf5DotNetTools
 
         }
 
-        public short Convert2Short(double val,int channelNr)
+        /// <summary>
+        /// Writes data asynchronously to the hdf5 file.
+        /// </summary>
+        public async void WriteAsync(short[,] data)
+        {
+            Task writeTask = new Task(() => Write(data));
+            writeTask.Start();
+            await writeTask;
+        }
+
+        public short Convert2Short(double val, int channelNr)
         {
             val = (val - _header.Channels[channelNr].Offset) / _header.Channels[channelNr].Amplification;
             //val = val * short.MaxValue;
@@ -90,7 +112,7 @@ namespace Hdf5DotNetTools
                 val = short.MaxValue;
             if (val < short.MinValue)
                 val = short.MinValue;
-            return Convert.ToInt16(Math.Round(val,MidpointRounding.AwayFromZero));
+            return Convert.ToInt16(Math.Round(val, MidpointRounding.AwayFromZero));
 
         }
 
