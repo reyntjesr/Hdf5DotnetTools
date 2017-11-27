@@ -264,7 +264,7 @@ namespace Hdf5UnitTests
 
 
                 Assert.IsTrue(dset.Rank == dsets.First().Rank);
-                int count = Convert.ToInt32(endIndex - begIndex);
+                int count = Convert.ToInt32(endIndex - begIndex + 1);
                 Assert.IsTrue(count == dset.GetLength(0));
                 // Creat a range from number 8 to 21
                 var testRange = Enumerable.Range((int)begIndex, count).Select(t => (double)t);
