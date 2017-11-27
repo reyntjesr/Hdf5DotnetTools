@@ -59,8 +59,8 @@ namespace Hdf5UnitTests
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
                     Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
-                    Assert.IsTrue(header.Events.First().Event == "an event");
-                    Assert.IsTrue(header.Events.Last().Event == "a second event");
+                    Assert.IsTrue(header.Events.Events.First() == "an event");
+                    Assert.IsTrue(header.Events.Events.Last() == "a second event");
                 }
             }
             catch (Exception ex)

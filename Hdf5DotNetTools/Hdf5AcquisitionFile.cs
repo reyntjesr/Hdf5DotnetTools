@@ -15,6 +15,7 @@ namespace Hdf5DotNetTools
         Hdf5Recording Recording { get; set; }
         Hdf5Channel[] Channels { get; set; }
         List<Hdf5Event> EventList { get; }
+        Hdf5Events Events { get; }
     }
 
     [Hdf5SaveAttribute(Hdf5Save.Save)]
@@ -25,7 +26,7 @@ namespace Hdf5DotNetTools
             Patient = new Hdf5Patient();
             Recording = new Hdf5Recording();
             EventList = new List<Hdf5Event>();
-            //Events = new Hdf5Event[0];
+            Events = new Hdf5Events();
 
             Recording.PropertyChanged += (sender, eventArgs) =>
             {
@@ -42,10 +43,7 @@ namespace Hdf5DotNetTools
         //public Hdf5Channel[] Channels { get; set; }
         public Hdf5Channel[] Channels { get; set; }
 
-        [Hdf5Save(Hdf5Save.DoNotSave)]
-        public List<Hdf5Event> EventList { get; private set; }
-
-        public Hdf5Event[] Events
+        /*public Hdf5Event[] Events
         {
             get { return EventList.ToArray(); }
             private set
@@ -53,12 +51,26 @@ namespace Hdf5DotNetTools
                 // When the array is read from the hdf5 file the EventList is created
                 EventList = new List<Hdf5Event>(value);
             }
-        }
+        }*/
+        public Hdf5Events Events { get; set; }
+
+        [Hdf5Save(Hdf5Save.DoNotSave)]
+        public List<Hdf5Event> EventList { get; private set; }
 
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public short[,] Data { get; set; }
 
+        public void EventListToEvents()
+        {
+            Events = new Hdf5Events(EventList.Count);
+            for (int i = 0; i < EventList.Count; i++)
+            {
+                Events.Times[i] = EventList[i].Time;
+                Events.Durations[i] = EventList[i].Duration;
+                Events.Events[i] = EventList[i].Event;
+            }
 
+        }
 
     }
 
@@ -162,7 +174,7 @@ namespace Hdf5DotNetTools
     [StructLayout(LayoutKind.Sequential)]
     public struct Hdf5Event
     {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50)]
         public string Event;
 
         /// <summary>
