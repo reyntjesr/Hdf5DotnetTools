@@ -123,7 +123,7 @@ namespace Hdf5DotNetTools
             {
                 var elType = ty.GetElementType();
                 TypeCode elCode = Type.GetTypeCode(elType);
-                if (elCode != TypeCode.Object)
+                if (elCode != TypeCode.Object || ty == typeof(TimeSpan[]))
                     dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else
                 {

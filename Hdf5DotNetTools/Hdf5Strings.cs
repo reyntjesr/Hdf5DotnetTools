@@ -56,7 +56,7 @@ namespace Hdf5DotNetTools
 
                 strs.Add(s);
 
-                H5.free_memory(rdata[i]);
+               // H5.free_memory(rdata[i]);
             }
 
             hnd.Free();
