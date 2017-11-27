@@ -53,9 +53,9 @@ namespace Hdf5DotNetTools
         /// <summary>
         /// Reads this instance.
         /// </summary>
-        public void Read()
+        public IList<short[]> Read()
         {
-            Read(_header.Recording.StartTime, _header.Recording.EndTime);
+            return Read(_header.Recording.StartTime, _header.Recording.EndTime);
         }
 
         /// <summary>
@@ -91,12 +91,20 @@ namespace Hdf5DotNetTools
         /// <summary>
         /// Reads this instance from a specified start time to a specified end time.
         /// </summary>
+        public IList<double[]> ReadDouble()
+        {
+            return ReadDouble(_header.Recording.StartTime, _header.Recording.EndTime);
+        }
+
+        /// <summary>
+        /// Reads this instance from a specified start time to a specified end time.
+        /// </summary>
         /// <param name="startIndex">The start index.</param>
         /// <param name="endIndex">The end index.</param>
         public IList<double[]> ReadDouble(ulong startIndex, ulong endIndex)
         {
             Read(startIndex, endIndex);
-            int rows = Convert.ToInt32(endIndex - startIndex);
+            int rows = Convert.ToInt32(endIndex - startIndex + 1);
             var dblList = new List<double[]>(_readChannelCnt);
             for (int i = 0; i < _readChannelCnt; i++)
             {
@@ -131,14 +139,14 @@ namespace Hdf5DotNetTools
         /// </summary>
         /// <param name="startTime">The start time.</param>
         /// <param name="endTime">The end time.</param>
-        public void Read(DateTime startTime, DateTime endTime)
+        public IList<short[]> Read(DateTime startTime, DateTime endTime)
         {
             double sr = _header.Recording.SampleRate;
             TimeSpan startSpan = startTime - _header.Recording.StartTime;
             TimeSpan endSpan = endTime - _header.Recording.StartTime;
             ulong startIndex = Convert.ToUInt64(Math.Round(startSpan.TotalSeconds * sr, MidpointRounding.AwayFromZero));
             ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr));
-            Read(startIndex, endIndex);
+            return Read(startIndex, endIndex);
         }
 
         public void Dispose()
