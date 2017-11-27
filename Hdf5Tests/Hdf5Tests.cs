@@ -51,7 +51,7 @@ namespace Hdf5UnitTests
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct wData
+        private struct WData
         {
             public int serial_no;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
@@ -59,7 +59,7 @@ namespace Hdf5UnitTests
             public double temperature;
             public double pressure;
 
-            public DateTime time
+            public DateTime Time
             {
                 get { return new DateTime(timeTicks); }
                 set
@@ -72,7 +72,7 @@ namespace Hdf5UnitTests
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct wData2
+        private struct WData2
         {
             public int serial_no;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
@@ -119,14 +119,14 @@ namespace Hdf5UnitTests
             public TestClassWithStructs()
             {
             }
-            public wData[] DataList { get; set; }
+            public WData[] DataList { get; set; }
         }
 
         static private TestClass testClass;
         static private TestClassWithArray testClassWithArrays;
         static private List<double[,]> dsets;
-        static private wData[] wDataList;
-        static private wData2[] wData2List;
+        static private WData[] wDataList;
+        static private WData2[] wData2List;
         static private AllTypesClass allTypesObject;
         static private TestClassWithStructs classWithStructs;
 
@@ -138,26 +138,25 @@ namespace Hdf5UnitTests
             //folder = System.IO.Path.GetTempPath();
             folder = AppDomain.CurrentDomain.BaseDirectory;
             dsets = new List<double[,]> {
-                createDataset(),
-                createDataset(10),
-                createDataset(20) };
+                CreateDataset(),
+                CreateDataset(10),
+                CreateDataset(20) };
 
-            wDataList = new wData[4] {
-                new wData() { serial_no = 1153, location = "Exterior (static)", temperature = 53.23, pressure = 24.57, time=new DateTime(2000,1,1) },
-                new wData() { serial_no = 1184, location = "Intake",  temperature = 55.12, pressure = 22.95, time=new DateTime(2000,1,2) },
-                new wData() { serial_no = 1027, location = "Intake manifold", temperature = 103.55, pressure = 31.23, time=new DateTime(2000,1,3) },
-                new wData() { serial_no = 1313, location = "Exhaust manifold", temperature = 1252.89, pressure = 84.11, time=new DateTime(2000,1,4) }
+            wDataList = new WData[4] {
+                new WData() { serial_no = 1153, location = "Exterior (static)", temperature = 53.23, pressure = 24.57, Time=new DateTime(2000,1,1) },
+                new WData() { serial_no = 1184, location = "Intake",  temperature = 55.12, pressure = 22.95, Time=new DateTime(2000,1,2) },
+                new WData() { serial_no = 1027, location = "Intake manifold", temperature = 103.55, pressure = 31.23, Time=new DateTime(2000,1,3) },
+                new WData() { serial_no = 1313, location = "Exhaust manifold", temperature = 1252.89, pressure = 84.11, Time=new DateTime(2000,1,4) }
             };
 
-            wData2List = new wData2[4] {
-                new wData2() { serial_no = 1153, location = "Exterior (static)", label="V",temperature = 53.23, pressure = 24.57 },
-                new wData2() { serial_no = 1184, location = "Intake", label="uV", temperature = 55.12, pressure = 22.95 },
-                new wData2() { serial_no = 1027, location = "Intake manifold", label="V",temperature = 103.55, pressure = 31.23 },
-                new wData2() { serial_no = 1313, location = "Exhaust manifold", label="mV", temperature = 1252.89, pressure = 84.11 }
+            wData2List = new WData2[4] {
+                new WData2() { serial_no = 1153, location = "Exterior (static)", label="V",temperature = 53.23, pressure = 24.57 },
+                new WData2() { serial_no = 1184, location = "Intake", label="uV", temperature = 55.12, pressure = 22.95 },
+                new WData2() { serial_no = 1027, location = "Intake manifold", label="V",temperature = 103.55, pressure = 31.23 },
+                new WData2() { serial_no = 1313, location = "Exhaust manifold", label="mV", temperature = 1252.89, pressure = 84.11 }
             };
 
-            classWithStructs = new TestClassWithStructs();
-            classWithStructs.DataList = wDataList;
+            classWithStructs = new TestClassWithStructs { DataList = wDataList };
             testClass = new TestClass();
             testClassWithArrays = new TestClassWithArray();
             allTypesObject = new AllTypesClass();
@@ -183,7 +182,7 @@ namespace Hdf5UnitTests
         /// </summary>
         /// <param name="offset"></param>
         /// <returns>the matrix </returns>
-        private static double[,] createDataset(int offset = 0)
+        private static double[,] CreateDataset(int offset = 0)
         {
             var dset = new double[10, 5];
             for (var i = 0; i < 10; i++)
@@ -196,7 +195,7 @@ namespace Hdf5UnitTests
         }
 
 
-        private static void compareDatasets<T>(T[,] dset, T[,] dset2)
+        private static void CompareDatasets<T>(T[,] dset, T[,] dset2)
         {
             Assert.IsTrue(dset.Rank == dset2.Rank);
             Assert.IsTrue(

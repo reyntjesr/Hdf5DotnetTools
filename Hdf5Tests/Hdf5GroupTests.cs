@@ -44,16 +44,16 @@ namespace Hdf5UnitTests
                 Assert.IsTrue(fileId > 0);
                 groupId = H5G.open(fileId, "/A/B");
                 double[,] dset2 = (double[,])Hdf5.ReadDataset<double>(groupId, "test");
-                compareDatasets(dset, dset2);
+                CompareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.CloseGroup(groupId) >= 0);
                 groupId = H5G.open(fileId, "/A/C");
                 dset2 = (double[,])Hdf5.ReadDataset<double>(groupId, "test2");
-                compareDatasets(dset, dset2);
+                CompareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.CloseGroup(groupId) >= 0);
                 bool same = dset == dset2;
                 dset = dsets.First();
                 dset2 = (double[,])Hdf5.ReadDataset<double>(fileId, "/A/test");
-                compareDatasets(dset, dset2);
+                CompareDatasets(dset, dset2);
                 Assert.IsTrue(Hdf5.GroupExists(fileId, "A/B/C/D/E/F/I"));
 
                 Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);

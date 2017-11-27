@@ -72,7 +72,7 @@ namespace Hdf5UnitTests
             {
                 var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                var cmpList = Hdf5.ReadCompounds<wData2>(fileId, "/test").ToArray();
+                var cmpList = Hdf5.ReadCompounds<WData2>(fileId, "/test").ToArray();
                 Hdf5.CloseFile(fileId);
                 CollectionAssert.AreEqual(wData2List, cmpList);
 
@@ -106,7 +106,7 @@ namespace Hdf5UnitTests
             {
                 var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
-                var cmpList = Hdf5.ReadCompounds<wData>(fileId, "/test").ToArray();
+                var cmpList = Hdf5.ReadCompounds<WData>(fileId, "/test").ToArray();
                 Hdf5.CloseFile(fileId);
                 CollectionAssert.AreEqual(wDataList, cmpList);
 

@@ -30,7 +30,7 @@ namespace Hdf5UnitTests
                 Hdf5.WriteDataset(fileId, "/test", times);
 
                 var timesRead = (DateTime[,])Hdf5.ReadDataset<DateTime>(fileId, "/test");
-                compareDatasets(times, timesRead);
+                CompareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
             }
@@ -59,7 +59,7 @@ namespace Hdf5UnitTests
                 Hdf5.WriteDataset(fileId, "/test", times);
 
                 TimeSpan[,] timesRead = (TimeSpan[,])Hdf5.ReadDataset<TimeSpan>(fileId, "/test");
-                compareDatasets(times, timesRead);
+                CompareDatasets(times, timesRead);
 
                 Hdf5.CloseFile(fileId);
             }
@@ -92,7 +92,7 @@ namespace Hdf5UnitTests
                 var fileId = Hdf5.OpenFile(filename);
                 Assert.IsTrue(fileId > 0);
                 double[,] dset2 = (double[,])Hdf5.ReadDataset<double>(fileId, "/test");
-                compareDatasets(dset, dset2);
+                CompareDatasets(dset, dset2);
                 bool same = dset == dset2;
 
                 Hdf5.CloseFile(fileId);

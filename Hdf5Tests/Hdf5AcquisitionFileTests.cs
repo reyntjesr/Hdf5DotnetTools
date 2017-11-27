@@ -10,7 +10,7 @@ namespace Hdf5UnitTests
 {
     public partial class Hdf5UnitTests
     {
-        private Hdf5AcquisitionFile fillHeader(Hdf5AcquisitionFile header)
+        private Hdf5AcquisitionFile FillHeader(Hdf5AcquisitionFile header)
         {
             header.Patient.Name = "Robert";
             header.Patient.Gender = "Male";
@@ -29,7 +29,7 @@ namespace Hdf5UnitTests
                 header.Channels[i] = chn;
             }
             header.EventList.Add(new Hdf5Event() { Event = "an event", Time = DateTime.Now });
-            header.EventList.Add(new Hdf5Event() { Event = "a second event", Time = DateTime.Now +TimeSpan.FromSeconds(2)});
+            header.EventList.Add(new Hdf5Event() { Event = "a second event", Time = DateTime.Now + TimeSpan.FromSeconds(2) });
             return header;
 
         }
@@ -42,7 +42,7 @@ namespace Hdf5UnitTests
             {
                 using (var writer = new Hdf5AcquisitionFileWriter(filename))
                 {
-                    var data = fillHeader(writer.Header);
+                    var data = FillHeader(writer.Header);
                 }
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace Hdf5UnitTests
             {
                 using (var writer = new Hdf5AcquisitionFileWriter(filename))
                 {
-                    var header = fillHeader(writer.Header);
+                    var header = FillHeader(writer.Header);
                     var signals = new List<double[]>(header.Recording.NrOfChannels);
                     for (int i = 0; i < header.Recording.NrOfChannels; i++)
                     {
@@ -142,19 +142,19 @@ namespace Hdf5UnitTests
             {
                 using (var writer = new Hdf5AcquisitionFileWriter(filename))
                 {
-                    var header = fillHeader(writer.Header);
-                    var data = new short[50,header.Recording.NrOfChannels];
+                    var header = FillHeader(writer.Header);
+                    var data = new short[50, header.Recording.NrOfChannels];
                     for (int i = 0; i < header.Recording.NrOfChannels; i++)
                         for (int j = 0; j < 50; j++)
                         {
-                            data[j, i]= writer.Convert2Short(i+ j / 50.0,i);
-                        }                    
+                            data[j, i] = writer.Convert2Short(i + j / 50.0, i);
+                        }
 
                     writer.Write(data);
                     for (int i = 0; i < header.Recording.NrOfChannels; i++)
                         for (int j = 0; j < 50; j++)
                         {
-                            data[j, i] = writer.Convert2Short(i+1 + j / 50.0, i);
+                            data[j, i] = writer.Convert2Short(i + 1 + j / 50.0, i);
                         }
                     writer.Write(data);
                     /*header.Recording.NrOfSamples = 100;
