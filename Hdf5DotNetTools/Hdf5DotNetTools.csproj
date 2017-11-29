@@ -83,6 +83,7 @@
     <Compile Include="Hdf5Reader.cs" />
     <Compile Include="Hdf5Writer.cs" />
     <Compile Include="Hdf5Strings.cs" />
+    <Compile Include="ProducerConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -58,7 +58,7 @@ namespace Hdf5DotNetTools
             H5D.read(datasetId, datatype, memId, spaceId,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
             hnd.Free();
-            H5D.close(typeId);
+
             H5D.close(datasetId);
             H5S.close(spaceId);
             return dset;
@@ -90,7 +90,7 @@ namespace Hdf5DotNetTools
 
             start[0] = beginIndex;
             start[1] = 0;
-            count[0] = endIndex - beginIndex;
+            count[0] = endIndex - beginIndex+1;
             count[1] = dims[1];
 
             var status = H5S.select_hyperslab(spaceId, H5S.seloper_t.SET, start, stride, count, block);

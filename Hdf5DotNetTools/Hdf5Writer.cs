@@ -86,19 +86,8 @@ namespace Hdf5DotNetTools
                 if (infoVal == null)
                     continue;
                 string name = info.Name;
+                //bool isEnumerable = info.FieldType.GetInterface(typeof(IEnumerable<>).FullName) != null;
                 writeField(infoVal, groupId, name);
-                /*Type ty = infoVal.GetType();
-                TypeCode code = Type.GetTypeCode(ty);
-
-                if (ty.IsArray)
-                {
-                    dsetRW.WriteArray(groupId, name, (Array)infoVal);
-                }
-                else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    //WriteOneValue(groupId, name, infoVal);
-                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
-                else
-                    WriteObject(groupId, infoVal, name);*/
             }
         }
 
@@ -121,25 +110,8 @@ namespace Hdf5DotNetTools
                 if (infoVal == null)
                     continue;
                 string name = info.Name;
+                //bool isEnumerable = info.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null;
                 writeField(infoVal, groupId, name);
-                /*Type ty = infoVal.GetType();
-                TypeCode code = Type.GetTypeCode(ty);
-
-                if (ty.IsArray)
-                {
-                    if (code != TypeCode.Object)
-                        dsetRW.WriteArray(groupId, name, (Array)infoVal);
-                    else
-                    {
-                        var elType = ty.GetElementType();
-                        CallByReflection(nameof(WriteCompounds), elType, new object[] { groupId, name, infoVal });
-                    }
-                }
-                else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
-                    //WriteOneValue(groupId, name, infoVal);
-                    CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
-                else
-                    WriteObject(groupId, infoVal, name);*/
             }
         }
         private static void writeField(object infoVal, hid_t groupId, string name)
@@ -151,7 +123,7 @@ namespace Hdf5DotNetTools
             {
                 var elType = ty.GetElementType();
                 TypeCode elCode = Type.GetTypeCode(elType);
-                if (elCode != TypeCode.Object)
+                if (elCode != TypeCode.Object || ty == typeof(TimeSpan[]))
                     dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else
                 {

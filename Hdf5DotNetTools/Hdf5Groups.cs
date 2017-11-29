@@ -53,9 +53,17 @@ namespace Hdf5DotNetTools
 
         public static bool GroupExists(hid_t groupId, string groupName)
         {
-            H5G.info_t info = new H5G.info_t();
-            var gid = H5G.get_info_by_name(groupId, groupName, ref info);
-            return gid == 0;
+            bool exists = false;
+            try
+            {
+                H5G.info_t info = new H5G.info_t();
+                var gid = H5G.get_info_by_name(groupId, groupName, ref info);
+                exists = gid == 0;
+            }
+            catch (Exception)
+            {
+            }
+            return exists;
         }
 
         public static ulong NumberOfAttributes(int groupId, string groupName)

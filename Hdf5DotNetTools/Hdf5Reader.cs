@@ -139,13 +139,13 @@ namespace Hdf5DotNetTools
                     TypeCode elCode = Type.GetTypeCode(elType);
 
                     Array values;
-                    if (elCode != TypeCode.Object)
+                    if (elCode != TypeCode.Object || ty == typeof(TimeSpan[]))
                     {
                         values = dsetRW.ReadArray(elType, groupId, name);
                     }
                     else
                     {
-                        var obj=CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
+                        var obj = CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
                         var objArr = ((IEnumerable)obj).Cast<object>().ToArray();
                         values = Array.CreateInstance(elType, objArr.Length);
                         Array.Copy(objArr, values, objArr.Length);
@@ -162,7 +162,10 @@ namespace Hdf5DotNetTools
                 {
                     Object value = info.GetValue(readValue, null);
                     if (value != null)
-                        ReadObject(groupId, value, name);
+                    {
+                        value = ReadObject(groupId, value, name);
+                        info.SetValue(readValue, value);
+                    }
                 }
             }
         }
