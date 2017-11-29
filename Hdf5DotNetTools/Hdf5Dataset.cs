@@ -58,7 +58,7 @@ namespace Hdf5DotNetTools
             H5D.read(datasetId, datatype, memId, spaceId,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
             hnd.Free();
-            H5D.close(typeId);
+
             H5D.close(datasetId);
             H5S.close(spaceId);
             return dset;
