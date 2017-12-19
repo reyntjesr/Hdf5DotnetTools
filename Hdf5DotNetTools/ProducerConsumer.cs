@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
-    public class ProducerConsumer
+    public class ProducerConsumer : IDisposable
     {
-        private BlockingCollection<IEnumerable<double[]>>  _queue = new BlockingCollection<IEnumerable<double[]>>();
+        private BlockingCollection<IEnumerable<double[]>> _queue = new BlockingCollection<IEnumerable<double[]>>();
         private Hdf5AcquisitionFileWriter _writer;
         private int _milliSeconds;
 
-        public ProducerConsumer(Hdf5AcquisitionFileWriter writer, int milliSeconds=0)
+        public ProducerConsumer(Hdf5AcquisitionFileWriter writer, int milliSeconds = 0)
         {
             _milliSeconds = milliSeconds;
             _writer = writer;
@@ -24,6 +24,18 @@ namespace Hdf5DotNetTools
                 IsBackground = true
             };
             thread.Start();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+                _queue.Dispose();
         }
 
         public void Done()
@@ -47,7 +59,7 @@ namespace Hdf5DotNetTools
                         _writer.Write(data);
 
                 }
-                catch (InvalidOperationException )
+                catch (InvalidOperationException)
                 {
                     Debug.WriteLine(string.Format("Work queue on thread {0} has been closed.", Thread.CurrentThread.ManagedThreadId));
                 }

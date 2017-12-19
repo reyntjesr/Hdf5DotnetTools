@@ -47,11 +47,13 @@ namespace Hdf5UnitTests
         {
             try
             {
-                List<string> strs = new List<string>();
-                strs.Add("t");
-                strs.Add("tst");
-                strs.Add("test1");
-                strs.Add("small test");
+                List<string> strs = new List<string>
+                {
+                    "t",
+                    "tst",
+                    "test1",
+                    "small test"
+                };
 
                 string filename = Path.Combine(folder, "testStringList.H5");
 

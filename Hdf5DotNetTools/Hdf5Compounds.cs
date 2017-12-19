@@ -26,7 +26,7 @@ namespace Hdf5DotNetTools
             var size = Marshal.SizeOf(type);
             var cnt = list.Count();
 
-            var typeId = create_type(type);
+            var typeId = CreateType(type);
 
             var log10 = (int)Math.Log10(cnt);
             ulong pow = (ulong)Math.Pow(10, log10);
@@ -39,7 +39,7 @@ namespace Hdf5DotNetTools
             if (list.Count() == 0 || log10 == 0) { }
             else
             {
-                dcpl = create_property(chunk_size);
+                dcpl = CreateProperty(chunk_size);
             }
 
             // Create dataspace.  Setting maximum size to NULL sets the maximum
@@ -73,7 +73,7 @@ namespace Hdf5DotNetTools
             return statusId;
         }
 
-        private static long create_property(ulong[] chunk_size)
+        private static long CreateProperty(ulong[] chunk_size)
         {
             var dcpl = H5P.create(H5P.DATASET_CREATE);
             H5P.set_layout(dcpl, H5D.layout_t.CHUNKED);
@@ -82,7 +82,7 @@ namespace Hdf5DotNetTools
             return dcpl;
         }
 
-        private static long create_type(Type t)
+        private static long CreateType(Type t)
         {
             var size = Marshal.SizeOf(t);
             var float_size = Marshal.SizeOf(typeof(float));
@@ -97,7 +97,7 @@ namespace Hdf5DotNetTools
             }
             return typeId;
         }
-        private static IEnumerable<T> changeStrings<T>(IEnumerable<T> array, FieldInfo[] fields) where T : struct
+        private static IEnumerable<T> ChangeStrings<T>(IEnumerable<T> array, FieldInfo[] fields) where T : struct
         {
             foreach (var info in fields)
                 if (info.FieldType == typeof(string))
@@ -111,7 +111,7 @@ namespace Hdf5DotNetTools
 
 
         ///
-        private static int calcCompoundSize(Type type, bool useIEEE, ref hid_t id)
+        private static int CalcCompoundSize(Type type, bool useIEEE, ref hid_t id)
         {
             // Create the compound datatype for the file.  Because the standard
             // types we are using for the file may have different sizes than
@@ -141,7 +141,7 @@ namespace Hdf5DotNetTools
                     name = x.Name,
                     type = fldType,
                     datatype = ieee ? GetDatatypeIEEE(fldType) : GetDatatype(fldType),
-                    size = fldType == typeof(string) ? stringLength(x) : Marshal.SizeOf(fldType),
+                    size = fldType == typeof(string) ? StringLength(x) : Marshal.SizeOf(fldType),
                     offset = 0 + curSize
                 };
                 if (oi.datatype == H5T.C_S1)
@@ -202,7 +202,7 @@ namespace Hdf5DotNetTools
 
         }
 
-        private static int stringLength(MemberInfo fld)
+        private static int StringLength(MemberInfo fld)
         {
             var attr = fld.GetCustomAttributes(typeof(MarshalAsAttribute), false);
             MarshalAsAttribute maa = (MarshalAsAttribute)attr[0];
@@ -217,7 +217,7 @@ namespace Hdf5DotNetTools
             // open dataset
             var datasetId = H5D.open(groupId, name);
 
-            typeId = create_type(type);
+            typeId = CreateType(type);
             var compoundSize = Marshal.SizeOf(type);
 
             /*

@@ -55,7 +55,7 @@ namespace Hdf5DotNetTools
             if (DatasetExists) throw new Exception("cannot call FirstDataset because dataset already exists");
 
             Rank = dataset.Rank;
-            currentDims = getDims(dataset);
+            currentDims = GetDims(dataset);
 
             /* Create the data space with unlimited dimensions. */
             spaceId = H5S.create_simple(Rank, currentDims, maxDims);
@@ -79,7 +79,7 @@ namespace Hdf5DotNetTools
         {
             if (!DatasetExists) throw new Exception("call constructor or FirstDataset first before appending.");
             oldDims = currentDims;
-            currentDims = getDims(dataset);
+            currentDims = GetDims(dataset);
             int rank = dataset.Rank;
             ulong[] zeros = Enumerable.Range(0, rank).Select(z => (ulong)0).ToArray();
 
@@ -133,7 +133,7 @@ namespace Hdf5DotNetTools
             }
         }
 
-        private ulong[] getDims(Array dset)
+        private ulong[] GetDims(Array dset)
         {
             return Enumerable.Range(0, dset.Rank).Select(i =>
             { return (ulong)dset.GetLength(i); }).ToArray();
