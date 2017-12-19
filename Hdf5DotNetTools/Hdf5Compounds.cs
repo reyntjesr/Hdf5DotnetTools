@@ -93,7 +93,8 @@ namespace Hdf5DotNetTools
             foreach (var cmp in compoundInfo)
             {
                 //Console.WriteLine(string.Format("{0}  {1}", cmp.name, cmp.datatype));
-                H5T.insert(typeId, cmp.name, Marshal.OffsetOf(t, cmp.name), cmp.datatype);
+                var typeLong = GetDatatype(cmp.type);
+                H5T.insert(typeId, cmp.name, Marshal.OffsetOf(t, cmp.name), typeLong);
             }
             return typeId;
         }
