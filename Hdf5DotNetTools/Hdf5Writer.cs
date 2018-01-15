@@ -33,8 +33,7 @@ namespace Hdf5DotNetTools
             Type tyObject = writeValue.GetType();
             foreach (Attribute attr in Attribute.GetCustomAttributes(tyObject))
             {
-                Hdf5SaveAttribute legAt = attr as Hdf5SaveAttribute;
-                if (legAt != null)
+                if (attr is Hdf5SaveAttribute legAt)
                 {
                     Hdf5Save kind = legAt.SaveKind;
                     if (kind == Hdf5Save.DoNotSave)
@@ -87,7 +86,7 @@ namespace Hdf5DotNetTools
                     continue;
                 string name = info.Name;
                 //bool isEnumerable = info.FieldType.GetInterface(typeof(IEnumerable<>).FullName) != null;
-                writeField(infoVal, groupId, name);
+                WriteField(infoVal, groupId, name);
             }
         }
 
@@ -111,10 +110,10 @@ namespace Hdf5DotNetTools
                     continue;
                 string name = info.Name;
                 //bool isEnumerable = info.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null;
-                writeField(infoVal, groupId, name);
+                WriteField(infoVal, groupId, name);
             }
         }
-        private static void writeField(object infoVal, hid_t groupId, string name)
+        private static void WriteField(object infoVal, hid_t groupId, string name)
         {
             Type ty = infoVal.GetType();
             TypeCode code = Type.GetTypeCode(ty);

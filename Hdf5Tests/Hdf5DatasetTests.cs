@@ -112,7 +112,7 @@ namespace Hdf5UnitTests
             string strValue = "test";
             bool boolValue = true;
             var groupStr = "/test";
-            Func<string, string> concatFunc = (x) => string.Concat(groupStr, "/", x);
+            string concatFunc(string x) => string.Concat(groupStr, "/", x);
 
             try
             {
@@ -158,8 +158,8 @@ namespace Hdf5UnitTests
         {
 
             string filename = Path.Combine(folder, "testAllPrimitives.H5");
-            var groupStr = "/test";
-            Func<string, string> concatFunc = (x) => string.Concat(groupStr, "/", x);
+            //var groupStr = "/test";
+            //string concatFunc(string x) => string.Concat(groupStr, "/", x);
             try
             {
                 var fileId = Hdf5.CreateFile(filename);

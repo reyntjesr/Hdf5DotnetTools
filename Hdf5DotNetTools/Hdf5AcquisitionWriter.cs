@@ -32,6 +32,12 @@ namespace Hdf5DotNetTools
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             _header.Recording.EndTime = _header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / _header.Recording.SampleRate);
             Header.Recording.NrOfSamples = _sampleCount;
             Header.EventListToEvents();
@@ -40,7 +46,12 @@ namespace Hdf5DotNetTools
                 Header.Channels[i].NrOfSamples = _sampleCount;
             }
             Hdf5.WriteObject(_groupId, _header);
-            fileId = Hdf5.CloseFile(fileId);
+            if (disposing)
+            {
+                if (dset != null)
+                    dset.Dispose();
+                fileId = Hdf5.CloseFile(fileId);
+            }
         }
 
         /// <summary>
