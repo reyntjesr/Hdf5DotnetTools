@@ -40,26 +40,28 @@ namespace Hdf5DotNetTools
             long count = H5S.get_simple_extent_npoints(spaceId);
             H5S.close(spaceId);
 
-            IntPtr[] rdata = new IntPtr[count];
-            GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
-            H5D.read(datasetId, datatype, H5S.ALL, H5S.ALL,
-                H5P.DEFAULT, hnd.AddrOfPinnedObject());
-
             var strs = new List<string>();
-            for (int i = 0; i < rdata.Length; ++i)
+            if (count >= 0)
             {
-                int len = 0;
-                while (Marshal.ReadByte(rdata[i], len) != 0) { ++len; }
-                byte[] buffer = new byte[len];
-                Marshal.Copy(rdata[i], buffer, 0, buffer.Length);
-                string s = Encoding.UTF8.GetString(buffer);
+                IntPtr[] rdata = new IntPtr[count];
+                GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
+                H5D.read(datasetId, datatype, H5S.ALL, H5S.ALL,
+                    H5P.DEFAULT, hnd.AddrOfPinnedObject());
 
-                strs.Add(s);
+                for (int i = 0; i < rdata.Length; ++i)
+                {
+                    int len = 0;
+                    while (Marshal.ReadByte(rdata[i], len) != 0) { ++len; }
+                    byte[] buffer = new byte[len];
+                    Marshal.Copy(rdata[i], buffer, 0, buffer.Length);
+                    string s = Encoding.UTF8.GetString(buffer);
 
-               // H5.free_memory(rdata[i]);
+                    strs.Add(s);
+
+                    // H5.free_memory(rdata[i]);
+                }
+                hnd.Free();
             }
-
-            hnd.Free();
             H5T.close(datatype);
             H5D.close(datasetId);
             return strs;

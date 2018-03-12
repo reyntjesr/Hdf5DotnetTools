@@ -35,30 +35,35 @@ namespace Hdf5DotNetTools
             var spaceId = H5D.get_space(datasetId);
             int rank = H5S.get_simple_extent_ndims(spaceId);
             long count = H5S.get_simple_extent_npoints(spaceId);
-            int rankChunk;
-            ulong[] maxDims = new ulong[rank];
-            ulong[] dims = new ulong[rank];
-            ulong[] chunkDims = new ulong[rank];
-            hid_t memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
+            Array dset;
             Type type = typeof(T);
-            long[] lengths = dims.Select(d => Convert.ToInt64(d)).ToArray();
-            var dset = Array.CreateInstance(type, lengths);
-            var typeId = H5D.get_type(datasetId);
-            var mem_type = H5T.copy(datatype);
-            if (datatype == H5T.C_S1)
-                H5T.set_size(datatype, new IntPtr(2));
+            if (rank >= 0 && count >= 0)
+            {
+                int rankChunk;
+                ulong[] maxDims = new ulong[rank];
+                ulong[] dims = new ulong[rank];
+                ulong[] chunkDims = new ulong[rank];
+                hid_t memId = H5S.get_simple_extent_dims(spaceId, dims, maxDims);
+                long[] lengths = dims.Select(d => Convert.ToInt64(d)).ToArray();
+                dset = Array.CreateInstance(type, lengths);
+                var typeId = H5D.get_type(datasetId);
+                var mem_type = H5T.copy(datatype);
+                if (datatype == H5T.C_S1)
+                    H5T.set_size(datatype, new IntPtr(2));
 
-            var propId = H5D.get_create_plist(datasetId);
+                var propId = H5D.get_create_plist(datasetId);
 
-            if (H5D.layout_t.CHUNKED == H5P.get_layout(propId))
-                rankChunk = H5P.get_chunk(propId, rank, chunkDims);
+                if (H5D.layout_t.CHUNKED == H5P.get_layout(propId))
+                    rankChunk = H5P.get_chunk(propId, rank, chunkDims);
 
-            memId = H5S.create_simple(rank, dims, maxDims);
-            GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
-            H5D.read(datasetId, datatype, memId, spaceId,
-                H5P.DEFAULT, hnd.AddrOfPinnedObject());
-            hnd.Free();
-
+                memId = H5S.create_simple(rank, dims, maxDims);
+                GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
+                H5D.read(datasetId, datatype, memId, spaceId,
+                    H5P.DEFAULT, hnd.AddrOfPinnedObject());
+                hnd.Free();
+            }
+            else
+                dset = Array.CreateInstance(type, new long[1] { 0 });
             H5D.close(datasetId);
             H5S.close(spaceId);
             return dset;
@@ -90,7 +95,7 @@ namespace Hdf5DotNetTools
 
             start[0] = beginIndex;
             start[1] = 0;
-            count[0] = endIndex - beginIndex+1;
+            count[0] = endIndex - beginIndex + 1;
             count[1] = dims[1];
 
             var status = H5S.select_hyperslab(spaceId, H5S.seloper_t.SET, start, stride, count, block);

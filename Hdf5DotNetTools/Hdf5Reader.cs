@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace Hdf5DotNetTools
 {
     using System.Collections;
+    using System.Diagnostics;
 #if HDF5_VER1_10
     using hid_t = System.Int64;
 #else
@@ -81,6 +82,7 @@ namespace Hdf5DotNetTools
                 TypeCode code = Type.GetTypeCode(ty);
 
                 string name = info.Name;
+                Trace.WriteLine($"groupname: {tyObject.Name}; field name: {name}");
 
                 if (ty.IsArray)
                 {
@@ -132,6 +134,8 @@ namespace Hdf5DotNetTools
                 Type ty = info.PropertyType;
                 TypeCode code = Type.GetTypeCode(ty);
                 string name = info.Name;
+
+                Trace.WriteLine($"groupname: {tyObject.Name}; property name: {name}");
 
                 if (ty.IsArray)
                 {
