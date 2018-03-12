@@ -93,9 +93,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.1.0\lib\native\bin32\*.*" "$(TargetDir)bin32"
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.1.0\build\bin32\*.*" "$(TargetDir)bin32"
 if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.1.0\lib\native\bin64\*.*" "$(TargetDir)bin64"</PostBuildEvent>
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.1.0\build\bin32\*.*" "$(TargetDir)bin64"
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
