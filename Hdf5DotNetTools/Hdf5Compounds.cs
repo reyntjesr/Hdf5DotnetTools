@@ -93,8 +93,10 @@ namespace Hdf5DotNetTools
             foreach (var cmp in compoundInfo)
             {
                 //Console.WriteLine(string.Format("{0}  {1}", cmp.name, cmp.datatype));
-                var typeLong = GetDatatype(cmp.type);
-                H5T.insert(typeId, cmp.name, Marshal.OffsetOf(t, cmp.name), typeLong);
+                // Lines below don't produce an error message but hdfview can't read compounds properly
+                //var typeLong = GetDatatype(cmp.type);
+                //H5T.insert(typeId, cmp.name, Marshal.OffsetOf(t, cmp.name), typeLong);
+                H5T.insert(typeId, cmp.name, Marshal.OffsetOf(t, cmp.name), cmp.datatype);
             }
             return typeId;
         }
