@@ -50,6 +50,7 @@ namespace Hdf5DotNetTools
             {
                 if (dset != null)
                     dset.Dispose();
+                _groupId = Hdf5.CloseGroup(_groupId);
                 fileId = Hdf5.CloseFile(fileId);
             }
         }

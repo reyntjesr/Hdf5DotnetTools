@@ -192,6 +192,16 @@ namespace Hdf5UnitTests
             {
                 CreateExceptionAssert(ex);
             }
+            // File Delete gives exception
+            //try
+            //{
+            //    File.Delete(filename); // Cannot delete the file. Error being used by another process.
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    CreateExceptionAssert(ex);
+            //}
         }
 
         /// <summary>
