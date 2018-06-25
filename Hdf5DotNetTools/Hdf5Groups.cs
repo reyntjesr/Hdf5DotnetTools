@@ -72,5 +72,12 @@ namespace Hdf5DotNetTools
             var gid = H5O.get_info(groupId, ref info);
             return info.num_attrs;
         }
+
+        public static H5O.info_t GroupInfo(long groupId)
+        {
+            H5O.info_t info = new H5O.info_t();
+            var gid = H5O.get_info(groupId, ref info);
+            return info;
+        }
     }
 }
