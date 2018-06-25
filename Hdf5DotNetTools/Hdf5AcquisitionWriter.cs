@@ -1,6 +1,8 @@
-﻿using System;
+﻿using HDF.PInvoke;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -12,9 +14,8 @@ namespace Hdf5DotNetTools
     public class Hdf5AcquisitionFileWriter : IDisposable
     {
         long fileId;
-        Hdf5AcquisitionFile _header;
         const int MaxRecordSize = 61440;
-        string _groupName;
+        readonly string _groupName;
         ChunkedDataset<short> dset = null;
         ulong _nrOfRecords, _sampleCount;
         long _groupId;
@@ -25,7 +26,7 @@ namespace Hdf5DotNetTools
             _groupName = groupName;
             _groupId = Hdf5.CreateGroup(fileId, _groupName);
 
-            _header = new Hdf5AcquisitionFile();
+            Header = new Hdf5AcquisitionFile();
             _nrOfRecords = 0;
             _sampleCount = 0;
         }
@@ -38,22 +39,26 @@ namespace Hdf5DotNetTools
 
         protected virtual void Dispose(bool disposing)
         {
-            _header.Recording.EndTime = _header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / _header.Recording.SampleRate);
+            Trace.WriteLine($"saving file {Header.Patient.Name} samples: {_sampleCount}; fileId: {fileId}");
+            Header.Recording.EndTime = Header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / Header.Recording.SampleRate);
             Header.Recording.NrOfSamples = _sampleCount;
             Header.EventListToEvents();
             for (int i = 0; i < Header.Channels.Count(); i++)
             {
                 Header.Channels[i].NrOfSamples = _sampleCount;
             }
-            Hdf5.WriteObject(_groupId, _header);
+            Trace.WriteLine($"writing file {Header.Patient.Name} groupId: {_groupId}; fileId: {fileId}");
+            Hdf5.WriteObject(_groupId, Header);
             if (disposing)
             {
                 if (dset != null)
                     dset.Dispose();
+                var info = Hdf5.GroupInfo(_groupId);
                 _groupId = Hdf5.CloseGroup(_groupId);
                 fileId = Hdf5.CloseFile(fileId);
             }
         }
+
 
         /// <summary>
         /// Writes data to the hdf5 file.
@@ -95,7 +100,7 @@ namespace Hdf5DotNetTools
         {
             if (_nrOfRecords == 0)
             {
-                _header.Recording.StartTime = DateTime.Now;
+                Header.Recording.StartTime = DateTime.Now;
                 var dataName = "Data";
                 dset = new ChunkedDataset<short>(dataName, _groupId, data);
             }
@@ -118,7 +123,7 @@ namespace Hdf5DotNetTools
 
         public short Convert2Short(double val, int channelNr)
         {
-            val = (val - _header.Channels[channelNr].Offset) / _header.Channels[channelNr].Amplification;
+            val = (val - Header.Channels[channelNr].Offset) / Header.Channels[channelNr].Amplification;
             //val = val * short.MaxValue;
             if (val > short.MaxValue)
                 val = short.MaxValue;
@@ -128,8 +133,7 @@ namespace Hdf5DotNetTools
 
         }
 
-        public Hdf5AcquisitionFile Header => _header;
-
+        public Hdf5AcquisitionFile Header { get; }
     }
 
 
