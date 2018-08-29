@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -189,7 +189,7 @@ namespace Hdf5DotNetTools
             return result;
         }
 
-        public static int WriteUnicodeString(hid_t groupId, string name, string str)
+        public static int WriteUnicodeString(hid_t groupId, string name, string str, H5T.str_t strPad = H5T.str_t.SPACEPAD)
         {
             byte[] wdata = Encoding.UTF8.GetBytes(str);
 
@@ -197,7 +197,7 @@ namespace Hdf5DotNetTools
 
             hid_t dtype = H5T.create(H5T.class_t.STRING, new IntPtr(wdata.Length));
             H5T.set_cset(dtype, H5T.cset_t.UTF8);
-            H5T.set_strpad(dtype, H5T.str_t.SPACEPAD);
+            H5T.set_strpad(dtype, strPad);
             
             hid_t datasetId = H5D.create(groupId, name, dtype, spaceId);
 
@@ -214,40 +214,64 @@ namespace Hdf5DotNetTools
 
         public static string ReadUnicodeString(hid_t groupId, string name)
         {
-            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
-            H5T.set_cset(datatype, H5T.cset_t.UTF8);
-            H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
-
             var datasetId = H5D.open(groupId, name);
             var typeId = H5D.get_type(datasetId);
 
-            var classId = H5T.get_class(typeId);
-            var order = H5T.get_order(typeId);
-            IntPtr size = H5T.get_size(typeId);
-            int strLen = (int)size;
-
-            var spaceId = H5D.get_space(datasetId);
-            hid_t count = H5S.get_simple_extent_npoints(spaceId);
-
-            IntPtr[] rdata = new IntPtr[count];
-            byte[] wdata = new byte[strLen];
-
-            GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
-            H5D.read(datasetId, datatype, H5S.ALL, H5S.ALL,
-                H5P.DEFAULT, hnd.AddrOfPinnedObject());
-
-            for (int i = 0; i < strLen; i++)
+            if (H5T.is_variable_str(typeId) > 0)
             {
-                Marshal.ReadByte(rdata[0], i);
-            }
-            Marshal.Copy(rdata[0], wdata, 0, strLen);
-            string s = Encoding.UTF8.GetString(wdata);
+                var spaceId = H5D.get_space(datasetId);
+                hid_t count = H5S.get_simple_extent_npoints(spaceId);
 
-            hnd.Free();
-            H5S.close(spaceId);
-            H5T.close(datatype);
+                IntPtr[] rdata = new IntPtr[count];
+
+                GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
+                H5D.read(datasetId, typeId, H5S.ALL, H5S.ALL,
+                    H5P.DEFAULT, hnd.AddrOfPinnedObject());
+
+                var attrStrings = new List<string>();
+                for (int i = 0; i < rdata.Length; ++i)
+                {
+                    int attrLength = 0;
+                    while (Marshal.ReadByte(rdata[i], attrLength) != 0)
+                    {
+                        ++attrLength;
+                    }
+
+                    byte[] buffer = new byte[attrLength];
+                    Marshal.Copy(rdata[i], buffer, 0, buffer.Length);
+
+                    string stringPart = Encoding.UTF8.GetString(buffer);
+
+                    attrStrings.Add(stringPart);
+
+                    H5.free_memory(rdata[i]);
+                }
+
+                hnd.Free();
+                H5S.close(spaceId);
+                H5D.close(datasetId);
+
+                return attrStrings[0];
+            }
+
+            // Must be a non-variable length string.
+            int size = H5T.get_size(typeId).ToInt32();
+            IntPtr iPtr = Marshal.AllocHGlobal(size);
+
+            int result = H5D.read(datasetId, typeId, H5S.ALL, H5S.ALL,
+                H5P.DEFAULT, iPtr);
+            if (result < 0)
+            {
+                throw new IOException("Failed to read dataset");
+            }
+
+            var strDest = new byte[size];
+            Marshal.Copy(iPtr, strDest, 0, size);
+            Marshal.FreeHGlobal(iPtr);
+
             H5D.close(datasetId);
-            return s;
+
+            return Encoding.UTF8.GetString(strDest).TrimEnd((Char)0);
         }
     }
 
