@@ -18,9 +18,10 @@ namespace Hdf5DotNetTools
     public class ChunkedDataset<T> : IDisposable where T : struct
     {
         ulong[] currentDims, oldDims;
-        ulong[] maxDims = new ulong[] { H5S.UNLIMITED, H5S.UNLIMITED };
-        ulong[] chunkDims;
-        hid_t status, spaceId, datasetId, typeId, datatype, propId;
+        readonly ulong[] maxDims = new ulong[] { H5S.UNLIMITED, H5S.UNLIMITED };
+        readonly ulong[] chunkDims;
+        hid_t status, spaceId, datasetId, propId;
+        readonly hid_t typeId, datatype;
 
         /// <summary>
         /// Constructor to create a chuncked dataset object
@@ -87,7 +88,7 @@ namespace Hdf5DotNetTools
             var size = new ulong[] { oldDims[0] + currentDims[0] }.Concat(oldDims.Skip(1)).ToArray();
 
             status = H5D.set_extent(datasetId, size);
-            ulong[] offset = new ulong[] { oldDims[0]}.Concat(zeros.Skip(1)).ToArray();
+            ulong[] offset = new ulong[] { oldDims[0] }.Concat(zeros.Skip(1)).ToArray();
 
             /* Select a hyperslab in extended portion of dataset  */
             var filespaceId = H5D.get_space(datasetId);

@@ -81,10 +81,12 @@ namespace Hdf5UnitTests
 
                 Hdf5.WriteObject(fileId, testClassWithArrays, "objectWithTwoArrays");
 
-                TestClassWithArray readObject = new TestClassWithArray();
-                readObject.TestStrings = new string[0];
-                readObject.TestDoubles = null;
-                readObject.TestDouble = double.NaN;
+                TestClassWithArray readObject = new TestClassWithArray
+                {
+                    TestStrings = new string[0],
+                    TestDoubles = null,
+                    TestDouble = double.NaN
+                };
 
                 readObject = Hdf5.ReadObject(fileId, readObject, "objectWithTwoArrays");
                 Assert.IsTrue(testClassWithArrays.Equals(readObject));

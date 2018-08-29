@@ -24,8 +24,8 @@ namespace Hdf5DotNetTools
         IList<string> _labels;
         IList<short[]> _signals;
         Dictionary<string, short> _usedChannels;
-        int /*_fileChannelCnt,*/ _readChannelCnt;
-        string _groupName;
+        readonly int /*_fileChannelCnt,*/ _readChannelCnt;
+        readonly string _groupName;
         //ReadInfo _readInfo;
 
         /// <summary>

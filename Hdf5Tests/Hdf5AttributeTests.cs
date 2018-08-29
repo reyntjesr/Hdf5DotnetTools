@@ -68,7 +68,7 @@ namespace Hdf5UnitTests
             string[] strValues = new string[2] { "test", "another test" };
             bool boolValue = true;
             var groupStr = "/test";
-            Func<string, string> concatFunc = (x) => string.Concat(groupStr, "/", x);
+            //string concatFunc(string x) => string.Concat(groupStr, "/", x);
             string intName = nameof(intValues);
             string dblName = nameof(dblValue);
             string strName = nameof(strValue);
