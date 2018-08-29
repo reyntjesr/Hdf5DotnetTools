@@ -213,21 +213,26 @@ namespace Hdf5UnitTests
         public void WriteAndReadThreadSafeDataToAcquisitionFile()
         {
             string filename = Path.Combine(folder, "testWithThreadsDataAcquisition.H5");
-            int nr50samples = 1000;
+            int N = 50;
+            int nrNsamples = 1000;
             try
             {
                 using (var writer = new Hdf5AcquisitionFileWriter(filename))
                 {
-                    var pc = new ProducerConsumer(writer);
+                    void saveChunck(IEnumerable<double[]> d)
+                    {
+                        writer.Write(d);
+                    }
+                    var pc = new DataProducerConsumer<IEnumerable<double[]>>(saveChunck);
                     var header = FillHeader(writer.Header);
                     var data = new List<double[]>();
 
-                    for (int j = 0; j < nr50samples; j++)
+                    for (int j = 0; j < nrNsamples; j++)
                     {
 
                         for (int i = 0; i < header.Recording.NrOfChannels; i++)
                         {
-                            var row = Enumerable.Range(0, 50).Select(x => i + j + x / 50.0).ToArray();
+                            var row = Enumerable.Range(0, N).Select(x => i + j + x / (double)N).ToArray();
                             data.Add(row);
                         }
                         pc.Produce(data);
@@ -242,11 +247,6 @@ namespace Hdf5UnitTests
                     //pc.Produce(data);
                     Thread.Sleep(1000);
                     pc.Done();
-                    /*header.Recording.NrOfSamples = 100;
-                    for (int i = 0; i < header.Channels.Length; i++)
-                    {
-                        header.Channels[i].NrOfSamples = header.Recording.NrOfSamples;
-                    }*/
                 }
             }
             catch (Exception ex)
@@ -260,16 +260,18 @@ namespace Hdf5UnitTests
                 {
                     var header = reader.Header;
                     Assert.IsTrue(header.Patient.Name == "Robert");
-                    ulong samps = Convert.ToUInt64(50* nr50samples);
+                    ulong samps = Convert.ToUInt64(N * nrNsamples);
                     Assert.IsTrue(header.Recording.NrOfSamples == samps);
                     Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
                     Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new ulong[] { samps, samps, samps, samps, samps }));
-                    var data = reader.ReadDouble(0, 49);
+                    var data = reader.ReadDouble(0, (ulong)N - 1);
                     var sig = data.First().Take(5);
-                    Assert.IsTrue(sig.Similar(new double[] { 0, 1 / 50f, 2 / 50f, 3 / 50f, 4 / 50f }));
-                    data = reader.ReadDouble(50, 99);
+                    var sim = Enumerable.Range(0, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
+                    data = reader.ReadDouble((ulong)N, Convert.ToUInt64(2 * N - 1));
                     sig = data.First().Take(5);
-                    Assert.IsTrue(sig.Similar(new double[] { 50 / 50f, 51 / 50f, 52 / 50f, 53 / 50f, 54 / 50f }));
+                    sim = Enumerable.Range(N, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
                 }
             }
             catch (Exception ex)
@@ -278,15 +280,164 @@ namespace Hdf5UnitTests
             }
         }
 
-        //[TestMethod]
-        //public void ReadAcquisitionFile()
-        //{
-        //    var filename = Path.Combine(@"D:\Matlab\Data\Maryam\OH", "FA00101O.H5");
-        //    using (var reader = new Hdf5AcquisitionFileReader(filename))
-        //    {
-        //        var header = reader.Header;
-        //        var data = reader.Read(0,1000);
-        //    }
-        //}
+        /// <summary>
+        /// an acquisition file is created that has 5 channels of data
+        /// for each channel 100 samples are written in two steps of 50 samples to the file
+        /// The total number of samples is written to the channels and recording objects
+        /// </summary>
+        [TestMethod]
+        public void WriteAndReadShortThreadSafeDataToAcquisitionFile()
+        {
+            string filename = Path.Combine(folder, "testWithThreadsDataAcquisition.H5");
+            int N = 50;
+            int nrNsamples = 1000;
+            try
+            {
+                using (var writer = new Hdf5AcquisitionFileWriter(filename))
+                {
+                    void saveChunck(short[,] d)
+                    {
+                        writer.Write(d);
+                    }
+                    var pc = new DataProducerConsumer<short[,]>(saveChunck);
+                    var header = FillHeader(writer.Header);
+                    var data = new List<double[]>();
+
+                    for (int j = 0; j < nrNsamples; j++)
+                    {
+
+                        short[,] shData = new short[N, header.Recording.NrOfChannels];
+                        for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                        {
+                            var row = Enumerable.Range(0, N).Select(x => i + j + x / (double)N).ToArray();
+                            data.Add(row);
+                            for (int k = 0; k < N; k++)
+                            {
+                                shData[k, i] = writer.Convert2Short(row[k], i);
+                            }
+                        }
+
+                        pc.Produce(shData);
+                        Thread.Sleep(10);
+                        data.Clear();
+                    }
+                    //for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                    //{
+                    //    var row = Enumerable.Range(0, 50).Select(x => i + 1 + x / 50.0).ToArray();
+                    //    data.Add(row);
+                    //}
+                    //pc.Produce(data);
+                    Thread.Sleep(1000);
+                    pc.Done();
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                using (var reader = new Hdf5AcquisitionFileReader(filename))
+                {
+                    var header = reader.Header;
+                    Assert.IsTrue(header.Patient.Name == "Robert");
+                    ulong samps = Convert.ToUInt64(N * nrNsamples);
+                    Assert.IsTrue(header.Recording.NrOfSamples == samps);
+                    Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new ulong[] { samps, samps, samps, samps, samps }));
+                    var data = reader.ReadDouble(0, (ulong)N - 1);
+                    var sig = data.First().Take(5);
+                    var sim = Enumerable.Range(0, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
+                    data = reader.ReadDouble((ulong)N, Convert.ToUInt64(2 * N - 1));
+                    sig = data.First().Take(5);
+                    sim = Enumerable.Range(N, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// an acquisition file is created that has 5 channels of data
+        /// for each channel 100 samples are written in two steps of 50 samples to the file
+        /// The total number of samples is written to the channels and recording objects
+        /// </summary>
+        [TestMethod]
+        public void WriteAndReadWithCloseThreadSafeDataToAcquisitionFile()
+        {
+            string filename = Path.Combine(folder, "testWithThreadsDataAcquisition.H5");
+            int N = 50;
+            int nrNsamples = 1000;
+            try
+            {
+                var writer = new Hdf5AcquisitionFileWriter(filename);
+                void saveChunck(IEnumerable<double[]> d)
+                {
+                    writer.Write(d);
+                }
+                var pc = new DataProducerConsumer<IEnumerable<double[]>>(saveChunck);
+                var header = FillHeader(writer.Header);
+                var data = new List<double[]>();
+
+                for (int j = 0; j < nrNsamples; j++)
+                {
+
+                    for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                    {
+                        var row = Enumerable.Range(0, N).Select(x => i + j + x / (double)N).ToArray();
+                        data.Add(row);
+                    }
+                    pc.Produce(data);
+                    Thread.Sleep(10);
+                    data.Clear();
+                }
+                //for (int i = 0; i < header.Recording.NrOfChannels; i++)
+                //{
+                //    var row = Enumerable.Range(0, 50).Select(x => i + 1 + x / 50.0).ToArray();
+                //    data.Add(row);
+                //}
+                //pc.Produce(data);
+                Thread.Sleep(1000);
+                pc.Done();
+                writer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                using (var reader = new Hdf5AcquisitionFileReader(filename))
+                {
+                    var header = reader.Header;
+                    Assert.IsTrue(header.Patient.Name == "Robert");
+                    ulong samps = Convert.ToUInt64(N * nrNsamples);
+                    Assert.IsTrue(header.Recording.NrOfSamples == samps);
+                    Assert.IsTrue(header.Channels.Select(c => c.Label).SequenceEqual(new string[] { "DC01", "DC02", "DC03", "DC04", "DC05" }));
+                    Assert.IsTrue(header.Channels.Select(c => c.NrOfSamples).SequenceEqual(new ulong[] { samps, samps, samps, samps, samps }));
+                    var data = reader.ReadDouble(0, (ulong)N - 1);
+                    var sig = data.First().Take(5);
+                    var sim = Enumerable.Range(0, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
+                    data = reader.ReadDouble((ulong)N, Convert.ToUInt64(2 * N - 1));
+                    sig = data.First().Take(5);
+                    sim = Enumerable.Range(N, 5).Select(d => d / (double)N);
+                    Assert.IsTrue(sig.Similar(sim));
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+        }
+
     }
 }

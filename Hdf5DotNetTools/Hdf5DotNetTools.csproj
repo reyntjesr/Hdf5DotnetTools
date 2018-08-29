@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChunkedDataset.cs" />
+    <Compile Include="DataProducerConsumer.cs" />
     <Compile Include="Hdf5AcquisitionWriter.cs" />
     <Compile Include="Hdf5AcquisitionReader.cs" />
     <Compile Include="Hdf5AcquisitionFile.cs" />
@@ -82,7 +83,6 @@
     <Compile Include="Hdf5Reader.cs" />
     <Compile Include="Hdf5Writer.cs" />
     <Compile Include="Hdf5Strings.cs" />
-    <Compile Include="ProducerConsumer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

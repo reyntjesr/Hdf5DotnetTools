@@ -9,16 +9,17 @@ using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
-    public class ProducerConsumer : IDisposable
+    public class DataProducerConsumer<T> : IDisposable
     {
-        private BlockingCollection<IEnumerable<double[]>> _queue = new BlockingCollection<IEnumerable<double[]>>();
-        private Hdf5AcquisitionFileWriter _writer;
-        private int _milliSeconds;
+        private BlockingCollection<T> _queue = new BlockingCollection<T>();
+        private readonly Action<T> _action;
+        private readonly int _milliSeconds;
 
-        public ProducerConsumer(Hdf5AcquisitionFileWriter writer, int milliSeconds = 0)
+        public DataProducerConsumer(Action<T> action, int milliSeconds = 0)
         {
             _milliSeconds = milliSeconds;
-            _writer = writer;
+            _action = action;
+
             var thread = new Thread(StartConsuming)
             {
                 IsBackground = true
@@ -35,7 +36,9 @@ namespace Hdf5DotNetTools
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 _queue.Dispose();
+            }
         }
 
         public void Done()
@@ -43,7 +46,7 @@ namespace Hdf5DotNetTools
             _queue.CompleteAdding();
         }
 
-        public void Produce(IEnumerable<double[]> item)
+        public void Produce(T item)
         {
             _queue.Add(item);
         }
@@ -54,9 +57,11 @@ namespace Hdf5DotNetTools
             {
                 try
                 {
-                    _queue.TryTake(out IEnumerable<double[]> data);
+                    if (_queue == null)
+                        return;
+                    _queue.TryTake(out T data);
                     if (data != null)
-                        _writer.Write(data);
+                        _action(data);
 
                 }
                 catch (InvalidOperationException)
@@ -64,6 +69,10 @@ namespace Hdf5DotNetTools
                     Debug.WriteLine(string.Format("Work queue on thread {0} has been closed.", Thread.CurrentThread.ManagedThreadId));
                 }
             }
+            IsDone?.Invoke(this, new EventArgs());
+            Dispose();
         }
+
+        public event EventHandler IsDone;
     }
 }

@@ -39,6 +39,19 @@ namespace Hdf5DotNetTools
 
         protected virtual void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                SaveHeader();
+                if (dset != null)
+                    dset.Dispose();
+                var info = Hdf5.GroupInfo(_groupId);
+                _groupId = Hdf5.CloseGroup(_groupId);
+                fileId = Hdf5.CloseFile(fileId);
+            }
+        }
+
+        public void SaveHeader()
+        {
             Trace.WriteLine($"saving file {Header.Patient.Name} samples: {_sampleCount}; fileId: {fileId}");
             Header.Recording.EndTime = Header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / Header.Recording.SampleRate);
             Header.Recording.NrOfSamples = _sampleCount;
@@ -49,16 +62,7 @@ namespace Hdf5DotNetTools
             }
             Trace.WriteLine($"writing file {Header.Patient.Name} groupId: {_groupId}; fileId: {fileId}");
             Hdf5.WriteObject(_groupId, Header);
-            if (disposing)
-            {
-                if (dset != null)
-                    dset.Dispose();
-                var info = Hdf5.GroupInfo(_groupId);
-                _groupId = Hdf5.CloseGroup(_groupId);
-                fileId = Hdf5.CloseFile(fileId);
-            }
         }
-
 
         /// <summary>
         /// Writes data to the hdf5 file.
@@ -134,6 +138,7 @@ namespace Hdf5DotNetTools
         }
 
         public Hdf5AcquisitionFile Header { get; }
+
     }
 
 
