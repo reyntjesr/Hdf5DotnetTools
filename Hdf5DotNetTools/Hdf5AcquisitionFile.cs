@@ -114,6 +114,7 @@ namespace Hdf5DotNetTools
     public class Hdf5Recording
     {
         int _nrOfChannels;
+
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public event PropertyChangedEventHandler PropertyChanged;
 
