@@ -1,12 +1,6 @@
-﻿using HDF.PInvoke;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
@@ -73,14 +67,7 @@ namespace Hdf5DotNetTools
 
             foreach (FieldInfo info in miMembers)
             {
-                bool nextInfo = false;
-                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
-                {
-                    var legAttr = attr as Hdf5SaveAttribute;
-                    var kind = legAttr?.SaveKind;
-                    nextInfo = (kind == Hdf5Save.DoNotSave);
-                }
-                if (nextInfo) continue;
+                if (NoSavePresent(Attribute.GetCustomAttributes(info))) continue;
                 object infoVal = info.GetValue(writeValue);
                 if (infoVal == null)
                     continue;
@@ -92,27 +79,38 @@ namespace Hdf5DotNetTools
 
         private static void WriteProperties(Type tyObject, object writeValue, hid_t groupId)
         {
-            PropertyInfo[] miMembers = tyObject.GetProperties(/*BindingFlags.DeclaredOnly |*/
-       BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            PropertyInfo[] miMembers = tyObject.GetProperties(
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
 
             foreach (PropertyInfo info in miMembers)
             {
-                bool nextInfo = false;
-                foreach (Attribute attr in Attribute.GetCustomAttributes(info))
-                {
-                    var legAttr = attr as Hdf5SaveAttribute;
-                    var kind = legAttr?.SaveKind;
-                    nextInfo = (kind == Hdf5Save.DoNotSave);
-                }
-                if (nextInfo) continue;
+                if (NoSavePresent(Attribute.GetCustomAttributes(info))) continue;
                 object infoVal = info.GetValue(writeValue, null);
                 if (infoVal == null)
                     continue;
                 string name = info.Name;
-                //bool isEnumerable = info.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null;
+                
                 WriteField(infoVal, groupId, name);
             }
         }
+
+        private static bool NoSavePresent(Attribute[] attributes)
+        {
+            bool noSaveAttr = false;
+            foreach (Attribute attr in attributes)
+            {
+                var legAttr = attr as Hdf5SaveAttribute;
+                var kind = legAttr?.SaveKind;
+                if (kind == Hdf5Save.DoNotSave)
+                {
+                    noSaveAttr = true;
+                    continue;
+                }
+            }
+
+            return noSaveAttr;
+        }
+
         private static void WriteField(object infoVal, hid_t groupId, string name)
         {
             Type ty = infoVal.GetType();
