@@ -82,6 +82,7 @@ namespace Hdf5UnitTests
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 5)]
             public string label;
         }
+
         private class TestClass : IEquatable<TestClass>
         {
             public int TestInteger { get; set; }
