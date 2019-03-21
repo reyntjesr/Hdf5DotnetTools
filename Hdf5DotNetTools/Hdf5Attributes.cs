@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
@@ -15,7 +14,7 @@ namespace Hdf5DotNetTools
 #endif
     [System.AttributeUsage(System.AttributeTargets.Class |
                        System.AttributeTargets.Struct)]
-    sealed public class Hdf5GroupName : Attribute
+    public sealed class Hdf5GroupName : Attribute
     {
 
         public Hdf5GroupName(string name)
@@ -26,7 +25,7 @@ namespace Hdf5DotNetTools
         public string Name { get; private set; }
     }
 
-    sealed public class Hdf5Attributes : Attribute
+    public sealed class Hdf5Attributes : Attribute
     {
 
         public Hdf5Attributes(string[] names)
@@ -37,7 +36,7 @@ namespace Hdf5DotNetTools
         public string[] Names { get; private set; }
     }
 
-    sealed public class Hdf5Attribute : Attribute
+    public sealed class Hdf5Attribute : Attribute
     {
 
         public Hdf5Attribute(string name)
@@ -50,7 +49,7 @@ namespace Hdf5DotNetTools
 
     public static partial class Hdf5
     {
-        static Hdf5ReaderWriter attrRW = new Hdf5ReaderWriter(new Hdf5AttributeRW());
+        private static Hdf5ReaderWriter attrRW = new Hdf5ReaderWriter(new Hdf5AttributeRW());
 
         public static Array ReadAttributes<T>(hid_t groupId, string name)
         {
@@ -190,9 +189,7 @@ namespace Hdf5DotNetTools
 
             H5S.close(spaceId);
             H5T.close(datatype);
-            {
-                H5D.close(groupId);
-            }
+            H5D.close(groupId); // H5G.close creates an error
             return result;
         }
 
@@ -211,10 +208,10 @@ namespace Hdf5DotNetTools
         public static void WriteAttributes<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //
         {
             attrRW.WriteArray(groupId, name, attributes, datasetName);
-           /* if (attributes.GetType().GetElementType() == typeof(string))
-                return WriteStringAttributes(groupId, name, attributes.Cast<string>(), datasetName);
-            else
-                return WritePrimitiveAttribute<T>(groupId, name, attributes, datasetName);*/
+            /* if (attributes.GetType().GetElementType() == typeof(string))
+                 return WriteStringAttributes(groupId, name, attributes.Cast<string>(), datasetName);
+             else
+                 return WritePrimitiveAttribute<T>(groupId, name, attributes, datasetName);*/
         }
 
         public static int WritePrimitiveAttribute<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //where T : struct
@@ -257,9 +254,9 @@ public enum Hdf5Save
 }
 
 [AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = true)]
-sealed public class Hdf5SaveAttribute : System.Attribute
+public sealed class Hdf5SaveAttribute : System.Attribute
 {
-    private Hdf5Save saveKind;
+    private readonly Hdf5Save saveKind;
 
     public Hdf5Save SaveKind => saveKind;      // Topic is a named parameter
 
