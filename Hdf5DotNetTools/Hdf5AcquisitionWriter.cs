@@ -1,4 +1,4 @@
-using HDF.PInvoke;
+﻿using HDF.PInvoke;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,6 +35,7 @@ namespace Hdf5DotNetTools
 
         public Hdf5AcquisitionFileWriter(string aFilename, string groupName = "/EEG")
         {
+            H5E.set_auto(H5E.DEFAULT, null, IntPtr.Zero);
             //lock_.EnterWriteLock();
             _filename = aFilename;
             fileId = Hdf5.CreateFile(aFilename);
