@@ -1,4 +1,4 @@
-﻿using HDF.PInvoke;
+using HDF.PInvoke;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,22 +6,37 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
+    public class FileClosedArgs : EventArgs
+    {
+        public string ClosedFile { get; }
+        public bool CancelRequested { get; set; }
+
+        public FileClosedArgs(string fileName)
+        {
+            ClosedFile = fileName;
+        }
+    }
 
     public class Hdf5AcquisitionFileWriter : IDisposable
     {
         long fileId;
         const int MaxRecordSize = 61440;
-        readonly string _groupName;
+        readonly string _groupName, _filename;
         ChunkedDataset<short> dset = null;
         ulong _nrOfRecords, _sampleCount;
         long _groupId;
+       
+       // private readonly ReaderWriterLockSlim lock_ = new ReaderWriterLockSlim();
 
         public Hdf5AcquisitionFileWriter(string aFilename, string groupName = "/EEG")
         {
+            //lock_.EnterWriteLock();
+            _filename = aFilename;
             fileId = Hdf5.CreateFile(aFilename);
             _groupName = groupName;
             _groupId = Hdf5.CreateGroup(fileId, _groupName);
@@ -29,12 +44,14 @@ namespace Hdf5DotNetTools
             Header = new Hdf5AcquisitionFile();
             _nrOfRecords = 0;
             _sampleCount = 0;
+            //lock_.ExitWriteLock();
         }
 
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+            FileClosed?.Invoke(this, new FileClosedArgs(_filename));
         }
 
         protected virtual void Dispose(bool disposing)
@@ -52,6 +69,7 @@ namespace Hdf5DotNetTools
 
         public void SaveHeader()
         {
+            //lock_.EnterWriteLock();
             Trace.WriteLine($"saving file {Header.Patient.Name} samples: {_sampleCount}; fileId: {fileId}");
             Header.Recording.EndTime = Header.Recording.StartTime + TimeSpan.FromSeconds(_sampleCount / Header.Recording.SampleRate);
             Header.Recording.NrOfSamples = _sampleCount;
@@ -62,6 +80,7 @@ namespace Hdf5DotNetTools
             }
             Trace.WriteLine($"writing file {Header.Patient.Name} groupId: {_groupId}; fileId: {fileId}");
             Hdf5.WriteObject(_groupId, Header);
+            //lock_.ExitWriteLock();
         }
 
         /// <summary>
@@ -69,6 +88,7 @@ namespace Hdf5DotNetTools
         /// </summary>
         public void Write(IEnumerable<double[]> signals)
         {
+            //lock_.EnterWriteLock();
             int cols = signals.Count();
             if (cols == 0) return;
             int rows = signals.First().Length;
@@ -85,6 +105,7 @@ namespace Hdf5DotNetTools
                 i++;
             }
             Write(data);
+            //lock_.ExitWriteLock();
         }
 
         /// <summary>
@@ -102,6 +123,7 @@ namespace Hdf5DotNetTools
         /// </summary>
         public void Write(short[,] data)
         {
+            //lock_.EnterWriteLock();
             if (_nrOfRecords == 0)
             {
                 Header.Recording.StartTime = DateTime.Now;
@@ -112,7 +134,7 @@ namespace Hdf5DotNetTools
                 dset.AppendDataset(data);
             _sampleCount += (ulong)data.GetLongLength(0);
             _nrOfRecords++;
-
+            //lock_.ExitWriteLock();
         }
 
         /// <summary>
@@ -138,6 +160,8 @@ namespace Hdf5DotNetTools
         }
 
         public Hdf5AcquisitionFile Header { get; }
+
+        public event EventHandler<FileClosedArgs> FileClosed;
 
     }
 

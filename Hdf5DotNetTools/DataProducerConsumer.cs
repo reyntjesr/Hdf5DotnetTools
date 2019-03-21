@@ -57,14 +57,17 @@ namespace Hdf5DotNetTools
             {
                 try
                 {
-                    if (_queue == null)
+                    if (_queue == null) // || _queue.Count==0
                         return;
                     _queue.TryTake(out T data);
                     if (data != null)
+                    {
+                        Debug.WriteLine($"item {_queue.Count+1} in queue will be processed");
                         _action(data);
+                    }
 
                 }
-                catch (InvalidOperationException)
+                catch (InvalidOperationException ex)
                 {
                     Debug.WriteLine(string.Format("Work queue on thread {0} has been closed.", Thread.CurrentThread.ManagedThreadId));
                 }
