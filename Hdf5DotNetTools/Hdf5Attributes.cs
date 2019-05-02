@@ -187,9 +187,13 @@ namespace Hdf5DotNetTools
                 hnds[i].Free();
             }
 
+            H5A.close(attributeId);
             H5S.close(spaceId);
             H5T.close(datatype);
-            H5D.close(groupId); // H5G.close creates an error
+            if (tmpId != groupId)
+            {
+                H5D.close(groupId);
+            }
             return result;
         }
 
