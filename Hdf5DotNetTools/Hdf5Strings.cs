@@ -107,6 +107,7 @@ namespace Hdf5DotNetTools
                 hnds[i].Free();
             }
 
+            H5D.close(datasetId);
             H5S.close(spaceId);
             H5T.close(datatype);
             return result;
