@@ -117,5 +117,46 @@ namespace Hdf5UnitTests
             }
 
         }
+
+        [TestMethod]
+        public void WriteAndReadStructsWithArray()
+        {
+            string filename = Path.Combine(folder, "testArrayCompounds.H5");
+
+            try
+            {
+
+                var fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                var status = Hdf5.WriteCompounds(fileId, "/test", responseList);
+                Hdf5.CloseFile(fileId);
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+            try
+            {
+                var fileId = Hdf5.OpenFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Responses[] cmpList = Hdf5.ReadCompounds<Responses>(fileId, "/test").ToArray();
+                Hdf5.CloseFile(fileId);
+                var isSame = responseList.Zip(cmpList, (r, c) =>
+                {
+                    return r.MCID == c.MCID &&
+                    r.PanelIdx == c.PanelIdx &&
+                    r.ResponseValues.Zip(c.ResponseValues, (rr, cr) => rr == cr).All(v => v == true);
+                });
+                Assert.IsTrue(isSame.All(s => s == true));
+
+            }
+            catch (Exception ex)
+            {
+                CreateExceptionAssert(ex);
+            }
+
+        }
+
     }
 }

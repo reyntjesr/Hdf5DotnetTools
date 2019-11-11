@@ -83,6 +83,15 @@ namespace Hdf5UnitTests
             public string label;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Responses
+        {
+            public Int64 MCID;
+            public int PanelIdx;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public short[] ResponseValues;
+        }
+
         private class TestClass : IEquatable<TestClass>
         {
             public int TestInteger { get; set; }
@@ -128,6 +137,7 @@ namespace Hdf5UnitTests
         static private List<double[,]> dsets;
         static private WData[] wDataList;
         static private WData2[] wData2List;
+        static private Responses[] responseList;
         static private AllTypesClass allTypesObject;
         static private TestClassWithStructs classWithStructs;
 
@@ -155,6 +165,12 @@ namespace Hdf5UnitTests
                 new WData2() { serial_no = 1184, location = "Intake", label="uV", temperature = 55.12, pressure = 22.95 },
                 new WData2() { serial_no = 1027, location = "Intake manifold", label="V",temperature = 103.55, pressure = 31.23 },
                 new WData2() { serial_no = 1313, location = "Exhaust manifold", label="mV", temperature = 1252.89, pressure = 84.11 }
+            };
+            responseList = new Responses[4] {
+                new Responses() { MCID=1,PanelIdx=5,ResponseValues=new short[4]{ 1,2,3,4} },
+                new Responses() { MCID=2,PanelIdx=6,ResponseValues=new short[4]{ 5,6,7,8}},
+                new Responses() { MCID=3,PanelIdx=7,ResponseValues=new short[4]{ 1,2,3,4}},
+                new Responses() { MCID=4,PanelIdx=8,ResponseValues=new short[4]{ 5,6,7,8}}
             };
 
             classWithStructs = new TestClassWithStructs { DataList = wDataList };

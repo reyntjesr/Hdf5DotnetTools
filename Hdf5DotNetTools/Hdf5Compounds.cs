@@ -138,13 +138,25 @@ namespace Hdf5DotNetTools
             List<OffsetInfo> offsets = new List<OffsetInfo>();
             foreach (var x in type.GetFields())
             {
+                //var fldType = x.FieldType;
+                //OffsetInfo oi = new OffsetInfo()
+                //{
+                //    name = x.Name,
+                //    type = fldType,
+                //    datatype = ieee ? GetDatatypeIEEE(fldType) : GetDatatype(fldType),
+                //    size = fldType == typeof(string) ? StringLength(x) : Marshal.SizeOf(fldType),
+                //    offset = 0 + curSize
+                //};
                 var fldType = x.FieldType;
+                var marshallAsAttribute = type.GetMember(x.Name).Select(m => m.GetCustomAttribute<MarshalAsAttribute>()).FirstOrDefault();
+
                 OffsetInfo oi = new OffsetInfo()
                 {
                     name = x.Name,
                     type = fldType,
-                    datatype = ieee ? GetDatatypeIEEE(fldType) : GetDatatype(fldType),
-                    size = fldType == typeof(string) ? StringLength(x) : Marshal.SizeOf(fldType),
+                    datatype = !fldType.IsArray ? ieee ? GetDatatypeIEEE(fldType) : GetDatatype(fldType)
+                : H5T.array_create(ieee ? GetDatatypeIEEE(fldType.GetElementType()) : GetDatatype(fldType.GetElementType()), (uint)fldType.GetArrayRank(), Enumerable.Range(0, fldType.GetArrayRank()).Select(i => (ulong)marshallAsAttribute.SizeConst).ToArray()),
+                    size = fldType == typeof(string) ? StringLength(x) : !fldType.IsArray ? Marshal.SizeOf(fldType) : Marshal.SizeOf(fldType.GetElementType()) * marshallAsAttribute.SizeConst,
                     offset = 0 + curSize
                 };
                 if (oi.datatype == H5T.C_S1)
