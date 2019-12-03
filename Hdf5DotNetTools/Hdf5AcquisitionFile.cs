@@ -19,7 +19,7 @@ namespace Hdf5DotNetTools
     }
 
     [Hdf5SaveAttribute(Hdf5Save.Save)]
-    public class Hdf5AcquisitionFile:IHdf5AcquisitionFile
+    public class Hdf5AcquisitionFile : IHdf5AcquisitionFile
     {
         public Hdf5AcquisitionFile()
         {
@@ -129,7 +129,7 @@ namespace Hdf5DotNetTools
 
         public int NrOfChannels
         {
-            get { return _nrOfChannels; }
+            get => _nrOfChannels;
             set
             {
                 if (_nrOfChannels != value)
@@ -184,11 +184,8 @@ namespace Hdf5DotNetTools
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public DateTime Time
         {
-            get { return new DateTime(TimeTicks); }
-            set
-            {
-                TimeTicks = value.Ticks;
-            }
+            get => new DateTime(TimeTicks);
+            set => TimeTicks = value.Ticks;
         }
 
         public long TimeTicks;
@@ -199,11 +196,8 @@ namespace Hdf5DotNetTools
         [Hdf5Save(Hdf5Save.DoNotSave)]
         public TimeSpan Duration
         {
-            get { return new TimeSpan(DurationTicks); }
-            set
-            {
-                DurationTicks = value.Ticks;
-            }
+            get => new TimeSpan(DurationTicks);
+            set => DurationTicks = value.Ticks;
         }
 
         public long DurationTicks;

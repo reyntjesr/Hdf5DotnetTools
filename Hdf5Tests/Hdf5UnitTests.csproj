@@ -87,6 +87,7 @@
     <Compile Include="Hdf5StringsTests.cs" />
     <Compile Include="Hdf5DatasetTests.cs" />
     <Compile Include="Hdf5Tests.cs" />
+    <Compile Include="KamaTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hdf5CompoundTests.cs" />
     <Compile Include="TestUtilities.cs" />
@@ -97,9 +98,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hdf5DotnetTools.Standard\Hdf5DotnetTools.Standard.csproj">
-      <Project>{94487A20-C97B-43E4-ABD1-4A4BC3C38361}</Project>
-      <Name>Hdf5DotnetTools.Standard</Name>
+    <ProjectReference Include="..\Hdf5DotnetTools\Hdf5DotnetTools.csproj">
+      <Project>{7e7b1235-2d9c-4696-9ffb-cf7e14c7202a}</Project>
+      <Name>Hdf5DotnetTools</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
