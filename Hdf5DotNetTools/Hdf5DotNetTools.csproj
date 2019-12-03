@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Hdf5DotNetTools</RootNamespace>
     <AssemblyName>Hdf5DotNetTools</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -60,9 +60,6 @@
     <AssemblyOriginatorKeyFile>Hdf5DotNetTools.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HDF.PInvoke, Version=1.10.5.1, Culture=neutral, PublicKeyToken=18793c1fcffe58a3, processorArchitecture=MSIL">
-      <HintPath>..\packages\HDF.PInvoke.1.10.5.1\lib\HDF.PInvoke.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -91,31 +88,26 @@
   <ItemGroup>
     <None Include="Hdf5DotNetTools.snk" />
     <None Include="Knf.Utils.Hdf5.snk" />
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HDF.PInvoke">
+      <Version>1.10.5.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if not exist "$(TargetDir)bin32" md "$(TargetDir)bin32"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin32\*.*" "$(TargetDir)bin32"
-REM xcopy /s /y "D:\DotNet2017\Lib\Github\HDF.PInvoke\native\HDF5 1.10\bin32\*.*" "$(TargetDir)bin32"
-if not exist "$(TargetDir)bin64" md "$(TargetDir)bin64"
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin64\*.*" "$(TargetDir)bin64"
-REM xcopy /s /y "D:\DotNet2017\Lib\Github\HDF.PInvoke\native\HDF5 1.10\bin64\*.*" "$(TargetDir)bin64"
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\..\..\..\Projects\EwingBattery\EwingBattery\packages\HDF.PInvoke.1.10.3.0\build\HDF.PInvoke.targets" Condition="Exists('..\..\..\..\Projects\EwingBattery\EwingBattery\packages\HDF.PInvoke.1.10.3.0\build\HDF.PInvoke.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\Projects\EwingBattery\EwingBattery\packages\HDF.PInvoke.1.10.3.0\build\HDF.PInvoke.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Projects\EwingBattery\EwingBattery\packages\HDF.PInvoke.1.10.3.0\build\HDF.PInvoke.targets'))" />
-    <Error Condition="!Exists('..\packages\HDF.PInvoke.1.10.5.1\build\HDF.PInvoke.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\HDF.PInvoke.1.10.5.1\build\HDF.PInvoke.targets'))" />
   </Target>
-  <Import Project="..\packages\HDF.PInvoke.1.10.5.1\build\HDF.PInvoke.targets" Condition="Exists('..\packages\HDF.PInvoke.1.10.5.1\build\HDF.PInvoke.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
