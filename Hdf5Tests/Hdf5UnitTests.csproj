@@ -87,6 +87,7 @@
     <Compile Include="Hdf5StringsTests.cs" />
     <Compile Include="Hdf5DatasetTests.cs" />
     <Compile Include="Hdf5Tests.cs" />
+    <Compile Include="KamaTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hdf5CompoundTests.cs" />
     <Compile Include="TestUtilities.cs" />

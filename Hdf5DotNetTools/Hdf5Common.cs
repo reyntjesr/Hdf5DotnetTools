@@ -83,11 +83,10 @@ namespace Hdf5DotNetTools
         /// <param name="filename"></param>
         /// <param name="readOnly"></param>
         /// <returns></returns>
-        public static hid_t OpenFile(string filename, bool readOnly = false, bool overwrite = false)
+        public static hid_t OpenFile(string filename, bool readOnly = false)
         {
-            hid_t fileId;
             uint access = (readOnly) ? H5F.ACC_RDONLY : H5F.ACC_RDWR;
-            fileId = H5F.open(filename, access);
+            var fileId = H5F.open(filename, access);
             return fileId;
         }
 
@@ -328,7 +327,7 @@ namespace Hdf5DotNetTools
 
         public static bool Similar(this IEnumerable<double> first, IEnumerable<double> second, double precision = 1e-2)
         {
-            var result = first.Zip(second,  (f, s) => Math.Abs(f - s) < precision);
+            var result = first.Zip(second, (f, s) => Math.Abs(f - s) < precision);
             return result.All(r => r);
         }
 

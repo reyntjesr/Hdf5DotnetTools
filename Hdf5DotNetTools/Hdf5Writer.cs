@@ -73,7 +73,7 @@ namespace Hdf5DotNetTools
                     continue;
                 string name = info.Name;
                 //bool isEnumerable = info.FieldType.GetInterface(typeof(IEnumerable<>).FullName) != null;
-                WriteField(infoVal, groupId, name);
+                WriteField(infoVal, info, groupId, name);
             }
         }
 
@@ -89,8 +89,8 @@ namespace Hdf5DotNetTools
                 if (infoVal == null)
                     continue;
                 string name = info.Name;
-                
-                WriteField(infoVal, groupId, name);
+
+                WriteField(infoVal, info, groupId, name);
             }
         }
 
@@ -111,7 +111,7 @@ namespace Hdf5DotNetTools
             return noSaveAttr;
         }
 
-        private static void WriteField(object infoVal, hid_t groupId, string name)
+        private static void WriteField(object infoVal, FieldInfo filedInfo, hid_t groupId, string name)
         {
             Type ty = infoVal.GetType();
             TypeCode code = Type.GetTypeCode(ty);
@@ -124,23 +124,66 @@ namespace Hdf5DotNetTools
                     dsetRW.WriteArray(groupId, name, (Array)infoVal);
                 else
                 {
-                    CallByReflection(nameof(WriteCompounds), elType, new object[] { groupId, name, infoVal });
+                    CallByReflection<(int, hid_t)>(nameof(WriteCompounds), elType, new object[] { groupId, name, infoVal });
+                }
+            }
+            else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
+            //WriteOneValue(groupId, name, infoVal);
+            {
+                (int success, hid_t CreatedgroupId) = CallByReflection<(int, hid_t)>(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
+                //todo: fix it
+                //add its attributes if there are: 
+                //foreach (Attribute attr in Attribute.GetCustomAttributes(filedInfo))
+                //{
+                //    if (attr is Hdf5Attribute)
+                //    {
+                //        var h5at = attr as Hdf5Attribute;
+                //        WriteStringAttribute(groupId, name, h5at.Name, name);
+                //    }
+
+                //    if (attr is Hdf5Attributes)
+                //    {
+                //        var h5ats = attr as Hdf5Attributes;
+                //        WriteAttributes<string>(groupId, name, h5ats.Names, attr.);
+                //    }
+                //}
+            }
+            else
+                WriteObject(groupId, infoVal, name);
+        }
+        private static void WriteField(object infoVal, PropertyInfo propertyInfo, hid_t groupId, string name)
+        {
+            Type ty = infoVal.GetType();
+            TypeCode code = Type.GetTypeCode(ty);
+
+            if (ty.IsArray)
+            {
+                var elType = ty.GetElementType();
+                TypeCode elCode = Type.GetTypeCode(elType);
+                if (elCode != TypeCode.Object || ty == typeof(TimeSpan[]))
+                    dsetRW.WriteArray(groupId, name, (Array)infoVal);
+                else
+                {
+                    {
+                        CallByReflection<int>(nameof(WriteCompounds), elType, new object[] { groupId, name, infoVal });
+                        //add its attributes
+
+                    }
                 }
             }
             else if (primitiveTypes.Contains(code) || ty == typeof(TimeSpan))
                 //WriteOneValue(groupId, name, infoVal);
-                CallByReflection(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
+                CallByReflection<(int success, hid_t CreatedgroupId)>(nameof(WriteOneValue), ty, new object[] { groupId, name, infoVal });
             else
                 WriteObject(groupId, infoVal, name);
         }
-
-        static object CallByReflection(string name, Type typeArg,
-                             object[] values)
+        static T CallByReflection<T>(string name, Type typeArg, object[] values)
         {
             // Just for simplicity, assume it's public etc
             MethodInfo method = typeof(Hdf5).GetMethod(name);
             MethodInfo generic = method.MakeGenericMethod(typeArg);
-            return generic.Invoke(null, values);
+            return (T)generic.Invoke(null, values);
+
         }
 
     }

@@ -26,16 +26,16 @@ namespace Hdf5DotNetTools
         Dictionary<string, short> _usedChannels;
         readonly int /*_fileChannelCnt,*/ _readChannelCnt;
         readonly string _groupName;
-        //ReadInfo _readInfo;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Hdf5AcquisitionFileReader"/> class.
         /// </summary>
-        /// <param name="aFilename">A filename.</param>
-        /// <param name="aMode">A mode enumeration that specifies how the file system should open a file.</param>
-        public Hdf5AcquisitionFileReader(string aFilename, string[] labels = null, string groupName = "EEG")
+        /// <param name="filename">A filename.</param>
+        /// <param name="groupName">a root group. If not specified used "ROOT</param>
+        public Hdf5AcquisitionFileReader(string filename, string[] labels = null, string groupName = "ROOT")
         {
-            fileId = Hdf5.OpenFile(aFilename, readOnly: true);
+            fileId = Hdf5.OpenFile(filename, readOnly: true);
             _header = Hdf5.ReadObject<Hdf5AcquisitionFile>(fileId, groupName);
             _groupName = groupName;
 
@@ -46,7 +46,7 @@ namespace Hdf5DotNetTools
                 _labels = _header.Channels.Select(c => c.Label).ToList();
             else
                 _labels = labels;
-            _readChannelCnt = _labels.Count();
+            _readChannelCnt = _labels.Count;
             _signals = new List<short[]>(_readChannelCnt);
         }
 

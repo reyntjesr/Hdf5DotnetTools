@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using HDF.PInvoke;
 using System.Threading.Tasks;
 using System.Threading;
+using Hdf5DotnetTools.DataTypes;
 
 namespace Hdf5UnitTests
 {
@@ -96,11 +97,6 @@ namespace Hdf5UnitTests
                         signals.Add(Enumerable.Range((i + 1) * 50, 50).Select(j => j / 50.0).ToArray());
                     }
                     writer.Write(signals);
-                    //header.Recording.NrOfSamples = 100;
-                    //for (int i = 0; i < header.Channels.Length; i++)
-                    //{
-                    //    header.Channels[i].NrOfSamples = header.Recording.NrOfSamples;
-                    //}
                 }
             }
             catch (Exception ex)
@@ -377,11 +373,11 @@ namespace Hdf5UnitTests
             try
             {
                 var writer = new Hdf5AcquisitionFileWriter(filename);
-                void saveChunck(IEnumerable<double[]> d)
+                void SaveChunck(IEnumerable<double[]> d)
                 {
                     writer.Write(d);
                 }
-                var pc = new DataProducerConsumer<IEnumerable<double[]>>(saveChunck);
+                var pc = new DataProducerConsumer<IEnumerable<double[]>>(SaveChunck);
                 var header = FillHeader(writer.Header);
                 var data = new List<double[]>();
 

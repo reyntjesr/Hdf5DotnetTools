@@ -35,13 +35,13 @@ namespace Hdf5DotNetTools
         /// <summary>
         /// creates a structure of groups at once
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="groupOrfileId"></param>
         /// <param name="groupName"></param>
         /// <returns></returns>
-        public static hid_t CreateGroupRecursively(hid_t groupId, string groupName)
+        public static hid_t CreateGroupRecursively(hid_t groupOrfileId, string groupName)
         {
             IEnumerable<string> grps = groupName.Split('/');
-            hid_t gid=groupId;
+            hid_t gid=groupOrfileId;
             groupName = "";
             foreach (var name in grps)
             {

@@ -63,9 +63,9 @@ namespace Hdf5DotNetTools
                 bool nextInfo = false;
                 foreach (Attribute attr in Attribute.GetCustomAttributes(info))
                 {
-                    if (attr is Hdf5SaveAttribute)
+                    if (attr is Hdf5SaveAttribute attribute)
                     {
-                        Hdf5Save kind = (attr as Hdf5SaveAttribute).SaveKind;
+                        Hdf5Save kind = attribute.SaveKind;
                         nextInfo = (kind == Hdf5Save.DoNotSave);
                     }
                     else
@@ -91,8 +91,7 @@ namespace Hdf5DotNetTools
                     }
                     else
                     {
-                        var obj = CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
-                        values = (Array)obj;
+                        values = CallByReflection<Array>(nameof(ReadCompounds), elType, new object[] { groupId, name });
                     }
                     info.SetValue(readValue, values);
                 }
@@ -122,7 +121,7 @@ namespace Hdf5DotNetTools
                 bool nextInfo = false;
                 foreach (Attribute attr in Attribute.GetCustomAttributes(info))
                 {
-                    Hdf5Save kind = (attr as Hdf5SaveAttribute).SaveKind;
+                    Hdf5Save kind = ((Hdf5SaveAttribute)attr).SaveKind;
                     nextInfo = (kind == Hdf5Save.DoNotSave);
                 }
                 if (nextInfo) continue;
@@ -144,8 +143,8 @@ namespace Hdf5DotNetTools
                     }
                     else
                     {
-                        var obj = CallByReflection(nameof(ReadCompounds), elType, new object[] { groupId, name });
-                        var objArr = ((IEnumerable)obj).Cast<object>().ToArray();
+                        var obj = CallByReflection<IEnumerable>(nameof(ReadCompounds), elType, new object[] { groupId, name });
+                        var objArr = (obj).Cast<object>().ToArray();
                         values = Array.CreateInstance(elType, objArr.Length);
                         Array.Copy(objArr, values, objArr.Length);
                     }

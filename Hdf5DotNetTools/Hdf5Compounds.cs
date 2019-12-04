@@ -36,7 +36,7 @@ namespace Hdf5DotNetTools
             ulong[] dims = new ulong[] { (ulong)cnt };
 
             long dcpl = 0;
-            if (list.Count() == 0 || log10 == 0) { }
+            if (!list.Any() || log10 == 0) { }
             else
             {
                 dcpl = CreateProperty(chunk_size);
@@ -58,7 +58,7 @@ namespace Hdf5DotNetTools
             var bytes = ms.ToArray();
 
             GCHandle hnd = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            var statusId = H5D.write(datasetId, typeId, spaceId, H5S.ALL, 
+            var statusId = H5D.write(datasetId, typeId, spaceId, H5S.ALL,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
 
             hnd.Free();
@@ -261,7 +261,7 @@ namespace Hdf5DotNetTools
             /*
              * Close and release resources.
              */
-            H5D.vlen_reclaim(typeId,spaceId,H5P.DEFAULT,hndAddr);
+            H5D.vlen_reclaim(typeId, spaceId, H5P.DEFAULT, hndAddr);
             hnd.Free();
             H5D.close(datasetId);
             H5S.close(spaceId);
