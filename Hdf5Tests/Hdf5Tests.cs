@@ -61,11 +61,8 @@ namespace Hdf5UnitTests
 
             public DateTime Time
             {
-                get { return new DateTime(timeTicks); }
-                set
-                {
-                    timeTicks = value.Ticks;
-                }
+                get => new DateTime(timeTicks);
+                set => timeTicks = value.Ticks;
             }
 
             public long timeTicks;

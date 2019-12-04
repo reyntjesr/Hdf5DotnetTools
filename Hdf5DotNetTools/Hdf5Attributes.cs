@@ -138,12 +138,12 @@ namespace Hdf5DotNetTools
             return attributes;
         }
 
-        public static int WriteStringAttribute(hid_t groupId, string name, string str, string datasetName = null)
+        public static (int success, hid_t attributeId) WriteStringAttribute(hid_t groupId, string name, string str, string datasetName = null)
         {
             return WriteStringAttributes(groupId, name, new string[] { str }, datasetName);
         }
 
-        public static int WriteStringAttributes(hid_t groupId, string name, IEnumerable<string> strs, string datasetName = null)
+        public static (int success, hid_t CreatedgroupId) WriteStringAttributes(hid_t groupId, string name, IEnumerable<string> strs, string datasetName = null)
         {
             hid_t tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
@@ -194,7 +194,7 @@ namespace Hdf5DotNetTools
             {
                 H5D.close(groupId);
             }
-            return result;
+            return (result, attributeId);
         }
 
         public static void WriteAttribute<T>(hid_t groupId, string name, T attribute, string datasetName = null) //where T : struct
@@ -218,7 +218,7 @@ namespace Hdf5DotNetTools
                  return WritePrimitiveAttribute<T>(groupId, name, attributes, datasetName);*/
         }
 
-        public static int WritePrimitiveAttribute<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //where T : struct
+        public static (int success, hid_t CreatedgroupId) WritePrimitiveAttribute<T>(hid_t groupId, string name, Array attributes, string datasetName = null) //where T : struct
         {
             var tmpId = groupId;
             if (!string.IsNullOrWhiteSpace(datasetName))
@@ -246,7 +246,7 @@ namespace Hdf5DotNetTools
             {
                 H5D.close(groupId);
             }
-            return result;
+            return (result, attributeId);
         }
     }
 }

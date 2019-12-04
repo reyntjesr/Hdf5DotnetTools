@@ -8,37 +8,28 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Hdf5DotnetTools.DataTypes;
 
 namespace Hdf5DotNetTools
 {
-    public class FileClosedArgs : EventArgs
-    {
-        public string ClosedFile { get; }
-        public bool CancelRequested { get; set; }
 
-        public FileClosedArgs(string fileName)
-        {
-            ClosedFile = fileName;
-        }
-    }
 
     public class Hdf5AcquisitionFileWriter : IDisposable
     {
         long fileId;
-        const int MaxRecordSize = 61440;
         readonly string _groupName, _filename;
         ChunkedDataset<short> dset = null;
         ulong _nrOfRecords, _sampleCount;
         long _groupId;
-       
-       // private readonly ReaderWriterLockSlim lock_ = new ReaderWriterLockSlim();
 
-        public Hdf5AcquisitionFileWriter(string aFilename, string groupName = "/EEG")
+        // private readonly ReaderWriterLockSlim lock_ = new ReaderWriterLockSlim();
+
+        public Hdf5AcquisitionFileWriter(string filename, string groupName = "ROOT")
         {
             H5E.set_auto(H5E.DEFAULT, null, IntPtr.Zero);
             //lock_.EnterWriteLock();
-            _filename = aFilename;
-            fileId = Hdf5.CreateFile(aFilename);
+            _filename = filename;
+            fileId = Hdf5.CreateFile(filename);
             _groupName = groupName;
             _groupId = Hdf5.CreateGroup(fileId, _groupName);
 
@@ -46,6 +37,7 @@ namespace Hdf5DotNetTools
             _nrOfRecords = 0;
             _sampleCount = 0;
             //lock_.ExitWriteLock();
+
         }
 
         public void Dispose()
@@ -60,8 +52,7 @@ namespace Hdf5DotNetTools
             if (disposing)
             {
                 SaveHeader();
-                if (dset != null)
-                    dset.Dispose();
+                dset?.Dispose();
                 var info = Hdf5.GroupInfo(_groupId);
                 _groupId = Hdf5.CloseGroup(_groupId);
                 fileId = Hdf5.CloseFile(fileId);

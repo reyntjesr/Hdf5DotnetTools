@@ -149,15 +149,15 @@ namespace Hdf5DotNetTools
         /// <param name="name">name of the dataset</param>
         /// <param name="dset">The dataset</param>
         /// <returns>status of the write method</returns>
-        public static void WriteOneValue<T>(hid_t groupId, string name, T dset)
+        public static (int success, hid_t CreatedgroupId) WriteOneValue<T>(hid_t groupId, string name, T dset)
         {
             if (typeof(T) == typeof(string))
                 //WriteStrings(groupId, name, new string[] { dset.ToString() });
-                dsetRW.WriteArray(groupId, name, new T[1] { dset });
+                return dsetRW.WriteArray(groupId, name, new T[1] { dset });
             else
             {
                 Array oneVal = new T[1, 1] { { dset } };
-                dsetRW.WriteArray(groupId, name, oneVal);
+                return dsetRW.WriteArray(groupId, name, oneVal);
             }
         }
 
@@ -167,7 +167,7 @@ namespace Hdf5DotNetTools
         }
 
 
-        public static int WriteDatasetFromArray<T>(hid_t groupId, string name, Array dset, string datasetName = null) //where T : struct
+        public static (int success, hid_t CreatedgroupId) WriteDatasetFromArray<T>(hid_t groupId, string name, Array dset, string datasetName = null) //where T : struct
         {
             int rank = dset.Rank;
             ulong[] dims = Enumerable.Range(0, rank).Select(i => { return (ulong)dset.GetLength(i); }).ToArray();
@@ -188,7 +188,7 @@ namespace Hdf5DotNetTools
             H5D.close(datasetId);
             H5S.close(spaceId);
             H5T.close(typeId);
-            return result;
+            return (result, datasetId);
         }
 
         /// <summary>

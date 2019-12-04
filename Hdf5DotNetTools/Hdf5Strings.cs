@@ -68,7 +68,7 @@ namespace Hdf5DotNetTools
         }
 
 
-        public static int WriteStrings(hid_t groupId, string name, IEnumerable<string> strs, string datasetName=null)
+        public static (int success, hid_t CreatedgroupId) WriteStrings(hid_t groupId, string name, IEnumerable<string> strs, string datasetName = null)
         {
 
             // create UTF-8 encoded test datasets
@@ -110,7 +110,7 @@ namespace Hdf5DotNetTools
             H5D.close(datasetId);
             H5S.close(spaceId);
             H5T.close(datatype);
-            return result;
+            return (result, datasetId);
         }
 
         public static int WriteAsciiString(hid_t groupId, string name, string str)
@@ -122,7 +122,7 @@ namespace Hdf5DotNetTools
             // store as H5T.FORTRAN_S1 -> space padding
 
             int strLength = str.Length;
-            ulong[] dims = {(ulong)strLength, 1};
+            ulong[] dims = { (ulong)strLength, 1 };
 
             /* Create the dataset. */
             //name = ToHdf5Name(name);
@@ -134,7 +134,7 @@ namespace Hdf5DotNetTools
 
             // we write from C and must provide null-terminated strings
 
-            byte[] wdata = new byte[strLength*2];
+            byte[] wdata = new byte[strLength * 2];
             //for (int i = 0; i < strLength; ++i)
             //{
             //    wdata[2 * i] = (byte)i;
@@ -182,7 +182,7 @@ namespace Hdf5DotNetTools
             hnd.Free();
 
             wdata = wdata.Where((b, i) => i % 2 == 0).
-                Select(b=>(b==0)?(byte)32:b).ToArray();
+                Select(b => (b == 0) ? (byte)32 : b).ToArray();
             string result = Encoding.ASCII.GetString(wdata);
 
             H5T.close(memId);
@@ -199,7 +199,7 @@ namespace Hdf5DotNetTools
             hid_t dtype = H5T.create(H5T.class_t.STRING, new IntPtr(wdata.Length));
             H5T.set_cset(dtype, H5T.cset_t.UTF8);
             H5T.set_strpad(dtype, strPad);
-            
+
             hid_t datasetId = H5D.create(groupId, name, dtype, spaceId);
 
             GCHandle hnd = GCHandle.Alloc(wdata, GCHandleType.Pinned);
