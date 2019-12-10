@@ -67,13 +67,16 @@ namespace Hdf5UnitTests
             string strValue = "test";
             string[] strValues = new string[2] { "test", "another test" };
             bool boolValue = true;
+            DateTime dateValue = new DateTime(1969, 1, 12);
             var groupStr = "/test";
+            
             //string concatFunc(string x) => string.Concat(groupStr, "/", x);
             string intName = nameof(intValues);
             string dblName = nameof(dblValue);
             string strName = nameof(strValue);
             string strNames = nameof(strValues);
             string boolName = nameof(boolValue);
+            string dateName = nameof(dateValue);
 
             try
             {
@@ -85,6 +88,7 @@ namespace Hdf5UnitTests
                 Hdf5.WriteAttribute(groupId, strName, strValue);
                 Hdf5.WriteAttributes<string>(groupId, strNames, strValues);
                 Hdf5.WriteAttribute(groupId, boolName, boolValue);
+                Hdf5.WriteAttribute(groupId, dateName, dateValue);
                 H5G.close(groupId);
                 Hdf5.CloseFile(fileId);
             }
@@ -108,6 +112,8 @@ namespace Hdf5UnitTests
                 Assert.IsTrue(strValues.SequenceEqual(readStrs));
                 bool readBool = Hdf5.ReadAttribute<bool>(groupId, boolName);
                 Assert.IsTrue(boolValue == readBool);
+                DateTime readDate = Hdf5.ReadAttribute<DateTime>(groupId, dateName);
+                Assert.IsTrue(dateValue == readDate);
                 H5G.close(groupId);
                 Hdf5.CloseFile(fileId);
             }
