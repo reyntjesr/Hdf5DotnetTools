@@ -93,15 +93,15 @@
     <Compile Include="TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="HDF.PInvoke.NETStandard">
-      <Version>1.10.502</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Hdf5DotnetTools\Hdf5DotnetTools.csproj">
       <Project>{7e7b1235-2d9c-4696-9ffb-cf7e14c7202a}</Project>
       <Name>Hdf5DotnetTools</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HDF.PInvoke.NETStandard">
+      <Version>1.10.502</Version>
+    </PackageReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
@@ -124,8 +124,10 @@
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>if not exist "$(TargetDir)bin32" md  "$(TargetDir)bin32" 
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin32\*.*"  "$(TargetDir)bin32" 
+if not exist "$(TargetDir)bin64" md  "$(TargetDir)bin64" 
+xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin64\*.*"  "$(TargetDir)bin64"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
