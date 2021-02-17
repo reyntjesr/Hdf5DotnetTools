@@ -124,10 +124,10 @@
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if not exist "$(TargetDir)bin32" md  "$(TargetDir)bin32" 
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin32\*.*"  "$(TargetDir)bin32" 
-if not exist "$(TargetDir)bin64" md  "$(TargetDir)bin64" 
-xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin64\*.*"  "$(TargetDir)bin64"</PostBuildEvent>
+    <PostBuildEvent>rem if not exist "$(TargetDir)bin32" md  "$(TargetDir)bin32" 
+rem xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin32\*.*"  "$(TargetDir)bin32" 
+rem if not exist "$(TargetDir)bin64" md  "$(TargetDir)bin64" 
+rem xcopy /s /y "$(SolutionDir)packages\HDF.PInvoke.1.10.5.1\build\bin64\*.*"  "$(TargetDir)bin64"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
