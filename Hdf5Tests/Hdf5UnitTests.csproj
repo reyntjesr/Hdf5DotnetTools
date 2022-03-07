@@ -99,6 +99,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="HDF.PInvoke">
+      <Version>1.10.6.1</Version>
+    </PackageReference>
     <PackageReference Include="HDF.PInvoke.NETStandard">
       <Version>1.10.502</Version>
     </PackageReference>
