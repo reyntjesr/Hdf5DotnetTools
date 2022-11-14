@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
@@ -62,7 +58,7 @@ namespace Hdf5DotNetTools
                     _queue.TryTake(out T data);
                     if (data != null)
                     {
-                        Debug.WriteLine($"item {_queue.Count+1} in queue will be processed");
+                        Debug.WriteLine($"item {_queue.Count + 1} in queue will be processed");
                         _action(data);
                     }
 

@@ -1,11 +1,6 @@
-﻿using System;
+﻿using HDF.PInvoke;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HDF.PInvoke;
-using System.Runtime.InteropServices;
-using System.IO;
 
 namespace Hdf5DotNetTools
 {
@@ -41,7 +36,7 @@ namespace Hdf5DotNetTools
         public static hid_t CreateGroupRecursively(hid_t groupOrfileId, string groupName)
         {
             IEnumerable<string> grps = groupName.Split('/');
-            hid_t gid=groupOrfileId;
+            hid_t gid = groupOrfileId;
             groupName = "";
             foreach (var name in grps)
             {

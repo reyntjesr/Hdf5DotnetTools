@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hdf5DotNetTools
 {
@@ -93,7 +89,7 @@ namespace Hdf5DotNetTools
         /// </summary>
         public IList<double[]> ReadDouble()
         {
-            TimeSpan oneSample = TimeSpan.FromSeconds(1/_header.Recording.SampleRate);
+            TimeSpan oneSample = TimeSpan.FromSeconds(1 / _header.Recording.SampleRate);
             return ReadDouble(_header.Recording.StartTime, _header.Recording.EndTime.Subtract(oneSample));
         }
 
@@ -131,7 +127,7 @@ namespace Hdf5DotNetTools
             TimeSpan startSpan = startTime - _header.Recording.StartTime;
             TimeSpan endSpan = endTime - _header.Recording.StartTime;
             ulong startIndex = Convert.ToUInt64(Math.Round(startSpan.TotalSeconds * sr, MidpointRounding.AwayFromZero));
-            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr))-1;
+            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr)) - 1;
             return ReadDouble(startIndex, endIndex);
         }
 
@@ -146,7 +142,7 @@ namespace Hdf5DotNetTools
             TimeSpan startSpan = startTime - _header.Recording.StartTime;
             TimeSpan endSpan = endTime - _header.Recording.StartTime;
             ulong startIndex = Convert.ToUInt64(Math.Round(startSpan.TotalSeconds * sr, MidpointRounding.AwayFromZero));
-            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr))-1;
+            ulong endIndex = Convert.ToUInt64(Math.Round(endSpan.TotalSeconds * sr)) - 1;
             return Read(startIndex, endIndex);
         }
 

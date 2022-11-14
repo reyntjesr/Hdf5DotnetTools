@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HDF.PInvoke;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HDF.PInvoke;
 using System.Runtime.InteropServices;
-using System.IO;
 
 namespace Hdf5DotNetTools
 {

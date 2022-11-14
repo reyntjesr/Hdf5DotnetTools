@@ -1,7 +1,5 @@
-﻿using System;
+﻿using Hdf5DotnetTools.DataTypes;
 using System.Collections.Generic;
-using System.Text;
-using Hdf5DotnetTools.DataTypes;
 
 namespace Hdf5DotnetTools.Interfaces
 {
