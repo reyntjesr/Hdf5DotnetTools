@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Hdf5DotNetTools;
 using System.Runtime.InteropServices;
-using System.Text;
-using Hdf5DotNetTools;
 
 namespace Hdf5DotnetTools.DataTypes
 {

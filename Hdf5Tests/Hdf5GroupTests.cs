@@ -64,5 +64,35 @@ namespace Hdf5UnitTests
                 CreateExceptionAssert(ex);
             }
         }
+
+        [TestMethod]
+        public void WriteAndReadGroupsInGroup()
+        {
+            string filename = Path.Combine(folder, "testGroupWithGroups.H5");
+
+            try
+            {
+                var fileId = Hdf5.CreateFile(filename);
+                Assert.IsTrue(fileId > 0);
+                var groupId = H5G.create(fileId, "/A");
+                var subGroupId1 = Hdf5.CreateGroup(groupId, "B");
+                var subGroupId2 = Hdf5.CreateGroup(groupId, "C");
+                Hdf5.CloseGroup(groupId);
+                Hdf5.CloseGroup(subGroupId1);
+                Hdf5.CloseGroup(subGroupId2);
+                Hdf5.CloseFile(fileId);
+
+                fileId = Hdf5.OpenFile(filename);
+                Assert.IsTrue(fileId > 0);
+                Assert.IsTrue(Hdf5.GroupExists(fileId, "A/B"));
+                Assert.IsTrue(Hdf5.GroupExists(fileId, "A/C"));
+                groupId = H5G.open(fileId, "/A");
+                string[] groups = Hdf5.GroupGroups(groupId);
+                Assert.IsTrue(Hdf5.CloseFile(fileId) == 0);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
     }
 }

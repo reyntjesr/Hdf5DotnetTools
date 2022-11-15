@@ -1,11 +1,8 @@
-﻿using System;
+﻿using HDF.PInvoke;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
-using HDF.PInvoke;
-using System.Runtime.InteropServices;
-using System.IO;
 
 namespace Hdf5DotNetTools
 {
@@ -41,7 +38,7 @@ namespace Hdf5DotNetTools
         public static hid_t CreateGroupRecursively(hid_t groupOrfileId, string groupName)
         {
             IEnumerable<string> grps = groupName.Split('/');
-            hid_t gid=groupOrfileId;
+            hid_t gid = groupOrfileId;
             groupName = "";
             foreach (var name in grps)
             {
@@ -65,6 +62,41 @@ namespace Hdf5DotNetTools
             }
             return exists;
         }
+
+        public static string[] GroupGroups(hid_t groupId)
+        {
+            string[] grps = new string[0];
+            try
+            {
+                var buf_size = H5I.get_name(groupId, (StringBuilder)null, IntPtr.Zero) + 1;
+                int len = buf_size.ToInt32() - 1;
+                H5G.info_t g_info = new H5G.info_t();
+                H5O.info_t o_info = new H5O.info_t();
+                o_info = Hdf5.GroupInfo(groupId);
+
+                var gid = H5G.get_info_by_name(groupId, ".", ref g_info);
+                for (ulong i = 0; i < g_info.nlinks; i++)
+                {
+                    H5O.info_t info = new H5O.info_t();
+                    gid = H5O.get_info_by_idx(groupId, ".", H5.index_t.NAME, H5.iter_order_t.NATIVE, i, ref info);
+                    if (info.type == H5O.type_t.GROUP)
+                    {
+                        Trace.WriteLine("");
+                    }
+                    //H5G.get_info_by_idx
+                }
+                StringBuilder nameBuilder = new StringBuilder(buf_size.ToInt32());
+                IntPtr size = H5I.get_name(groupId, nameBuilder, buf_size);
+
+
+                Trace.WriteLine(nameBuilder.ToString());
+            }
+            catch (Exception)
+            {
+            }
+            return grps;
+        }
+
 
         public static ulong NumberOfAttributes(int groupId, string groupName)
         {

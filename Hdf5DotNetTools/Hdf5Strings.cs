@@ -1,15 +1,12 @@
+using HDF.PInvoke;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HDF.PInvoke;
-using System.Runtime.InteropServices;
 using System.IO;
-using hsize_t = System.UInt64;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 
 #if HDF5_VER1_10
-using hid_t = System.Int64;
 #else
 using hid_t = System.Int32;
 #endif

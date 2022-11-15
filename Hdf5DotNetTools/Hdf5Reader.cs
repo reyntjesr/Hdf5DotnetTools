@@ -1,7 +1,7 @@
-﻿using System;
+﻿using HDF.PInvoke;
+using System;
 using System.Linq;
 using System.Reflection;
-using HDF.PInvoke;
 
 namespace Hdf5DotNetTools
 {

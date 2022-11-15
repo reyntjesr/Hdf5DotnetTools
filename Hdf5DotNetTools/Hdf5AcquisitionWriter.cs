@@ -1,14 +1,10 @@
 ﻿using HDF.PInvoke;
+using Hdf5DotnetTools.DataTypes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Hdf5DotnetTools.DataTypes;
 
 namespace Hdf5DotNetTools
 {
@@ -78,7 +74,7 @@ namespace Hdf5DotNetTools
         /// <summary>
         /// Writes data to the hdf5 file.
         /// </summary>
-        public void Write(IEnumerable<double[]> signals)
+        public void Write(IEnumerable<double[]> signals, bool setDatetime = true)
         {
             //lock_.EnterWriteLock();
             int cols = signals.Count();
@@ -96,7 +92,7 @@ namespace Hdf5DotNetTools
                     data[j, i] = Convert2Short(sig[j], i);
                 i++;
             }
-            Write(data);
+            Write(data,setDatetime);
             //lock_.ExitWriteLock();
         }
 
@@ -113,12 +109,13 @@ namespace Hdf5DotNetTools
         /// <summary>
         /// Writes data to the hdf5 file.
         /// </summary>
-        public void Write(short[,] data)
+        public void Write(short[,] data, bool setDatetime = true)
         {
             //lock_.EnterWriteLock();
             if (_nrOfRecords == 0)
             {
-                Header.Recording.StartTime = DateTime.Now;
+                if (setDatetime)
+                    Header.Recording.StartTime = DateTime.Now;
                 var dataName = "Data";
                 dset = new ChunkedDataset<short>(dataName, _groupId, data);
             }
