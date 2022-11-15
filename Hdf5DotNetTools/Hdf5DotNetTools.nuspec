@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Hdf5DotNetTools</id>
+    <version>0.1.0</version>
+    <title>Hdf5DotNetTools</title>
+    <authors>Robert Reijntjes</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/reyntjesr/Hdf5DotnetTools</projectUrl>
+    <!-- <iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl> -->
+    <description>Set of tools that help in reading and writing hdf5 files for .net environments</description>
+    <!-- <releaseNotes>Summary of changes made in this release of the package.</releaseNotes> -->
+    <copyright>Copyright (c)2021 Leiden University Medical Center</copyright>
+    <tags>Hdf5 </tags>
+    <!-- Dependencies are automatically installed when the package is installed -->
+    <dependencies>
+      <group targetFramework=".NETStandard2.0"/>
+    </dependencies>
+    
+  </metadata>
+</package>

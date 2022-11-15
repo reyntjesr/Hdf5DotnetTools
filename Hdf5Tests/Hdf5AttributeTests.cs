@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using HDF.PInvoke;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Hdf5UnitTests
 {
@@ -143,7 +144,15 @@ namespace Hdf5UnitTests
 
             var OpenFileId = Hdf5.OpenFile(filename);
             var data = Hdf5.ReadObject<AttributeClass>(OpenFileId, groupName);
-            var att = Hdf5.ReadAttributes<AttributeClass>(OpenFileId, groupName);
+            Type tyObject = data.aDatetime.GetType();
+            //TODO: Have to find out why this doesn't work
+            foreach (Attribute attr in Attribute.GetCustomAttributes(tyObject))
+            {
+                if (attr is Hdf5Attribute h5att)
+                {
+                    Assert.IsTrue(h5att.Name == "birthdate");
+                }
+            }
 
         }
     }

@@ -6,11 +6,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-#if HDF5_VER1_10
-#else
-using hid_t = System.Int32;
-#endif
-
 namespace Hdf5DotNetTools
 {
 #if HDF5_VER1_10
