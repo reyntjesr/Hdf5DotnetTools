@@ -1,9 +1,11 @@
 ﻿using HDF.PInvoke;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Hdf5DotNetTools
 {
@@ -67,44 +69,49 @@ namespace Hdf5DotNetTools
             T result = (T)attrs.GetValue(first);
             return result;
         }
-
-        public static IEnumerable<string> ReadStringAttributes(hid_t groupId, string name)
+        public static IEnumerable<string> ReadStringAttributes(hid_t groupId, string name, string attributeName = null)
         {
 
-            hid_t datatype = H5T.create(H5T.class_t.STRING, H5T.VARIABLE);
-            H5T.set_cset(datatype, H5T.cset_t.UTF8);
-            H5T.set_strpad(datatype, H5T.str_t.NULLTERM);
+            hid_t attrId;
+            if (string.IsNullOrEmpty(attributeName))
+                attrId = H5A.open(groupId, name);
+            else
+            {
+                var datasetId = H5D.open(groupId, name);
+                attrId = H5A.open(datasetId, attributeName);
+                H5D.close(datasetId);
+            }
 
-            //name = ToHdf5Name(name);
-
-            var datasetId = H5A.open(groupId, name);
-            hid_t spaceId = H5A.get_space(datasetId);
-
+            long typeId = H5A.get_type(attrId);
+            long spaceId = H5A.get_space(attrId);
             long count = H5S.get_simple_extent_npoints(spaceId);
             H5S.close(spaceId);
 
             IntPtr[] rdata = new IntPtr[count];
             GCHandle hnd = GCHandle.Alloc(rdata, GCHandleType.Pinned);
-            H5A.read(datasetId, datatype, hnd.AddrOfPinnedObject());
+            H5A.read(attrId, typeId, hnd.AddrOfPinnedObject());
 
             var strs = new List<string>();
             for (int i = 0; i < rdata.Length; ++i)
             {
+                if (rdata[i] == IntPtr.Zero)
+                {
+                    continue;
+                }
                 int len = 0;
                 while (Marshal.ReadByte(rdata[i], len) != 0) { ++len; }
                 byte[] buffer = new byte[len];
                 Marshal.Copy(rdata[i], buffer, 0, buffer.Length);
                 string s = Encoding.UTF8.GetString(buffer);
-
                 strs.Add(s);
 
                 H5.free_memory(rdata[i]);
             }
 
             hnd.Free();
-            H5T.close(datatype);
-            H5A.close(datasetId);
-            return strs;
+            H5T.close(typeId);
+            H5A.close(attrId);
+            return (strs);
         }
 
         public static Array ReadPrimitiveAttributes<T>(hid_t groupId, string name) //where T : struct

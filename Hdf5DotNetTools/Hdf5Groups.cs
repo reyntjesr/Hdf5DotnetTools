@@ -98,7 +98,7 @@ namespace Hdf5DotNetTools
         }
 
 
-        public static ulong NumberOfAttributes(int groupId, string groupName)
+        public static ulong NumberOfAttributes(long groupId, string groupName)
         {
             H5O.info_t info = new H5O.info_t();
             var gid = H5O.get_info(groupId, ref info);
