@@ -92,7 +92,7 @@ namespace Hdf5DotNetTools
                     data[j, i] = Convert2Short(sig[j], i);
                 i++;
             }
-            Write(data,setDatetime);
+            Write(data, setDatetime);
             //lock_.ExitWriteLock();
         }
 
