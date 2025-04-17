@@ -155,7 +155,10 @@ namespace Hdf5DotNetTools
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 fileId = Hdf5.CloseFile(fileId);
+                _signals.Clear();
+            }
         }
 
         public Hdf5AcquisitionFile Header => _header;
