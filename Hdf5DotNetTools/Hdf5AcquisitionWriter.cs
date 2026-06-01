@@ -1,4 +1,5 @@
 ﻿using HDF.PInvoke;
+using Hdf5DotnetTools;
 using Hdf5DotnetTools.DataTypes;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Hdf5DotNetTools
         ChunkedDataset<short> dset = null;
         ulong _nrOfRecords, _sampleCount;
         long _groupId;
+        SignalDataManager<short> _signalDataManager;
 
         // private readonly ReaderWriterLockSlim lock_ = new ReaderWriterLockSlim();
 
@@ -28,6 +30,7 @@ namespace Hdf5DotNetTools
             fileId = Hdf5.CreateFile(filename);
             _groupName = groupName;
             _groupId = Hdf5.CreateGroup(fileId, _groupName);
+            _signalDataManager = new SignalDataManager<short>(_groupId);
 
             Header = new Hdf5AcquisitionFile();
             _nrOfRecords = 0;
@@ -52,6 +55,7 @@ namespace Hdf5DotNetTools
                 var info = Hdf5.GroupInfo(_groupId);
                 _groupId = Hdf5.CloseGroup(_groupId);
                 fileId = Hdf5.CloseFile(fileId);
+                _signalDataManager.Dispose();
             }
         }
 
@@ -94,6 +98,26 @@ namespace Hdf5DotNetTools
             }
             Write(data, setDatetime);
             //lock_.ExitWriteLock();
+        }
+
+        /// <summary>
+        /// Writes data to the hdf5 file.
+        /// </summary>
+        public void WriteDsetPerSignal(IEnumerable<double[]> signals, bool setDatetime = true)
+        {
+            int cols = signals.Count();
+            if (cols == 0) return;
+            var signalNames = Header.Channels.Select(ch => ch.Label).ToArray();
+            IList<short[]> signalData = new List<short[]>();
+            for (int i = 0; i < signals.Count(); i++)
+            {
+                var sig = signals.ElementAt(i);
+                var data = new short[sig.Length];
+                for (int j = 0; j < sig.Length; j++)
+                    data[j] = Convert2Short(sig[j], i);
+                signalData.Add(data);
+            }
+            _signalDataManager.AppendSignals(signalData, signalNames);
         }
 
         /// <summary>
