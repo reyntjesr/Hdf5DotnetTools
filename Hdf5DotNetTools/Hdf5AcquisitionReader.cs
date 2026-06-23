@@ -1,9 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using HDF.PInvoke;
 
 namespace Hdf5DotNetTools
 {
+#if HDF5_VER1_10
+    using hid_t = System.Int64;
+#else
+    using hid_t = System.Int32;
+#endif
 
     /*struct ReadInfo {
         public ReadInfo()
@@ -22,6 +28,7 @@ namespace Hdf5DotNetTools
         Dictionary<string, short> _usedChannels;
         readonly int /*_fileChannelCnt,*/ _readChannelCnt;
         readonly string _groupName;
+        readonly bool _isDatasetPerSignal;
 
 
         /// <summary>
@@ -34,6 +41,19 @@ namespace Hdf5DotNetTools
             fileId = Hdf5.OpenFile(filename, readOnly: true);
             _header = Hdf5.ReadObject<Hdf5AcquisitionFile>(fileId, groupName);
             _groupName = groupName;
+
+            H5E.set_auto(H5E.DEFAULT, null, IntPtr.Zero);
+            var dataName = string.Concat("/", _groupName, "/Data");
+            long groupGroupId = H5G.open(fileId, dataName);
+            if (groupGroupId >= 0)
+            {
+                _isDatasetPerSignal = true;
+                H5G.close(groupGroupId);
+            }
+            else
+            {
+                _isDatasetPerSignal = false;
+            }
 
             _usedChannels = new Dictionary<string, short>();
             for (short i = 0; i < _header.Recording.NrOfChannels; i++)
@@ -63,23 +83,32 @@ namespace Hdf5DotNetTools
         {
             _signals.Clear();
             int rows = Convert.ToInt32(endIndex - startIndex + 1);
-            int cols = _labels.Count();
             var dataName = string.Concat("/", _groupName, "/Data");
-            short[,] data = Hdf5.ReadDataset<short>(fileId, dataName, startIndex, endIndex);
-            IEnumerable<short> dataEnum = data.Cast<short>();
 
-
-            int byteLength = sizeof(short) * rows;
-            TimeSpan zeroSpan = new TimeSpan(0);
-            for (int i = 0; i < _readChannelCnt; i++)
+            if (!_isDatasetPerSignal)
             {
-                //_signals.Add(new short[rows]);
-                string lbl = _labels[i];
-                int nr = _usedChannels[lbl];
-                int pos = nr * byteLength;
-                var ar = dataEnum.Where((d, j) => (j - nr) % cols == 0);
-                _signals.Add(ar.ToArray());
-                //Buffer.BlockCopy(data, pos, _signals[i], 0, byteLength);
+                int cols = _labels.Count();
+                short[,] data = Hdf5.ReadDataset<short>(fileId, dataName, startIndex, endIndex);
+                IEnumerable<short> dataEnum = data.Cast<short>();
+
+                int byteLength = sizeof(short) * rows;
+                for (int i = 0; i < _readChannelCnt; i++)
+                {
+                    string lbl = _labels[i];
+                    int nr = _usedChannels[lbl];
+                    var ar = dataEnum.Where((d, j) => (j - nr) % cols == 0);
+                    _signals.Add(ar.ToArray());
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _readChannelCnt; i++)
+                {
+                    string lbl = _labels[i];
+                    var channelDataName = string.Concat(dataName, "/", lbl);
+                    short[] data = Hdf5.ReadDataset1D<short>(fileId, channelDataName, startIndex, endIndex);
+                    _signals.Add(data);
+                }
             }
             return _signals;
         }

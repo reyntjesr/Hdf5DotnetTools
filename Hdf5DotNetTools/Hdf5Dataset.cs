@@ -1,4 +1,4 @@
-﻿using HDF.PInvoke;
+using HDF.PInvoke;
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -107,6 +107,38 @@ namespace Hdf5DotNetTools
 
             // Read data from hyperslab in the file into the hyperslab in 
             // memory and display.             
+            GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
+            H5D.read(datasetId, datatype, memId, spaceId,
+                H5P.DEFAULT, hnd.AddrOfPinnedObject());
+            hnd.Free();
+            H5D.close(datasetId);
+            H5S.close(spaceId);
+            H5S.close(memId);
+            return dset;
+        }
+
+        /// <summary>
+        /// Reads part of a one dimensional dataset.
+        /// </summary>
+        public static T[] ReadDataset1D<T>(hid_t groupId, string name, ulong beginIndex, ulong endIndex) //where T : struct
+        {
+            ulong[] start = { beginIndex };
+            ulong[] count = { endIndex - beginIndex + 1 };
+            var datatype = GetDatatype(typeof(T));
+
+            var datasetId = H5D.open(groupId, name);
+            var spaceId = H5D.get_space(datasetId);
+
+            var status = H5S.select_hyperslab(spaceId, H5S.seloper_t.SET, start, null, count, null);
+
+            // Define the memory dataspace.
+            T[] dset = new T[count[0]];
+            var memId = H5S.create_simple(1, count, null);
+
+            // Define memory hyperslab. 
+            status = H5S.select_hyperslab(memId, H5S.seloper_t.SET, new ulong[] { 0 }, null,
+                         count, null);
+
             GCHandle hnd = GCHandle.Alloc(dset, GCHandleType.Pinned);
             H5D.read(datasetId, datatype, memId, spaceId,
                 H5P.DEFAULT, hnd.AddrOfPinnedObject());
