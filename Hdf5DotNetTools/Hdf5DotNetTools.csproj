@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0;net6.0;net48</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net10.0;net48</TargetFrameworks>
     <AssemblyName>Hdf5DotnetTools</AssemblyName>
     <RootNamespace>Hdf5DotnetTools</RootNamespace>
     <SignAssembly>true</SignAssembly>
@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Hdf5DotNetTools</PackageId>
     <Title>Hdf5DotNetTools</Title>
-    <Version>0.2.0</Version>
+    <Version>0.4.0</Version>
     <Authors>Robert Reijntjes</Authors>
     <Company>Leiden University Medical Center (LUMC)</Company>
     <PackageDescription>Set of tools that help in reading and writing hdf5 files for .net environments</PackageDescription>

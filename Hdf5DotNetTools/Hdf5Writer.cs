@@ -11,8 +11,6 @@ namespace Hdf5DotNetTools
 #endif
     public partial class Hdf5
     {
-
-
         public static object WriteObject(hid_t groupId, object writeValue, string groupName = null)
         {
             if (writeValue == null)
